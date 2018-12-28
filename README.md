@@ -1,6 +1,8 @@
 # bar-card
 
 ![](images/default_increase.gif)
+![](images/severity.gif)
+![](images/hue.gif)
 
 ## Description
 
