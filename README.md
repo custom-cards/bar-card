@@ -18,8 +18,8 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:bar-card`
-| title | string | none | Title displayed next to the bar.
 | entity | string | **Required** | Entity State
+| title | string | none | Title displayed next to the bar.
 | animation_mode | string | auto | Sets the mode of animation (auto, charge, off).
 | hue | number | 220 | Changed the color hue of the bar (0-360).
 | saturation | string | 50% | Scales saturation of the bar.
