@@ -21,7 +21,7 @@ class BarCard extends HTMLElement {
     { 
       cardConfig.from = "left";
     }
-    if (!config.border_radius) config.border_radius = "3px";
+    if (!config.rounding) config.rounding = "3px";
     if (!config.width) config.width = "70%";
     if (!config.indicator) config.indicator = true;
     if (!config.min) config.min = 0;
@@ -74,7 +74,7 @@ class BarCard extends HTMLElement {
         --bar-fill-color: var(--label-badge-blue);
         --test-color: #000000;
         background: linear-gradient(to ${cardConfig.from}, var(--bar-fill-color) var(--bar-percent), var(--bar-charge-color) var(--bar-percent), var(--bar-charge-color) var(--bar-charge-percent), var(--bar-background-color) var(--bar-percent), var(--bar-background-color) var(--bar-percent));
-        border-radius: ${config.border_radius};
+        border-radius: ${config.rounding};
         position: relative;
       }
       #value {
@@ -209,7 +209,7 @@ class BarCard extends HTMLElement {
     const config = this._config;
     if (!config.saturation) config.saturation = "50%";
     if (!config.delay) config.delay = 5000;
-    if(!config.animation_mode)config.animation_mode = 'auto';
+    if(!config.animation)config.animation = 'auto';
     if(!config.indicator)config.indicator = true;
     const root = this.shadowRoot;
     let entityState = hass.states[config.entity].state;
@@ -231,7 +231,7 @@ class BarCard extends HTMLElement {
     const backgroundColor = 'hsla('+hue+','+config.saturation+',15%,0.5)';
     const chargeColor = 'hsla('+hue+','+config.saturation+',30%,0.5)';
 
-    if(config.animation_mode == 'auto'){
+    if(config.animation == 'auto'){
       if (entityState > this._entityState) {
         root.getElementById("indicator").style.setProperty('right', 0);
         root.getElementById("indicator").style.removeProperty('left');
@@ -262,7 +262,7 @@ class BarCard extends HTMLElement {
       }
     }
 
-    if(config.animation_mode == 'charge'){
+    if(config.animation == 'charge'){
       if(!config.charge_entity){
         throw new Error('Please define a charge entity');
       }
