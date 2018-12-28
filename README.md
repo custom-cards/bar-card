@@ -23,8 +23,8 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | animation_mode | string | auto | Sets the mode of animation `auto`, `charge`, `off`.
 | hue | number | 220 | Changed the color hue of the bar `0`-`360`.
 | saturation | string | 50% | Scales saturation of the bar.
-| scale | string | 40px | Scales the height of the bar.
-| bar_size | string | 70% | Scales the width of the bar.
+| height | string | 40px | Scales the height of the bar.
+| width | string | 70% | Scales the width of the bar.
 | min | number | 0 | The minimum entity value to be displayed.
 | max | number | 100 | The maximum entity value to be displayed.
 | speed | number | 2500 | The speed of the bar animation in milliseconds.

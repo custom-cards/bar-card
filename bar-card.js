@@ -11,7 +11,7 @@ class BarCard extends HTMLElement {
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
     const cardConfig = Object.assign({}, config);
-    if (!cardConfig.scale) cardConfig.scale = "40px";
+    if (!cardConfig.height) cardConfig.height = "40px";
     if (!cardConfig.from) cardConfig.from = "left";
     if (cardConfig.from == "left")
     {
@@ -22,11 +22,11 @@ class BarCard extends HTMLElement {
       cardConfig.from = "left";
     }
     if (!config.border_radius) config.border_radius = "3px";
-    if (!config.bar_size) config.bar_size = "70%";
+    if (!config.width) config.width = "70%";
     if (!config.indicator) config.indicator = true;
     if (!config.min) config.min = 0;
     if (!config.max) config.max = 100;
-    config.bar_size = config.bar_size.replace("%","");
+    config.width = config.width.replace("%","");
 
     // Create card elements.
     const card = document.createElement('ha-card');
@@ -47,15 +47,15 @@ class BarCard extends HTMLElement {
     style.textContent = `
       ha-card {
         text-align: center;
-        height: ${cardConfig.scale};
+        height: ${cardConfig.height};
         background-color: var(--paper-card-background-color);
-        --base-unit: ${cardConfig.scale};
+        --base-unit: ${cardConfig.height};
         padding: 5px;
         position: relative;
       }
       #indicator {
-        height: ${cardConfig.scale};  
-        line-height: ${cardConfig.scale}; 
+        height: ${cardConfig.height};  
+        line-height: ${cardConfig.height}; 
         opacity: 0.25;
         color: #000000;
         padding-right: 5px;
@@ -65,8 +65,8 @@ class BarCard extends HTMLElement {
       #bar {
         display: table-cell;
         float: right;
-        height: ${cardConfig.scale};
-        width: ${config.bar_size}%;
+        height: ${cardConfig.height};
+        width: ${config.width}%;
         --bar-direction: ${cardConfig.from};
         --bar-percent: 50%;
         --bar-charge-percent: 0%;
@@ -80,7 +80,7 @@ class BarCard extends HTMLElement {
       #value {
         float: middle
         height: 100%;
-        line-height: ${cardConfig.scale};
+        line-height: ${cardConfig.height};
         font-size: 14px;
         font-weight: bold;
         color: #FFFFFF;
@@ -88,8 +88,8 @@ class BarCard extends HTMLElement {
       }
       #title {
         display: table-cell;
-        height: ${cardConfig.scale};
-        width: ${100-config.bar_size}%;
+        height: ${cardConfig.height};
+        width: ${100-config.width}%;
         text-align: left;
         font-size: 14px;
         vertical-align: middle;
@@ -100,8 +100,8 @@ class BarCard extends HTMLElement {
       #titleBar {
         position: absolute;
         left: 0px;
-        height: ${cardConfig.scale};
-        width: ${100-config.bar_size}%;
+        height: ${cardConfig.height};
+        width: ${100-config.width}%;
       }
     `;
 
