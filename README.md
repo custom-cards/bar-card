@@ -1,7 +1,6 @@
 # bar-card
 
 ![](images/default_increase.gif)
-![](images/default_decrease.gif)
 
 ## Description
 
@@ -69,6 +68,16 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
   entity: sensor.default
   hue: 300
 ```
-### Documentation is still under development.
+## Speed & Delay
+
+![](images/speed_delay.gif)
+
+```yaml
+- type: custom:bar-card
+  title: Default
+  entity: sensor.default
+  speed: 5000
+  delay: 10000
+```
 
 Based on [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
