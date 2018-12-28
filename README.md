@@ -3,6 +3,16 @@
 ![](images/default_increase.gif)
 ![](images/default_decrease.gif)
 
+## Description
+
+Bar Card is a customizable animated card for the Home Assistant Lovelace front-end.
+
+### Features
+- Automatic animation mode. Starts animating based on value increase or decrease.
+- Charge based animation mode. Will show increase based on custom entity state.
+- Customizable animation speed and delay.
+
+
 ## Options
 
 | Name | Type | Default | Description
@@ -21,6 +31,7 @@
 | from | string | left | Direction of the bar.
 | severity | object | none | A list of severity values.
 | border_radius | string | 3px | Amount of corner rounding of the bar.
+| charge_entity | string | none | Charge enitity, **required** when using charge animation mode. States can be `on`/`off`, `true`/`false`, `charging`/`discharging`
 
 ## Default
 
@@ -41,5 +52,6 @@
   entity: sensor.default
   hue: 300
 ```
+### Documentation is still under development.
 
-Based on [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm)
+Based on [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
