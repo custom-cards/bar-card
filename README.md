@@ -42,6 +42,22 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
   title: Default
   entity: sensor.default
 ```
+## Severity
+
+![](images/severity.gif)
+
+```yaml
+- type: custom:bar-card
+  title: Severity
+  entity: sensor.default
+  severity:
+  - value: 25
+    hue: '0'
+  - value: 50
+    hue: '40'
+  - value: 100
+    hue: '120'
+```
 ## Hue
 
 ![](images/hue.gif)
