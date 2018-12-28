@@ -10,7 +10,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 ### Features
 - Automatic animation mode. Starts animating based on value increase or decrease.
 - Charge based animation mode. Will show increase based on custom entity state.
-- Customizable animation speeds and delay.
+- Customizable animation speed and delay.
 
 
 ## Options
