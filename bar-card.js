@@ -13,14 +13,8 @@ class BarCard extends HTMLElement {
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.height) cardConfig.height = "40px";
     if (!cardConfig.from) cardConfig.from = "left";
-    if (cardConfig.from == "left")
-    {
-      cardConfig.from = "right";
-    }
-    else 
-    { 
-      cardConfig.from = "left";
-    }
+    if (cardConfig.from == "left") cardConfig.from = "right";
+    else cardConfig.from = "left";
     if (!config.rounding) config.rounding = "3px";
     if (!config.width) config.width = "70%";
     if (!config.indicator) config.indicator = true;
@@ -159,7 +153,7 @@ class BarCard extends HTMLElement {
         for(; i <= totalFrames; ){    
             let brightness = this._scale(i/10, currentPercent, currentPercent+25, 50, 15);
             if(brightness <= 15) brightness = 15;
-            let keyframe = {"--bar-charge-percent": i/10+"%", "--bar-charge-color": "hsla("+hue+","+saturation+","+brightness+"%,0.5)"};
+            let keyframe = {"--bar-charge-percent": i/10+"%", "--bar-percent": currentPercent+"%", "--bar-charge-color": "hsla("+hue+","+saturation+","+brightness+"%,0.5)"};
           keyframes.push(keyframe);
           i++;
         }
@@ -212,10 +206,16 @@ class BarCard extends HTMLElement {
     if(!config.animation)config.animation = 'auto';
     if(!config.indicator)config.indicator = true;
     const root = this.shadowRoot;
-    let entityState = hass.states[config.entity].state;
-    entityState = Math.min(entityState, config.max);
-    entityState = Math.max(entityState, config.min);
-    const measurement = hass.states[config.entity].attributes.unit_of_measurement || "";
+    let entityState;
+    if(hass.states[config.entity] == undefined || hass.states[config.entity].state == "unknown") entityState = "N/A";
+    else {
+      entityState = hass.states[config.entity].state;
+      entityState = Math.min(entityState, config.max);
+      entityState = Math.max(entityState, config.min);
+    }
+    let measurement
+    if(hass.states[config.entity] == undefined || hass.states[config.entity].state == "unknown") measurement = "";
+    else measurement = hass.states[config.entity].attributes.unit_of_measurement || "";
     let hue;
     if(!config.severity) {
       hue = 220;
@@ -226,7 +226,6 @@ class BarCard extends HTMLElement {
     else{
       hue = this._computeSeverity(entityState, config.severity);
     }
-    //const gradientHue = scale((100 - this._translatePercent(entityState, config.min, config.max)), 0, 100, 0, 120);
     const color = 'hsl('+hue+','+config.saturation+',50%)';
     const backgroundColor = 'hsla('+hue+','+config.saturation+',15%,0.5)';
     const chargeColor = 'hsla('+hue+','+config.saturation+',30%,0.5)';
@@ -263,10 +262,14 @@ class BarCard extends HTMLElement {
     }
 
     if(config.animation == 'charge'){
+      let chargeEntityState;
       if(!config.charge_entity){
-        throw new Error('Please define a charge entity');
+        entityState = "define 'charge_entity'";
+        measurement = "";
+        root.getElementById("value").style.setProperty('color', '#FF0000');
+      }else{
+          chargeEntityState = hass.states[config.charge_entity].state;
       }
-      const chargeEntityState = hass.states[config.charge_entity].state;
       if (chargeEntityState == "charging" || chargeEntityState =="on" || chargeEntityState == "true") {
         root.getElementById("indicator").style.setProperty('right', 0);
         root.getElementById("indicator").textContent = '▲';
