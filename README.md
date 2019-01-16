@@ -32,7 +32,10 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
 | from | string | left | Direction of the bar. `left`,`right`
 | severity | object | none | A list of severity values.
-| rounding | string | 3px | Amount of corner rounding of the bar.
+| bar_position | string | left | Position of the title. `left`,`right`
+| bar_style | object | none | A list of CSS styles applied to the bar.
+| title_style | object | none | A list of CCS styles applied to the title.
+| indicator_style | object| none | A list of CCS styles applied to the indicator.
 | charge_entity | string | none | Charge enitity, **required** when using charge animation mode. States can be `on`/`off`, `true`/`false`, `charging`/`discharging`
 
 ## Default

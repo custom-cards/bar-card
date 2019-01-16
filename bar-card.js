@@ -7,20 +7,48 @@ class BarCard extends HTMLElement {
     if (!config.entity) {
       throw new Error('Please define an entity');
     }
-    // Card variables
+
+    // Remove shadowroot if lastChild.
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
+
+    // Card variables
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.height) cardConfig.height = "40px";
     if (!cardConfig.from) cardConfig.from = "left";
+    if (!cardConfig.rounding) cardConfig.rounding = "3px";
+    if (!cardConfig.width) cardConfig.width = "70%";
+    if (!cardConfig.indicator) cardConfig.indicator = true;
+    if (!cardConfig.min) cardConfig.min = 0;
+    if (!cardConfig.max) cardConfig.max = 100;
+    if (!cardConfig.title_position) cardConfig.title_position = "left";
+
+    if(cardConfig.bar_style){
+      var barStyle = this._customStyle(cardConfig.bar_style)
+    }
+    if(cardConfig.title_style){
+      var titleStyle = this._customStyle(cardConfig.title_style)
+    }
+    if(cardConfig.indicator_style){
+      var indicatorStyle = this._customStyle(cardConfig.indicator_style)
+    }
+    let titlePosition;
+    let barPosition;
+    switch(cardConfig.title_position){
+      case "left":
+        titlePosition = "left: 0px;";
+        barPosition = "right: 0px;";
+        break;
+      case "right":
+        titlePosition = "right: 0px;";
+        barPosition = "left: 0px;";
+        break;
+    }
+
+    // Config adjustments.
+    cardConfig.width = cardConfig.width.replace("%","");
     if (cardConfig.from == "left") cardConfig.from = "right";
     else cardConfig.from = "left";
-    if (!config.rounding) config.rounding = "3px";
-    if (!config.width) config.width = "70%";
-    if (!config.indicator) config.indicator = true;
-    if (!config.min) config.min = 0;
-    if (!config.max) config.max = 100;
-    config.width = config.width.replace("%","");
 
     // Create card elements.
     const card = document.createElement('ha-card');
@@ -28,8 +56,8 @@ class BarCard extends HTMLElement {
     background.id = "background";
     const bar = document.createElement('div');
     bar.id = "bar";
-    const content = document.createElement('div');
-    content.id = "value";
+    const value = document.createElement('div');
+    value.id = "value";
     const indicator = document.createElement('div');
     indicator.id = "indicator";
     const title = document.createElement('div');
@@ -44,7 +72,8 @@ class BarCard extends HTMLElement {
         height: ${cardConfig.height};
         background-color: var(--paper-card-background-color);
         --base-unit: ${cardConfig.height};
-        padding: 5px;
+        padding: 2px;
+        padding-right: 4px;
         position: relative;
       }
       #indicator {
@@ -55,53 +84,56 @@ class BarCard extends HTMLElement {
         padding-right: 5px;
         padding-left: 5px;
         position: absolute;
+        `+indicatorStyle+`
       }
       #bar {
+        position: absolute;
+        `+barPosition+`
         display: table-cell;
-        float: right;
         height: ${cardConfig.height};
-        width: ${config.width}%;
+        width: ${cardConfig.width}%;
         --bar-direction: ${cardConfig.from};
         --bar-percent: 50%;
         --bar-charge-percent: 0%;
         --bar-charge-color: #000000;
         --bar-fill-color: var(--label-badge-blue);
-        --test-color: #000000;
         background: linear-gradient(to ${cardConfig.from}, var(--bar-fill-color) var(--bar-percent), var(--bar-charge-color) var(--bar-percent), var(--bar-charge-color) var(--bar-charge-percent), var(--bar-background-color) var(--bar-percent), var(--bar-background-color) var(--bar-percent));
-        border-radius: ${config.rounding};
-        position: relative;
+        border-radius: ${cardConfig.rounding};
+        `+barStyle+`
       }
       #value {
-        float: middle
         height: 100%;
         line-height: ${cardConfig.height};
         font-size: 14px;
         font-weight: bold;
         color: #FFFFFF;
         text-shadow: 1px 1px #000000;
+        `+barStyle+`
       }
       #title {
         display: table-cell;
         height: ${cardConfig.height};
-        width: ${100-config.width}%;
+        width: ${100-cardConfig.width}%;
         text-align: left;
         font-size: 14px;
         vertical-align: middle;
         color: var(--primary-text-color);
         padding-left: 10px;
         padding-right: 10px;
+        `+titleStyle+`
       }
       #titleBar {
         position: absolute;
-        left: 0px;
+        `+titlePosition+`
         height: ${cardConfig.height};
-        width: ${100-config.width}%;
+        width: ${100-cardConfig.width}%;
+        `+titleStyle+`
       }
     `;
 
     // Build card.
     bar.appendChild(indicator);   
-    bar.appendChild(content);
+    bar.appendChild(value);
     titleBar.appendChild(title);
     card.appendChild(titleBar);
     card.appendChild(bar);
@@ -111,6 +143,15 @@ class BarCard extends HTMLElement {
     });
     root.appendChild(card);
     this._config = cardConfig;
+  }
+
+  _customStyle(style){
+    let styleString = "";
+
+    Object.keys(style).forEach(section => {
+        styleString = styleString + section + ":" + style[section] + "; ";
+    });
+    return styleString;
   }
 
   // Translates entity percentage to bar percentage.
@@ -127,11 +168,12 @@ class BarCard extends HTMLElement {
   _animation(entityState, configDirection, configDuration, hue, saturation, configStop) {
     const config = this._config;
     const root = this.shadowRoot;
+    const element = root.getElementById("bar");
     if (!config.speed) config.speed = 1000;
+
     let currentPercent = this._translatePercent(entityState, config.min, config.max);
     let totalFrames = ((currentPercent)*10)+(config.delay/(config.speed/250));
     let scaledPercent = (currentPercent)*10;
-    const element = root.getElementById("bar");
 
     if(configStop == true){
       configDuration = 0;
@@ -205,7 +247,10 @@ class BarCard extends HTMLElement {
     if (!config.delay) config.delay = 5000;
     if(!config.animation)config.animation = 'auto';
     if(!config.indicator)config.indicator = true;
+
     const root = this.shadowRoot;
+
+    // 
     let entityState;
     if(hass.states[config.entity] == undefined || hass.states[config.entity].state == "unknown") entityState = "N/A";
     else {
@@ -226,10 +271,13 @@ class BarCard extends HTMLElement {
     else{
       hue = this._computeSeverity(entityState, config.severity);
     }
+
+    // Set style variables
     const color = 'hsl('+hue+','+config.saturation+',50%)';
     const backgroundColor = 'hsla('+hue+','+config.saturation+',15%,0.5)';
     const chargeColor = 'hsla('+hue+','+config.saturation+',30%,0.5)';
 
+    // Select 'auto' animation.
     if(config.animation == 'auto'){
       if (entityState > this._entityState) {
         root.getElementById("indicator").style.setProperty('right', 0);
@@ -260,7 +308,8 @@ class BarCard extends HTMLElement {
         }
       }
     }
-
+    
+    // Select 'charge' animation.
     if(config.animation == 'charge'){
       let chargeEntityState;
       if(!config.charge_entity){
@@ -276,9 +325,9 @@ class BarCard extends HTMLElement {
         this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
       }
       if (chargeEntityState == "discharging" || chargeEntityState =="off" || chargeEntityState == "false") {
-        root.getElementById("indicator").style.setProperty('right', 0);
-        root.getElementById("indicator").textContent = '';
-        this._animation(entityState, 'normal', config.delay, hue, config.saturation, true);
+        root.getElementById("indicator").style.setProperty('left', 0);
+        root.getElementById("indicator").textContent = '▼';
+        this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
       }
     }
 
