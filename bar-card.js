@@ -50,6 +50,11 @@ class BarCard extends HTMLElement {
     if (cardConfig.from == "left") cardConfig.from = "right";
     else cardConfig.from = "left";
 
+    let insideTitleBarPosition = "";
+    if(cardConfig.title_position != "inside"){
+      insideTitleBarPosition = "position: absolute";
+    }
+
     // Create card elements.
     const card = document.createElement('ha-card');
     const background = document.createElement('div');
@@ -73,7 +78,6 @@ class BarCard extends HTMLElement {
         background-color: var(--paper-card-background-color);
         --base-unit: ${cardConfig.height};
         padding: 2px;
-        padding-right: 4px;
         position: relative;
       }
       #indicator {
@@ -87,9 +91,11 @@ class BarCard extends HTMLElement {
         `+indicatorStyle+`
       }
       #bar {
-        position: absolute;
-        `+barPosition+`
         display: table-cell;
+        ${insideTitleBarPosition};
+        margin-right: 4px;
+        margin-left: 2px;
+        `+barPosition+`
         height: ${cardConfig.height};
         width: ${cardConfig.width}%;
         --bar-direction: ${cardConfig.from};
@@ -102,11 +108,13 @@ class BarCard extends HTMLElement {
         `+barStyle+`
       }
       #value {
-        height: 100%;
-        line-height: ${cardConfig.height};
-        font-size: 14px;
+        white-space: pre;
+        display: table-cell;
+        height: ${cardConfig.height};
+        width: 1000px;
+        vertical-align: middle;
         font-weight: bold;
-        color: #FFFFFF;
+        color: #FFF;
         text-shadow: 1px 1px #000000;
         `+barStyle+`
       }
@@ -114,12 +122,12 @@ class BarCard extends HTMLElement {
         display: table-cell;
         height: ${cardConfig.height};
         width: ${100-cardConfig.width}%;
-        text-align: left;
         font-size: 14px;
         vertical-align: middle;
         color: var(--primary-text-color);
         padding-left: 10px;
         padding-right: 10px;
+        text-align: left;
         `+titleStyle+`
       }
       #titleBar {
@@ -134,8 +142,10 @@ class BarCard extends HTMLElement {
     // Build card.
     bar.appendChild(indicator);   
     bar.appendChild(value);
-    titleBar.appendChild(title);
-    card.appendChild(titleBar);
+    if(cardConfig.title_position != "inside"){
+      titleBar.appendChild(title);
+      card.appendChild(titleBar);      
+    }
     card.appendChild(bar);
     card.appendChild(style);
     card.addEventListener('click', event => {
@@ -271,7 +281,6 @@ class BarCard extends HTMLElement {
     else{
       hue = this._computeSeverity(entityState, config.severity);
     }
-
     // Set style variables
     const color = 'hsl('+hue+','+config.saturation+',50%)';
     const backgroundColor = 'hsla('+hue+','+config.saturation+',15%,0.5)';
@@ -339,7 +348,12 @@ class BarCard extends HTMLElement {
       root.getElementById("bar").style.setProperty('--bar-fill-color', color);
       root.getElementById("bar").style.setProperty('--bar-background-color', backgroundColor);
       root.getElementById("bar").style.setProperty('--bar-charge-color', chargeColor);
-      root.getElementById("value").textContent = `${entityState} ${measurement}`;
+      if(config.title_position == "inside"){
+        root.getElementById("value").textContent = `${config.title} \r\n${entityState} ${measurement}`;
+      }
+      else{
+        root.getElementById("value").textContent = `${entityState} ${measurement}`;
+      }
     }
     root.lastChild.hass = hass;
     this._entityState = entityState;
