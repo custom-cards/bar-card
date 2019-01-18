@@ -329,11 +329,13 @@ class BarCard extends HTMLElement {
           chargeEntityState = hass.states[config.charge_entity].state;
       }
       if (chargeEntityState == "charging" || chargeEntityState =="on" || chargeEntityState == "true") {
+        root.getElementById("indicator").style.removeProperty('left');
         root.getElementById("indicator").style.setProperty('right', 0);
         root.getElementById("indicator").textContent = '▲';
         this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
       }
       if (chargeEntityState == "discharging" || chargeEntityState =="off" || chargeEntityState == "false") {
+        root.getElementById("indicator").style.removeProperty('right');
         root.getElementById("indicator").style.setProperty('left', 0);
         root.getElementById("indicator").textContent = '▼';
         this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
