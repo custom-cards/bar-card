@@ -21,6 +21,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
 | title | string | none | Title displayed next to the bar.
+| title_position | string | left | Position of the title. `left`,`right`, `inside`
 | animation | string | auto | Sets the mode of animation `auto`, `charge`, `off`.
 | hue | number | 220 | Changed the color hue of the bar `0`-`360`.
 | saturation | string | 50% | Scales saturation of the bar.
@@ -32,7 +33,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
 | from | string | left | Direction of the bar. `left`,`right`
 | severity | object | none | A list of severity values.
-| title_position | string | left | Position of the title. `left`,`right`, `inside`
+| card_style | object | none | A list of CSS styles applied to the card background.
 | bar_style | object | none | A list of CSS styles applied to the bar.
 | title_style | object | none | A list of CCS styles applied to the title.
 | indicator_style | object| none | A list of CCS styles applied to the indicator.
@@ -84,5 +85,5 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
   speed: 5000
   delay: 10000
 ```
-
+## Credits
 Based on [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).

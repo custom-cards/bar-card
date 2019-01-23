@@ -13,28 +13,31 @@ class BarCard extends HTMLElement {
     if (root.lastChild) root.removeChild(root.lastChild);
 
     // Card variables
-    const cardConfig = Object.assign({}, config);
-    if (!cardConfig.height) cardConfig.height = "40px";
-    if (!cardConfig.from) cardConfig.from = "left";
-    if (!cardConfig.rounding) cardConfig.rounding = "3px";
-    if (!cardConfig.width) cardConfig.width = "70%";
-    if (!cardConfig.indicator) cardConfig.indicator = true;
-    if (!cardConfig.min) cardConfig.min = 0;
-    if (!cardConfig.max) cardConfig.max = 100;
-    if (!cardConfig.title_position) cardConfig.title_position = "left";
+    //const config = Object.assign({}, config);
+    if (!config.height) config.height = "40px";
+    if (!config.from) config.from = "left";
+    if (!config.rounding) config.rounding = "3px";
+    if (!config.width) config.width = "70%";
+    if (!config.indicator) config.indicator = true;
+    if (!config.min) config.min = 0;
+    if (!config.max) config.max = 100;
+    if (!config.title_position) config.title_position = "left";
 
-    if(cardConfig.bar_style){
-      var barStyle = this._customStyle(cardConfig.bar_style)
+    if(config.bar_style){
+      var barStyle = this._customStyle(config.bar_style)
     }
-    if(cardConfig.title_style){
-      var titleStyle = this._customStyle(cardConfig.title_style)
+    if(config.title_style){
+      var titleStyle = this._customStyle(config.title_style)
     }
-    if(cardConfig.indicator_style){
-      var indicatorStyle = this._customStyle(cardConfig.indicator_style)
+    if(config.indicator_style){
+      var indicatorStyle = this._customStyle(config.indicator_style)
+    }
+    if(config.card_style){
+      var cardStyle = this._customStyle(config.card_style)
     }
     let titlePosition;
     let barPosition;
-    switch(cardConfig.title_position){
+    switch(config.title_position){
       case "left":
         titlePosition = "left: 0px;";
         barPosition = "right: 0px;";
@@ -46,12 +49,11 @@ class BarCard extends HTMLElement {
     }
 
     // Config adjustments.
-    cardConfig.width = cardConfig.width.replace("%","");
-    if (cardConfig.from == "left") cardConfig.from = "right";
-    else cardConfig.from = "left";
+    if (config.from == "left") config.from = "right";
+    else config.from = "left";
 
     let insideTitleBarPosition = "";
-    if(cardConfig.title_position != "inside"){
+    if(config.title_position != "inside"){
       insideTitleBarPosition = "position: absolute";
     }
 
@@ -69,20 +71,22 @@ class BarCard extends HTMLElement {
     title.id = "title";
     const titleBar = document.createElement('div');
     titleBar.id = "titleBar";
-    title.textContent = cardConfig.title;
+    title.textContent = config.title;
     const style = document.createElement('style');
+    console.log(config.width);
     style.textContent = `
       ha-card {
-        text-align: center;
-        height: ${cardConfig.height};
         background-color: var(--paper-card-background-color);
-        --base-unit: ${cardConfig.height};
-        padding: 2px;
+        padding: 4px;
+        `+cardStyle+`
+      }
+      #background {
         position: relative;
+        height: ${config.height};
       }
       #indicator {
-        height: ${cardConfig.height};  
-        line-height: ${cardConfig.height}; 
+        height: ${config.height};  
+        line-height: ${config.height}; 
         opacity: 0.25;
         color: #000000;
         padding-right: 5px;
@@ -91,26 +95,29 @@ class BarCard extends HTMLElement {
         `+indicatorStyle+`
       }
       #bar {
-        display: table-cell;
+        position: absolute;
+        height: ${config.height};
+        color: #FFF;
+        text-align: center;
+        font-weight: bold;
+        text-shadow: 1px 1px #000;
+        border-radius: 3px;
+        width: ${config.width};
         ${insideTitleBarPosition};
-        margin-right: 4px;
-        margin-left: 2px;
         `+barPosition+`
-        height: ${cardConfig.height};
-        width: ${cardConfig.width}%;
-        --bar-direction: ${cardConfig.from};
+        --bar-direction: ${config.from};
         --bar-percent: 50%;
         --bar-charge-percent: 0%;
         --bar-charge-color: #000000;
         --bar-fill-color: var(--label-badge-blue);
-        background: linear-gradient(to ${cardConfig.from}, var(--bar-fill-color) var(--bar-percent), var(--bar-charge-color) var(--bar-percent), var(--bar-charge-color) var(--bar-charge-percent), var(--bar-background-color) var(--bar-percent), var(--bar-background-color) var(--bar-percent));
-        border-radius: ${cardConfig.rounding};
+        background: linear-gradient(to ${config.from}, var(--bar-fill-color) var(--bar-percent), var(--bar-charge-color) var(--bar-percent), var(--bar-charge-color) var(--bar-charge-percent), var(--bar-background-color) var(--bar-percent), var(--bar-background-color) var(--bar-percent));
+        border-radius: ${config.rounding};
         `+barStyle+`
       }
       #value {
         white-space: pre;
         display: table-cell;
-        height: ${cardConfig.height};
+        height: ${config.height};
         width: 1000px;
         vertical-align: middle;
         font-weight: bold;
@@ -120,8 +127,8 @@ class BarCard extends HTMLElement {
       }
       #title {
         display: table-cell;
-        height: ${cardConfig.height};
-        width: ${100-cardConfig.width}%;
+        height: ${config.height};
+        width: calc(100% - ${config.width});
         font-size: 14px;
         vertical-align: middle;
         color: var(--primary-text-color);
@@ -133,8 +140,8 @@ class BarCard extends HTMLElement {
       #titleBar {
         position: absolute;
         `+titlePosition+`
-        height: ${cardConfig.height};
-        width: ${100-cardConfig.width}%;
+        height: ${config.height};
+        width: calc(100% - ${config.width});
         `+titleStyle+`
       }
     `;
@@ -142,17 +149,18 @@ class BarCard extends HTMLElement {
     // Build card.
     bar.appendChild(indicator);   
     bar.appendChild(value);
-    if(cardConfig.title_position != "inside"){
+    if(config.title_position != "inside"){
       titleBar.appendChild(title);
-      card.appendChild(titleBar);      
+      background.appendChild(titleBar);      
     }
-    card.appendChild(bar);
+    background.appendChild(bar);
+    card.appendChild(background);
     card.appendChild(style);
     card.addEventListener('click', event => {
-      this._fire('hass-more-info', { entityId: cardConfig.entity });
+      this._fire('hass-more-info', { entityId: config.entity });
     });
     root.appendChild(card);
-    this._config = cardConfig;
+    this._config = config;
   }
 
   _customStyle(style){
@@ -220,7 +228,7 @@ class BarCard extends HTMLElement {
         i++;
         }
       }
-      element.animate(keyframes, options);
+      return element.animate(keyframes, options);
   }
 
   // Attributes action
@@ -292,13 +300,17 @@ class BarCard extends HTMLElement {
         root.getElementById("indicator").style.setProperty('right', 0);
         root.getElementById("indicator").style.removeProperty('left');
         root.getElementById("indicator").textContent = '▲';
-        this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
+        if(!this._currentAnimation || entityState > this._entityState){
+          this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
+        }
       }
       if (entityState < this._entityState) {
         root.getElementById("indicator").style.setProperty('left', 0);
         root.getElementById("indicator").style.removeProperty('right');
         root.getElementById("indicator").textContent = '▼';
-        this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
+        if(!this._currentAnimation || entityState < this._entityState){
+          this._currentAnimation = this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
+        }
       }
       if (entityState == config.max || entityState == config.min) {
         root.getElementById("indicator").style.removeProperty('right');
@@ -308,12 +320,16 @@ class BarCard extends HTMLElement {
           root.getElementById("bar").style.setProperty('--bar-percent', '100%');
           root.getElementById("bar").style.setProperty('--bar-fill-color', color);
           root.getElementById("bar").style.setProperty('--bar-charge-percent', '100%');
-          this._animation(entityState, 'normal', config.delay, hue, config.saturation, true);
+          if(!this._currentAnimation){
+            this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, true);
+          }
         }
         if(entityState == config.min){
           root.getElementById("bar").style.setProperty('--bar-percent', '0%');
           root.getElementById("bar").style.setProperty('--bar-charge-percent', '0%');
-          this._animation(entityState, 'normal', config.delay, hue, config.saturation, true);
+          if(!this._currentAnimation){
+            this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, true);
+          }
         }
       }
     }
@@ -332,13 +348,19 @@ class BarCard extends HTMLElement {
         root.getElementById("indicator").style.removeProperty('left');
         root.getElementById("indicator").style.setProperty('right', 0);
         root.getElementById("indicator").textContent = '▲';
-        this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
+        if(!this._currentAnimation || chargeEntityState != this._currentChargeState){
+          this._currentChargeState = chargeEntityState;
+          this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
+        }
       }
       if (chargeEntityState == "discharging" || chargeEntityState =="off" || chargeEntityState == "false") {
         root.getElementById("indicator").style.removeProperty('right');
         root.getElementById("indicator").style.setProperty('left', 0);
         root.getElementById("indicator").textContent = '▼';
-        this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
+        if(!this._currentAnimation || chargeEntityState != this._currentChargeState){
+          this._currentChargeState = chargeEntityState;
+          this._currentAnimation = this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
+        }
       }
     }
 
