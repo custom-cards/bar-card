@@ -87,3 +87,6 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 ```
 ## Credits
 Based on [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
+
+## Links
+[Home Assistant Community Topic](https://community.home-assistant.io/t/lovelace-bar-card/87503)
