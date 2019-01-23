@@ -50,11 +50,11 @@ class BarCard extends HTMLElement {
 
     // Config adjustments.
     if (config.from == "left") config.from = "right";
-    else config.from = "left";
+    else config.from = "right";
 
-    let insideTitleBarPosition = "";
-    if(config.title_position != "inside"){
-      insideTitleBarPosition = "position: absolute";
+    if(config.title_position == "inside"){
+      config.width = "100%";
+
     }
 
     // Create card elements.
@@ -103,7 +103,6 @@ class BarCard extends HTMLElement {
         text-shadow: 1px 1px #000;
         border-radius: 3px;
         width: ${config.width};
-        ${insideTitleBarPosition};
         `+barPosition+`
         --bar-direction: ${config.from};
         --bar-percent: 50%;
