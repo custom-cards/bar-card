@@ -347,7 +347,7 @@ class BarCard extends HTMLElement {
         root.getElementById("indicator").style.removeProperty('left');
         root.getElementById("indicator").style.setProperty('right', 0);
         root.getElementById("indicator").textContent = '▲';
-        if(!this._currentAnimation || chargeEntityState != this._currentChargeState){
+        if(!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState > this._entityState){
           this._currentChargeState = chargeEntityState;
           this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
         }
@@ -356,7 +356,7 @@ class BarCard extends HTMLElement {
         root.getElementById("indicator").style.removeProperty('right');
         root.getElementById("indicator").style.setProperty('left', 0);
         root.getElementById("indicator").textContent = '▼';
-        if(!this._currentAnimation || chargeEntityState != this._currentChargeState){
+        if(!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState < this._entityState){
           this._currentChargeState = chargeEntityState;
           this._currentAnimation = this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
         }
