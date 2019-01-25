@@ -18,10 +18,10 @@ class BarCard extends HTMLElement {
     if (!config.from) config.from = "left";
     if (!config.rounding) config.rounding = "3px";
     if (!config.width) config.width = "70%";
-    if (!config.indicator) config.indicator = true;
     if (!config.min) config.min = 0;
     if (!config.max) config.max = 100;
     if (!config.title_position) config.title_position = "left";
+    if (!config.indicator) config.indicator = "auto";
 
     if(config.bar_style){
       var barStyle = this._customStyle(config.bar_style)
@@ -73,7 +73,6 @@ class BarCard extends HTMLElement {
     titleBar.id = "titleBar";
     title.textContent = config.title;
     const style = document.createElement('style');
-    console.log(config.width);
     style.textContent = `
       ha-card {
         background-color: var(--paper-card-background-color);
@@ -92,6 +91,7 @@ class BarCard extends HTMLElement {
         padding-right: 5px;
         padding-left: 5px;
         position: absolute;
+        text-shadow: 0px 0px;
         `+indicatorStyle+`
       }
       #bar {
@@ -146,7 +146,9 @@ class BarCard extends HTMLElement {
     `;
 
     // Build card.
-    bar.appendChild(indicator);   
+    if(config.indicator != "off"){
+      bar.appendChild(indicator); 
+    } 
     bar.appendChild(value);
     if(config.title_position != "inside"){
       titleBar.appendChild(title);
@@ -296,25 +298,49 @@ class BarCard extends HTMLElement {
     // Select 'auto' animation.
     if(config.animation == 'auto'){
       if (entityState > this._entityState) {
-        root.getElementById("indicator").style.setProperty('right', 0);
-        root.getElementById("indicator").style.removeProperty('left');
-        root.getElementById("indicator").textContent = '▲';
+        switch(config.indicator){
+          case "auto":
+          case "right":
+            root.getElementById("indicator").style.setProperty('right', 0);
+            root.getElementById("indicator").style.removeProperty('left');
+            break;
+          case "left":
+            root.getElementById("indicator").style.setProperty('left', 0);
+            root.getElementById("indicator").style.removeProperty('right');
+            break;
+        }
+        if(config.indicator != "off"){
+          root.getElementById("indicator").textContent = '▲';
+        }
         if(!this._currentAnimation || entityState > this._entityState){
           this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
         }
       }
       if (entityState < this._entityState) {
-        root.getElementById("indicator").style.setProperty('left', 0);
-        root.getElementById("indicator").style.removeProperty('right');
+        switch(config.indicator){
+          case "right":
+            root.getElementById("indicator").style.setProperty('right', 0);
+            root.getElementById("indicator").style.removeProperty('left');
+            break;
+          case "auto":
+          case "left":
+            root.getElementById("indicator").style.setProperty('left', 0);
+            root.getElementById("indicator").style.removeProperty('right');
+            break;
+        }
+        if(config.indicator != "off"){
         root.getElementById("indicator").textContent = '▼';
+        }
         if(!this._currentAnimation || entityState < this._entityState){
           this._currentAnimation = this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
         }
       }
       if (entityState == config.max || entityState == config.min) {
-        root.getElementById("indicator").style.removeProperty('right');
-        root.getElementById("indicator").style.removeProperty('left');
-        root.getElementById("indicator").textContent = '';
+        if(config.indicator != "off"){
+          root.getElementById("indicator").style.removeProperty('right');
+          root.getElementById("indicator").style.removeProperty('left');
+          root.getElementById("indicator").textContent = '';
+        }
         if(entityState == config.max){
           root.getElementById("bar").style.setProperty('--bar-percent', '100%');
           root.getElementById("bar").style.setProperty('--bar-fill-color', color);
@@ -344,18 +370,40 @@ class BarCard extends HTMLElement {
           chargeEntityState = hass.states[config.charge_entity].state;
       }
       if (chargeEntityState == "charging" || chargeEntityState =="on" || chargeEntityState == "true") {
-        root.getElementById("indicator").style.removeProperty('left');
-        root.getElementById("indicator").style.setProperty('right', 0);
+        switch(config.indicator){
+          case "auto":
+          case "right":
+            root.getElementById("indicator").style.setProperty('right', 0);
+            root.getElementById("indicator").style.removeProperty('left');
+            break;
+          case "left":
+            root.getElementById("indicator").style.setProperty('left', 0);
+            root.getElementById("indicator").style.removeProperty('right');
+            break;
+        }
+        if(config.indicator != "off"){
         root.getElementById("indicator").textContent = '▲';
+        }
         if(!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState > this._entityState){
           this._currentChargeState = chargeEntityState;
           this._currentAnimation = this._animation(entityState, 'normal', config.delay, hue, config.saturation, false);
         }
       }
       if (chargeEntityState == "discharging" || chargeEntityState =="off" || chargeEntityState == "false") {
-        root.getElementById("indicator").style.removeProperty('right');
-        root.getElementById("indicator").style.setProperty('left', 0);
+        switch(config.indicator){
+          case "right":
+            root.getElementById("indicator").style.setProperty('right', 0);
+            root.getElementById("indicator").style.removeProperty('left');
+            break;
+          case "auto":
+          case "left":
+            root.getElementById("indicator").style.setProperty('left', 0);
+            root.getElementById("indicator").style.removeProperty('right');
+            break;
+        }
+        if(config.indicator != "off"){
         root.getElementById("indicator").textContent = '▼';
+        }
         if(!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState < this._entityState){
           this._currentChargeState = chargeEntityState;
           this._currentAnimation = this._animation(entityState, 'reverse', config.delay, hue, config.saturation, false);
