@@ -23,6 +23,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | title | string | none | Title displayed next to the bar.
 | title_position | string | left | Position of the title. `left`,`right`, `inside`
 | animation | string | auto | Sets the mode of animation `auto`, `charge`, `off`.
+| indicator | string | auto | Sets position off the indicator `auto`,`left`,`right`,`off`
 | hue | number | 220 | Changed the color hue of the bar `0`-`360`.
 | saturation | string | 50% | Scales saturation of the bar.
 | height | string | 40px | Scales the height of the bar.
