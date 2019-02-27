@@ -367,7 +367,7 @@ class BarCard extends HTMLElement {
         measurement = "";
         root.getElementById("value").style.setProperty('color', '#FF0000');
       }else{
-          chargeEntityState = hass.states[config.charge_entity].state;
+          chargeEntityState = config.charge_entity;
       }
       if (chargeEntityState == "charging" || chargeEntityState =="on" || chargeEntityState == "true") {
         switch(config.indicator){
