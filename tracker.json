@@ -1,0 +1,9 @@
+{
+    "bar-card": {
+      "updated_at": "2019-01-25",
+      "version": "0.0.5",
+      "remote_location": "https://github.com/Gluwc/bar-card/releases/download/0.0.5/bar-card.js",
+      "visit_repo": "https://github.com/Gluwc/bar-card",
+      "changelog": "https://github.com/Gluwc/bar-card/releases/latest"
+    }
+}
