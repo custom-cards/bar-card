@@ -1,9 +1,9 @@
 {
     "bar-card": {
       "updated_at": "2019-02-26",
-      "version": "0.0.6",
-      "remote_location": "https://github.com/BenchPressesBooks/bar-card/releases/download/0.0.6/bar-card.js",
-      "visit_repo": "https://github.com/BenchPressesBooks/bar-card",
-      "changelog": "https://github.com/BenchPressesBooks/bar-card/releases/latest"
+      "version": "0.0.5",
+      "remote_location": "https://github.com/Gluwc/bar-card/releases/download/0.0.5/bar-card.js",
+      "visit_repo": "https://github.com/Gluwc/bar-card",
+      "changelog": "https://github.com/Gluwc/bar-card/releases/latest"
     }
 }
