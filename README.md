@@ -36,8 +36,8 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | severity | object | none | A list of severity values.
 | card_style | object | none | A list of CSS styles applied to the card background.
 | bar_style | object | none | A list of CSS styles applied to the bar.
-| title_style | object | none | A list of CCS styles applied to the title.
-| indicator_style | object| none | A list of CCS styles applied to the indicator.
+| title_style | object | none | A list of CSS styles applied to the title.
+| indicator_style | object| none | A list of CSS styles applied to the indicator.
 | charge_entity | string | none | Charge enitity, **required** when using charge animation mode. States can be `on`/`off`, `true`/`false`, `charging`/`discharging`
 
 ## Default
