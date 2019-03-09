@@ -30,6 +30,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | width | string | 70% | Scales the width of the bar.
 | min | number | 0 | The minimum entity value to be displayed.
 | max | number | 100 | The maximum entity value to be displayed.
+| target | number | none | Sets a target marker. Must be a value between min and max value.
 | speed | number | 2500 | The speed of the bar animation in milliseconds.
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
 | from | string | left | Direction of the bar. `left`,`right`
