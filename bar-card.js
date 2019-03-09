@@ -12,7 +12,7 @@ class BarCard extends HTMLElement {
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
 
-    // Card variables
+    // Default Card variables
     if (!config.height) config.height = "40px";
     if (!config.from) config.from = "left";
     if (!config.rounding) config.rounding = "3px";
@@ -21,6 +21,7 @@ class BarCard extends HTMLElement {
     if (!config.max) config.max = 100;
     if (!config.title_position) config.title_position = "left";
     if (!config.indicator) config.indicator = "auto";
+    //config.target = 3;
 
     // Create CSS style variables
     if(config.bar_style) var barStyle = this._customStyle(config.bar_style);
@@ -60,6 +61,10 @@ class BarCard extends HTMLElement {
     indicator.id = "indicator";
     const indicatorColor = document.createElement('div');
     indicatorColor.id = "indicatorColor";
+    const targetBar = document.createElement('div');
+    targetBar.id = "targetBar";
+    const targetBarColor = document.createElement('div');
+    targetBarColor.id = "targetBarColor";
     const title = document.createElement('div');
     title.id = "title";
     const titleBar = document.createElement('div');
@@ -107,13 +112,30 @@ class BarCard extends HTMLElement {
         --bar-direction: ${config.from};
         --bar-percent: 50%;
         --bar-charge-percent: 0%;
-        --bar-charge-color: #000000;
+        --bar-charge-color: #000;
         --bar-fill-color: var(--label-badge-blue);
         background: linear-gradient(to ${config.from}, var(--bar-fill-color) var(--bar-percent), var(--bar-charge-color) var(--bar-percent), var(--bar-charge-color) var(--bar-charge-percent), var(--bar-background-color) var(--bar-percent), var(--bar-background-color) var(--bar-percent));
         border-radius: ${config.rounding};
         `+barStyle+`
       }
+      #targetBar, #targetBarColor {
+        position: absolute;
+        --targetBar-left-percent: 25%;
+        --targetBar-right-percent: 50%;
+        opacity: 0.33;
+        mix-blend-mode: difference;
+        background: #7F7F7F;
+        left: var(--targetBar-left-percent);
+        width: var(--targetBar-right-percent);
+        height: ${config.height};
+      }
+      #targetBarColor {
+        background: var(--bar-fill-color);
+        mix-blend-mode: color;
+        opacity: 1;
+      }
       #value {
+        position: relative;
         white-space: pre;
         display: table-cell;
         height: ${config.height};
@@ -123,6 +145,7 @@ class BarCard extends HTMLElement {
         color: #FFF;
         text-shadow: 1px 1px #000;
         `+barStyle+`
+        z-index: 1;
       }
       #title {
         display: table-cell;
@@ -150,6 +173,10 @@ class BarCard extends HTMLElement {
       bar.appendChild(indicator); 
       bar.appendChild(indicatorColor);
     } 
+    if(config.target){
+      bar.appendChild(targetBar);
+      bar.appendChild(targetBarColor);
+    }
     bar.appendChild(value);
     if(config.title_position != "inside"){
       titleBar.appendChild(title);
@@ -306,6 +333,45 @@ class BarCard extends HTMLElement {
       }
     }
   }
+
+  // Scale the target bar size
+  _targetBarScale(entityState){
+    const config = this._config;
+    const root = this.shadowRoot;
+    let currentPercent = this._translatePercent(entityState, config.min, config.max);
+    let targetPercent = this._translatePercent(config.target, config.min, config.max)
+
+    let initialPercent;
+    let diffPercent;
+    if(currentPercent > targetPercent){
+      initialPercent = targetPercent;
+      diffPercent = currentPercent-targetPercent;
+      root.getElementById("targetBar").style.removeProperty('border-right');
+      root.getElementById("targetBarColor").style.removeProperty('border-right');
+      root.getElementById("targetBar").style.removeProperty('margin-right');
+      root.getElementById("targetBarColor").style.removeProperty('margin-right');
+      root.getElementById("targetBar").style.setProperty('border-left', '2px dashed #FFF');
+      root.getElementById("targetBarColor").style.setProperty('border-left', '2px dashed var(--bar-fill-color)');
+      root.getElementById("targetBar").style.setProperty('margin-left', '-2px');
+      root.getElementById("targetBarColor").style.setProperty('margin-left', '-2px');
+    }
+    else{
+      initialPercent = currentPercent;
+      diffPercent = targetPercent-currentPercent;
+      root.getElementById("targetBar").style.removeProperty('border-left');
+      root.getElementById("targetBarColor").style.removeProperty('border-left');
+      root.getElementById("targetBar").style.removeProperty('margin-left');
+      root.getElementById("targetBarColor").style.removeProperty('margin-left');
+      root.getElementById("targetBar").style.setProperty('border-right', '2px dashed #FFF');
+      root.getElementById("targetBarColor").style.setProperty('border-right', '2px dashed var(--bar-fill-color)');
+      root.getElementById("targetBar").style.setProperty('margin-right', '-2px');
+      root.getElementById("targetBarColor").style.setProperty('margin-right', '-2px');
+    }
+    root.getElementById("targetBar").style.setProperty('--targetBar-left-percent', initialPercent+'%');
+    root.getElementById("targetBar").style.setProperty('--targetBar-right-percent', diffPercent+'%');
+    root.getElementById("targetBarColor").style.setProperty('--targetBar-left-percent', initialPercent+'%');
+    root.getElementById("targetBarColor").style.setProperty('--targetBar-right-percent', diffPercent+'%');
+  }
   
   // Create card
   set hass(hass) {
@@ -317,17 +383,21 @@ class BarCard extends HTMLElement {
 
     const root = this.shadowRoot;
 
-    // 
+    // Check for unknown state
     let entityState;
-    if(hass.states[config.entity] == undefined || hass.states[config.entity].state == "unknown") entityState = "N/A";
+    if(hass.states[config.entity] == undefined || hass.states[config.entity].state == "unknown"){
+      entityState = "N/A";
+    }
     else {
       entityState = hass.states[config.entity].state;
       entityState = Math.min(entityState, config.max);
       entityState = Math.max(entityState, config.min);
     }
-    let measurement
+    let measurement;
     if(hass.states[config.entity] == undefined || hass.states[config.entity].state == "unknown") measurement = "";
     else measurement = hass.states[config.entity].attributes.unit_of_measurement || "";
+    
+    // Set color hue
     let hue;
     if(!config.severity) {
       hue = 220;
@@ -338,12 +408,18 @@ class BarCard extends HTMLElement {
     else{
       hue = this._computeSeverity(entityState, config.severity);
     }
+
     // Set style variables
     const color = 'hsl('+hue+','+config.saturation+',50%)';
     const backgroundColor = 'hsla('+hue+','+config.saturation+',15%,0.5)';
     const chargeColor = 'hsla('+hue+','+config.saturation+',30%,0.5)';
 
-    // Select 'auto' animation.
+    // Set targetBar
+    if(config.target){
+      this._targetBarScale(entityState);
+    }
+
+    // Select 'auto' animation
     if(config.animation == 'auto'){
       if (entityState > this._entityState) {
         this._indicatorStyle(config.indicator,"up");
