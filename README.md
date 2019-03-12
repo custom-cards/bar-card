@@ -21,19 +21,19 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
 | title | string | none | Title displayed next to the bar.
-| title_position | string | left | Position of the title. `left`,`right`, `inside`
+| title_position | string | left | Position of the title. `left`,`right`,`top`,`bottom`,`inside`
 | animation | string | auto | Sets the mode of animation `auto`, `charge`, `off`.
-| indicator | string | auto | Sets position off the indicator `auto`,`left`,`right`,`off`
+| indicator | string | auto | Sets position off the indicator `auto`,`auto-vertical`,`left`,`right`,`top`,`bottom`,`off`
 | hue | number | 220 | Changed the color hue of the bar `0`-`360`.
 | saturation | string | 50% | Scales saturation of the bar.
 | height | string | 40px | Scales the height of the bar.
 | width | string | 70% | Scales the width of the bar.
-| min | number | 0 | The minimum entity value to be displayed.
-| max | number | 100 | The maximum entity value to be displayed.
-| target | number | none | Sets a target marker. Must be a value between min and max value.
+| min | number | 0 | The minimum entity value to be displayed. Accepts entity id as value.
+| max | number | 100 | The maximum entity value to be displayed. Accepts entity id as value.
+| target | number | none | Sets a target marker, must be a value between min and max value. Accepts entity id as value.
 | speed | number | 2500 | The speed of the bar animation in milliseconds.
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
-| from | string | left | Direction of the bar. `left`,`right`
+| direction | string | left | Direction of the bar. `left`,`right`,`up`,`down`
 | severity | object | none | A list of severity values.
 | card_style | object | none | A list of CSS styles applied to the card background.
 | bar_style | object | none | A list of CSS styles applied to the bar.
@@ -88,7 +88,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
   delay: 10000
 ```
 ## Credits
-Based on [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
+Inspired by [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
 
 ## Links
 [Home Assistant Community Topic](https://community.home-assistant.io/t/lovelace-bar-card/87503)
