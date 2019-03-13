@@ -33,7 +33,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | target | number | none | Sets a target marker, must be a value between min and max value. Accepts entity id as value.
 | speed | number | 2500 | The speed of the bar animation in milliseconds.
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
-| direction | string | left | Direction of the bar. `left`,`right`,`up`,`down`
+| direction | string | right | Direction of the bar. `left`,`right`,`up`,`down`
 | severity | object | none | A list of severity values.
 | card_style | object | none | A list of CSS styles applied to the card background.
 | bar_style | object | none | A list of CSS styles applied to the bar.
