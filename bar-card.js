@@ -11,7 +11,6 @@ class BarCard extends HTMLElement {
     if (!config.height) config.height = '40px'
     if (!config.direction) config.direction = 'right'
     if (!config.rounding) config.rounding = '3px'
-    if (!config.width) config.width = '70%'
     if (!config.title_position) config.title_position = 'left'
     if (!config.indicator) config.indicator = 'auto'
     if (!config.saturation) config.saturation = '50%'
@@ -20,6 +19,16 @@ class BarCard extends HTMLElement {
     if (!config.delay) config.delay = 5000
     if (!config.min) config.min = 0
     if (!config.max) config.max = 100
+
+    // Check if title position is inside
+    if (!config.width) {
+      if (config.title_position != 'inside') {
+        config.width = '70%'
+      } else {
+        config.width = '100%'
+      }
+    }
+
 
     // Create CSS style variables
     if (config.bar_style) var barStyle = this._customStyle(config.bar_style)
@@ -86,32 +95,48 @@ class BarCard extends HTMLElement {
     backgroundBar.id = 'backgroundBar'
     const bar = document.createElement('div')
     bar.id = 'bar'
-    const chargeBar = document.createElement('div')
-    chargeBar.id = 'chargeBar'
-    const targetBar = document.createElement('div')
-    targetBar.id = 'targetBar'
-    const targetBarColor = document.createElement('div')
-    targetBarColor.id = 'targetBarColor'
-    const targetMarker = document.createElement('div')
-    targetMarker.id = 'targetMarker'
-    const targetMarkerColor = document.createElement('div')
-    targetMarkerColor.id = 'targetMarkerColor'
-    const title = document.createElement('div')
-    title.id = 'title'
-    const titleBar = document.createElement('div')
-    titleBar.id = 'titleBar'
-    title.textContent = config.title
     const value = document.createElement('div')
     value.id = 'value'
-    const indicatorContainer = document.createElement('div')
-    indicatorContainer.id = 'indicatorContainer'
-    const indicatorBar = document.createElement('div')
-    indicatorBar.id = 'indicatorBar'
-    const indicator = document.createElement('div')
-    indicator.id = 'indicator'
-    const indicatorColor = document.createElement('div')
-    indicatorColor.id = 'indicatorColor'
     const style = document.createElement('style')
+
+    // Check if animation is enabled
+    if (config.animation !== "off") {
+      var chargeBar = document.createElement('div')
+      chargeBar.id = 'chargeBar'
+    }
+
+    // Check if target is defined
+    if (config.target) {
+      var targetBar = document.createElement('div')
+      targetBar.id = 'targetBar'
+      var targetBarColor = document.createElement('div')
+      targetBarColor.id = 'targetBarColor'
+      var targetMarker = document.createElement('div')
+      targetMarker.id = 'targetMarker'
+      var targetMarkerColor = document.createElement('div')
+      targetMarkerColor.id = 'targetMarkerColor'
+    }
+
+    // Check if indicator is enabled
+    if (config.indicator !== "off"){
+      var indicatorContainer = document.createElement('div')
+      indicatorContainer.id = 'indicatorContainer'
+      var indicatorBar = document.createElement('div')
+      indicatorBar.id = 'indicatorBar'
+      var indicator = document.createElement('div')
+      indicator.id = 'indicator'
+      var indicatorColor = document.createElement('div')
+      indicatorColor.id = 'indicatorColor'
+    }
+
+    // Check if title is not inside
+    if (config.title !== "inside"){
+      var title = document.createElement('div')
+      title.id = 'title'
+      var titleBar = document.createElement('div')
+      titleBar.id = 'titleBar'
+      title.textContent = config.title
+    }
 
     // Set marker style based on bar direction
     let markerStyle
@@ -203,7 +228,6 @@ class BarCard extends HTMLElement {
         background: linear-gradient(to ${barFrom}, #FFF0 var(--targetBar-left-percent), var(--bar-fill-color) var(--targetBar-left-percent), var(--bar-fill-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
         mix-blend-mode: color;
       }
-      ` + markerStyle + `
       #value {
         white-space: pre-line;
         z-index: 1;
@@ -240,12 +264,17 @@ class BarCard extends HTMLElement {
         margin-top: 5px;
         margin-bottom: 5px;
       }
+      ` + markerStyle + `
     `
 
     // Start building card
     background.appendChild(backgroundBar)
     background.appendChild(bar)
-    background.appendChild(chargeBar)
+
+    // Check if animation is not disabled
+    if (config.animation !== "off") {
+      background.appendChild(chargeBar)
+    }
 
     // Check if target is configured
     if (config.target) {
@@ -260,10 +289,8 @@ class BarCard extends HTMLElement {
       indicatorContainer.appendChild(indicator)
       indicatorContainer.appendChild(indicatorColor)
       indicatorBar.appendChild(indicatorContainer)
+      background.appendChild(indicatorBar)
     }
-
-    background.appendChild(indicatorBar)
-    background.appendChild(value)
 
     // Select title position
     switch (config.title_position) {
@@ -281,6 +308,7 @@ class BarCard extends HTMLElement {
         container.appendChild(background)
     }
 
+    background.appendChild(value)
     card.appendChild(container)
     card.appendChild(style)
 
@@ -327,7 +355,8 @@ class BarCard extends HTMLElement {
   // Check if value is NaN, otherwise assume it's an entity
   _valueEntityCheck (value, hass) {
     if (isNaN(value)) {
-      return hass.states[value].state
+      if (hass.states[value] == undefined) throw new Error('Invalid target, min or max entity')
+      else return hass.states[value].state
     } else {
       return value
     }
@@ -359,7 +388,7 @@ class BarCard extends HTMLElement {
   }
 
   // Create animation
-  _updateAnimation (entityState, configDirection, configDuration, hue, saturation, configStop) {
+  _updateAnimation (entityState, configDirection, configDuration, hue, configStop) {
     const config = this._config
     const root = this.shadowRoot
     const element = root.getElementById('chargeBar')
@@ -491,7 +520,7 @@ class BarCard extends HTMLElement {
     root.getElementById('targetMarker').style.setProperty('--targetMarker-color', markerColor)
   }
 
-  // Create card
+  // On hass update
   set hass (hass) {
     this._hass = hass
     const config = this._config
@@ -508,12 +537,17 @@ class BarCard extends HTMLElement {
     if (hass.states[config.entity] == undefined || hass.states[config.entity].state == 'unknown') {
       entityState = 'N/A'
     } else {
-      entityState = hass.states[config.entity].state
+      if (config.attribute) {
+        entityState = hass.states[config.entity].attributes[config.attribute]
+      } else {
+        entityState = hass.states[config.entity].state
+      }
       entityState = Math.min(entityState, configMax)
       entityState = Math.max(entityState, configMin)
     }
     let measurement
     if (hass.states[config.entity] == undefined || hass.states[config.entity].state == 'unknown') measurement = ''
+    else if (config.unit_of_measurement) measurement = config.unit_of_measurement
     else measurement = hass.states[config.entity].attributes.unit_of_measurement || ''
 
     // Set color hue
@@ -533,6 +567,104 @@ class BarCard extends HTMLElement {
     const targetMarkerColor = 'hsla(' + hue + ',' + config.saturation + ',50%,0.5)'
     const backgroundColor = 'hsla(' + hue + ',' + config.saturation + ',15%,0.5)'
 
+    // On entity update
+    if (entityState !== this._entityState) {
+      this._updateBar(entityState, hass)
+      if (config.target) {
+        this._updateTargetBar(entityState, configTarget, targetColor, targetMarkerColor)
+        this._entityTarget = configTarget
+      }
+      root.getElementById('bar').style.setProperty('--bar-fill-color', barColor)
+      root.getElementById('backgroundBar').style.setProperty('--bar-background-color', backgroundColor)
+      if (config.indicator != 'off') root.getElementById('indicatorColor').style.setProperty('--bar-fill-color', barColor)
+      if (config.target) {
+        root.getElementById('targetBarColor').style.setProperty('--bar-fill-color', barColor)
+        root.getElementById('targetMarkerColor').style.setProperty('--bar-fill-color', barColor)
+      }
+      if (config.title_position == 'inside') {
+        root.getElementById('value').textContent = `${config.title} \r\n${entityState} ${measurement}`
+      } else {
+        root.getElementById('value').textContent = `${entityState} ${measurement}`
+      }
+    }
+
+    // Select 'auto' animation
+    if (config.animation == 'auto') {
+      if (entityState > this._entityState) {
+        this._updateIndicator(config.indicator, 'up')
+        this._currentAnimation = this._updateAnimation(entityState, 'normal', config.delay, hue, config.saturation, false)
+      }
+      if (entityState < this._entityState) {
+        this._updateIndicator(config.indicator, 'down')
+        this._currentAnimation = this._updateAnimation(entityState, 'reverse', config.delay, hue, config.saturation, false)
+      }
+      if (entityState == configMax || entityState == configMin) {
+        if (config.indicator != 'off') {
+          root.getElementById('indicator').textContent = ''
+          root.getElementById('indicatorColor').textContent = ''
+        }
+        if (entityState == configMax) {
+          root.getElementById('bar').style.setProperty('--bar-percent', '100%')
+          root.getElementById('bar').style.setProperty('--bar-fill-color', barColor)
+          root.getElementById('bar').style.setProperty('--bar-charge-percent', '100%')
+          if (this._currentAnimation) {
+            this._currentAnimation.pause()
+          }
+        }
+        if (entityState == configMin) {
+          root.getElementById('bar').style.setProperty('--bar-percent', '0%')
+          root.getElementById('bar').style.setProperty('--bar-charge-percent', '0%')
+          if (this._currentAnimation) {
+            this._currentAnimation.pause()
+          }
+        }
+      }
+    }
+
+    // Select 'charge' animation
+    if (config.animation == 'charge') {
+      let chargeEntityState
+      if (!config.charge_entity) {
+        entityState = "define 'charge_entity'"
+        measurement = ''
+        root.getElementById('value').style.setProperty('color', '#FF0000')
+      } else {
+        chargeEntityState = hass.states[config.charge_entity].state
+      }
+      switch (chargeEntityState) {
+        case "charging":
+        case "on":
+        case "true":
+          this._updateIndicator(config.indicator, 'up')
+          if (!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState > this._entityState) {
+            this._currentChargeState = chargeEntityState
+            this._currentAnimation = this._updateAnimation(entityState, 'normal', config.delay, hue, config.saturation, false)
+          }
+          break
+        case "discharging":
+        case "off":
+        case "false":
+          if (chargeEntityState == 'discharging' || chargeEntityState == 'off' || chargeEntityState == 'false') {
+            this._updateIndicator(config.indicator, 'down')   
+            if (!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState < this._entityState) {
+              this._currentChargeState = chargeEntityState
+              this._currentAnimation = this._updateAnimation(entityState, 'reverse', config.delay, hue, config.saturation, false)
+            }
+          }
+          break
+      }
+    }
+
+    // Select 'off' animation
+    if (config.animation == "off") {
+      if (entityState > this._entityState) {
+        this._updateIndicator(config.indicator, 'up')
+      }
+      if (entityState < this._entityState) {
+        this._updateIndicator(config.indicator, 'down')
+      } 
+    }
+    
     // On target update
     if (config.target) {
       if (configTarget != this._entityTarget) {
@@ -558,93 +690,6 @@ class BarCard extends HTMLElement {
       if (config.target) {
         this._updateTargetBar(entityState, configTarget, targetColor, targetMarkerColor)
         this._entityTarget = configTarget
-      }
-    }
-
-    // Select 'auto' animation
-    if (config.animation == 'auto') {
-      if (entityState > this._entityState) {
-        this._updateIndicator(config.indicator, 'up')
-        if (!this._currentAnimation || entityState > this._entityState) {
-          this._currentAnimation = this._updateAnimation(entityState, 'normal', config.delay, hue, config.saturation, false)
-        }
-      }
-      if (entityState < this._entityState) {
-        this._updateIndicator(config.indicator, 'down')
-        if (!this._currentAnimation || entityState < this._entityState) {
-          this._currentAnimation = this._updateAnimation(entityState, 'reverse', config.delay, hue, config.saturation, false)
-        }
-      }
-      if (entityState == configMax || entityState == configMin) {
-        if (config.indicator != 'off') {
-          root.getElementById('indicator').style.removeProperty('right')
-          root.getElementById('indicator').style.removeProperty('left')
-          root.getElementById('indicator').textContent = ''
-        }
-        if (entityState == configMax) {
-          root.getElementById('bar').style.setProperty('--bar-percent', '100%')
-          root.getElementById('bar').style.setProperty('--bar-fill-color', barColor)
-          root.getElementById('bar').style.setProperty('--bar-charge-percent', '100%')
-          if (!this._currentAnimation) {
-            this._currentAnimation = this._updateAnimation(entityState, 'normal', config.delay, hue, config.saturation, true)
-          }
-        }
-        if (entityState == configMin) {
-          root.getElementById('bar').style.setProperty('--bar-percent', '0%')
-          root.getElementById('bar').style.setProperty('--bar-charge-percent', '0%')
-          if (!this._currentAnimation) {
-            this._currentAnimation = this._updateAnimation(entityState, 'normal', config.delay, hue, config.saturation, true)
-          }
-        }
-      }
-    }
-
-    // Select 'charge' animation
-    if (config.animation == 'charge') {
-      let chargeEntityState
-      if (!config.charge_entity) {
-        entityState = "define 'charge_entity'"
-        measurement = ''
-        root.getElementById('value').style.setProperty('color', '#FF0000')
-      } else {
-        chargeEntityState = hass.states[config.charge_entity].state
-      }
-      if (chargeEntityState == 'charging' || chargeEntityState == 'on' || chargeEntityState == 'true') {
-        this._updateIndicator(config.indicator, 'up')
-
-        if (!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState > this._entityState) {
-          this._currentChargeState = chargeEntityState
-          this._currentAnimation = this._updateAnimation(entityState, 'normal', config.delay, hue, config.saturation, false)
-        }
-      }
-      if (chargeEntityState == 'discharging' || chargeEntityState == 'off' || chargeEntityState == 'false') {
-        this._updateIndicator(config.indicator, 'down')
-
-        if (!this._currentAnimation || chargeEntityState != this._currentChargeState || entityState < this._entityState) {
-          this._currentChargeState = chargeEntityState
-          this._currentAnimation = this._updateAnimation(entityState, 'reverse', config.delay, hue, config.saturation, false)
-        }
-      }
-    }
-
-    // On entity update
-    if (entityState !== this._entityState) {
-      this._updateBar(entityState, hass)
-      if (config.target) {
-        this._updateTargetBar(entityState, configTarget, targetColor, targetMarkerColor)
-        this._entityTarget = configTarget
-      }
-      root.getElementById('bar').style.setProperty('--bar-fill-color', barColor)
-      if (config.indicator != 'off') root.getElementById('indicatorColor').style.setProperty('--bar-fill-color', barColor)
-      root.getElementById('backgroundBar').style.setProperty('--bar-background-color', backgroundColor)
-      if (config.target) {
-        root.getElementById('targetBarColor').style.setProperty('--bar-fill-color', barColor)
-        root.getElementById('targetMarkerColor').style.setProperty('--bar-fill-color', barColor)
-      }
-      if (config.title_position == 'inside') {
-        root.getElementById('value').textContent = `${config.title} \r\n${entityState} ${measurement}`
-      } else {
-        root.getElementById('value').textContent = `${entityState} ${measurement}`
       }
     }
     this._entityState = entityState

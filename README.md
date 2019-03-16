@@ -1,8 +1,6 @@
 # bar-card
 
-![](images/default_increase.gif)
-![](images/severity.gif)
-![](images/hue.gif)
+![](images/examples.gif)
 
 ## Description
 
@@ -20,6 +18,8 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
+| attribute | string | none | Defines the attribute to be displayed.
+| unit_of_measurement | string | none | Defines the unit of measurement to be displayed.
 | title | string | none | Title displayed next to the bar.
 | title_position | string | left | Position of the title. `left`,`right`,`top`,`bottom`,`inside`
 | animation | string | auto | Sets the mode of animation `auto`, `charge`, `off`.
