@@ -106,14 +106,23 @@ class BarCard extends HTMLElement {
     backgroundBar.id = 'backgroundBar_'+id
     const bar = document.createElement('div')
     bar.id = 'bar_'+id
-    const value = document.createElement('div')
-    value.id = 'value_'+id
 
     // Check if icon is enabled
     if (config.show_icon == true) {
       var icon = document.createElement('ha-icon')
       icon.id = 'icon_'+id
     }     
+    
+    // Check if title is not inside
+    if (config.title !== "inside"){
+      var title = document.createElement('div')
+      title.id = 'title_'+id
+      var titleBar = document.createElement('div')
+      titleBar.id = 'titleBar_'+id
+    }
+
+    const value = document.createElement('div')
+    value.id = 'value_'+id
 
     // Check if animation is enabled
     if (config.animation !== "off") {
@@ -143,14 +152,6 @@ class BarCard extends HTMLElement {
       indicator.id = 'indicator_'+id
       var indicatorColor = document.createElement('div')
       indicatorColor.id = 'indicatorColor_'+id
-    }
-
-    // Check if title is not inside
-    if (config.title !== "inside"){
-      var title = document.createElement('div')
-      title.id = 'title_'+id
-      var titleBar = document.createElement('div')
-      titleBar.id = 'titleBar_'+id
     }
         
     // Start building card
@@ -205,7 +206,6 @@ class BarCard extends HTMLElement {
     background.appendChild(value)
     card.appendChild(container)
     card.appendChild(this._styleElements(config, id))
-
     card.addEventListener('click', event => {
       this._showAttributes('hass-more-info', { entityId: entity })
     })
@@ -216,9 +216,9 @@ class BarCard extends HTMLElement {
   // Create style elements
   _styleElements(config, id) {
     const style = document.createElement('style');
-    if (config.bar_style) var barStyle = this._customStyle(config.bar_style)
+    if (config.value_style) var valueStyle = this._customStyle(config.value_style)
     if (config.title_style) var titleStyle = this._customStyle(config.title_style)
-    if (config.indicator_style) var indicatorStyle = this._customStyle(config.indicator_style)
+    if (config.icon_style) var iconStyle = this._customStyle(config.icon_style)
     if (config.card_style) var cardStyle = this._customStyle(config.card_style)
 
     // Sets position of the titleBar
@@ -439,7 +439,6 @@ class BarCard extends HTMLElement {
         justify-content: ${justifyContent};
         width: ${config.width};
         height: ${config.height};
-        ${barStyle}
       }
       #bar_${id}, #backgroundBar_${id}, #targetBar_${id}, #targetBarColor_${id}, #valueBar_${id}, #chargeBar_${id}, #chargeBarColor_${id}, #valueBar_${id}, #indicatorBar_${id} {
         position: absolute;
@@ -474,6 +473,7 @@ class BarCard extends HTMLElement {
         font-weight: bold;
         color: #FFF;
         text-shadow: 1px 1px #000;
+        ${iconStyle}
       }
       #title_${id} {
         ${positionTitleStyle}
@@ -491,6 +491,7 @@ class BarCard extends HTMLElement {
         color: #FFF;
         text-shadow: 1px 1px #000;
         white-space: nowrap;
+        ${valueStyle}
       }
       #titleBar_${id} {
         position: relative;
@@ -514,14 +515,12 @@ class BarCard extends HTMLElement {
         color: #7F7F7F;
         opacity: 0.75;
         text-shadow: 0px 0px;
-        ${indicatorStyle}
       }
       #indicatorColor_${id} {
         margin-left: -25px;
         color: var(--bar-fill-color);
         mix-blend-mode: color;
         opacity: 1;
-        ${indicatorStyle}
       }
       #indicatorContainer_${id} {
         display: flex;
@@ -776,6 +775,15 @@ class BarCard extends HTMLElement {
           root.getElementById('indicator_'+id).textContent = '▼'
           root.getElementById('indicatorColor_'+id).textContent = '▼'
           break
+        case 'off':
+          if (config.title_position !== 'inside' && config.title_position !== 'off') titleElement.style.removeProperty('--padding-left')
+          valueElement.style.removeProperty('--padding-left')
+          if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
+          if (config.title_position !== 'inside' && config.title_position !== 'off') titleElement.style.removeProperty('--padding-right')
+          valueElement.style.removeProperty('--padding-right')
+          if (config.show_icon == true) iconElement.style.removeProperty('--padding-right')
+          root.getElementById('indicator_'+id).textContent = ''
+          root.getElementById('indicatorColor_'+id).textContent = ''
       }
     }
   }
@@ -906,14 +914,11 @@ class BarCard extends HTMLElement {
         this._currentAnimation[id] = this._updateAnimation(entityState, 'reverse', config.delay, hue, false, id)
       }
       if (entityState == configMax || entityState == configMin) {
-        if (config.indicator != 'off') {
-          root.getElementById('indicator_'+id).textContent = ''
-          root.getElementById('indicatorColor_'+id).textContent = ''
-        }
         if (entityState == configMax) {
           root.getElementById('bar_'+id).style.setProperty('--bar-percent', '100%')
           root.getElementById('bar_'+id).style.setProperty('--bar-fill-color', barColor)
           root.getElementById('bar_'+id).style.setProperty('--bar-charge-percent', '100%')
+          this._updateIndicator(config.indicator, 'off', id)
           if (this._currentAnimation[id]) {
             this._currentAnimation[id].pause()
           }
@@ -921,6 +926,7 @@ class BarCard extends HTMLElement {
         if (entityState == configMin) {
           root.getElementById('bar_'+id).style.setProperty('--bar-percent', '0%')
           root.getElementById('bar_'+id).style.setProperty('--bar-charge-percent', '0%')
+          this._updateIndicator(config.indicator, 'off', id)
           if (this._currentAnimation[id]) {
             this._currentAnimation[id].pause()
           }

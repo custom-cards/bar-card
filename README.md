@@ -1,6 +1,6 @@
 # bar-card
 
-![](images/examples.gif)
+![](images/bar_examples.gif)
 
 ## Description
 
@@ -41,58 +41,203 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | direction | string | right | Direction of the bar. `left`,`right`,`up`,`down`
 | severity | object | none | A list of severity values.
 | card_style | object | none | A list of CSS styles applied to the card background.
-| bar_style | object | none | A list of CSS styles applied to the bar.
+| icon_style | object| none | A list of CSS styles applied to the icon.
 | title_style | object | none | A list of CSS styles applied to the title.
-| indicator_style | object| none | A list of CSS styles applied to the indicator.
+| value_style | object | none | A list of CSS styles applied to the entity value.
 | charge_entity | string | none | Charge enitity, **required** when using charge animation mode. States can be `on`/`off`, `true`/`false`, `charging`/`discharging`
 
 ## Examples
 
 ### Default
-
-![](images/default_increase.gif)
-
 ```yaml
 - type: custom:bar-card
   title: Default
-  entity: sensor.default
+  entity: sensor.example
 ```
+
 ### Severity
-
-![](images/severity.gif)
-
 ```yaml
 - type: custom:bar-card
   title: Severity
-  entity: sensor.default
+  entity: sensor.example
   severity:
-  - value: 25
+  - value: 33
     hue: '0'
-  - value: 50
+  - value: 66
     hue: '40'
   - value: 100
     hue: '120'
 ```
-### Hue
 
-![](images/hue.gif)
-
+### Target
 ```yaml
 - type: custom:bar-card
-  title: Default
-  entity: sensor.default
-  hue: 300
+  entity: sensor.example
+  title: Target
+  target: 50
 ```
-### Speed & Delay
 
-![](images/speed_delay.gif)
-
+### Icon
 ```yaml
 - type: custom:bar-card
-  title: Default
-  entity: sensor.default
-  speed: 5000
-  delay: 10000
+  entity: sensor.example
+  title: Icon
+  show_icon: true
+  icon: mdi:eye
+```
+
+### Title Inside
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Inside
+  title_position: inside
+```
+
+### Icon no Title
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title_position: 'off'
+  show_icon: true
+  align: split
+  icon: mdi:eye
+```
+
+### Align Left
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Align Left
+  title_position: inside
+  align: left
+```
+
+### Align Right
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Align Right
+  title_position: inside
+  align: right
+```
+
+### Align Split
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Align Split
+  title_position: inside
+  align: split
+```
+
+### Align Split + Icon
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Align Split + Icon
+  title_position: inside
+  show_icon: true
+  icon: mdi:eye
+  align: split
+```
+
+### Align Top Split
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Top Split
+  title_position: inside
+  align: top-split
+```
+
+### Align Bottom Split
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: Bottom Split
+  title_position: inside
+  align: bottom-split
+```
+
+### Direction Up
+```yaml
+- type: custom:bar-card
+  height: 160px
+  width: 100px
+  direction: up
+  title: Up
+  title_position: bottom
+  indicator: auto-vertical
+  entity: sensor.example
+```
+
+### Up Icon no Title
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  height: 200px
+  width: 100px
+  direction: up
+  show_icon: true
+  icon: mdi:eye
+  title_position: 'off'
+```
+
+### Up Left Split
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  height: 200px
+  width: 100px
+  direction: up
+  align: left-split
+  title: Left Split
+  title_position: inside
+```
+
+### Up Center Split
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  height: 200px
+  width: 100px
+  direction: up
+  show_icon: true
+  icon: mdi:eye
+  align: center-split
+  title: Center Split + Icon
+  title_position: inside
+```
+
+### CSS Styles
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+  title: CSS Styles
+  title_position: inside
+  show_icon: true
+  icon: mdi:eye
+  hue: 240
+  saturation: 75%
+  align: split
+  rounding: 10px
+  card_style:
+    background: "#AA00AA"
+    border-radius: 10px
+  icon_style:
+    height: 60px
+    width: 60px
+    color: '#FF0000'
+  title_style:
+    color: '#00FF00'
+    font-size: 10px
+    text-transform: uppercase
+    text-decoration: underline
+    text-shadow: "0 0 10px #FF0000"
+  value_style:
+    color: '#FFFF00'
+    font-size: 22px
 ```
 
 ### Entities + [Auto Entities](https://github.com/thomasloven/lovelace-auto-entities)
