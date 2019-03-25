@@ -312,7 +312,6 @@ class BarCard extends HTMLElement {
     if (config.title_position == 'inside') {
       positionTitleStyle = `
       width: calc(100% - 8px);
-      z-index: 2;
       font-weight: bold;
       color: #FFF;
       text-shadow: 1px 1px #000;
@@ -464,6 +463,7 @@ class BarCard extends HTMLElement {
         mix-blend-mode: color;
       }
       #icon_${id} {
+        position: relative;
         --padding-left: 2px;
         --padding-right: 2px;
         padding-left: var(--padding-left);
@@ -476,12 +476,13 @@ class BarCard extends HTMLElement {
         ${iconStyle}
       }
       #title_${id} {
+        position: relative;
         ${positionTitleStyle}
         ${titleStyle};
         text-align: ${textAlign};
       }
       #value_${id} {
-        z-index: 1;
+        position: relative;
         padding-bottom: ${paddingStyle};
         --padding-right: 4px;
         --padding-left: 4px;
@@ -776,10 +777,10 @@ class BarCard extends HTMLElement {
           root.getElementById('indicatorColor_'+id).textContent = '▼'
           break
         case 'off':
-          if (config.title_position !== 'inside' && config.title_position !== 'off') titleElement.style.removeProperty('--padding-left')
+          if (config.title_position == 'inside') titleElement.style.removeProperty('--padding-left')
           valueElement.style.removeProperty('--padding-left')
           if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
-          if (config.title_position !== 'inside' && config.title_position !== 'off') titleElement.style.removeProperty('--padding-right')
+          if (config.title_position == 'inside') titleElement.style.removeProperty('--padding-right')
           valueElement.style.removeProperty('--padding-right')
           if (config.show_icon == true) iconElement.style.removeProperty('--padding-right')
           root.getElementById('indicator_'+id).textContent = ''
