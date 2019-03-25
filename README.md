@@ -21,8 +21,11 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | columns | number | none | Defines the number of columns when using entities list.
 | attribute | string | none | Defines the attribute to be displayed.
 | unit_of_measurement | string | none | Defines the unit of measurement to be displayed.
-| title | string | none | Title displayed next to the bar.
-| title_position | string | left | Position of the title. `left`,`right`,`top`,`bottom`,`inside`
+| title | string | friendly_name | Title displayed next to the bar.
+| title_position | string | left | Position of the title. `left`,`right`,`top`,`bottom`,`inside`,`off`
+| show_icon | boolean | false | Defines if icon should be shown.
+| icon | string | icon | Defines icon to be displayed. If no icon is defined entity icon attribute will be used. 
+| align | string | center | Defines the alignment of text and icon inside the bar. `left`,`right`,`top`,`bottom`,`split`,`center-split`,`left-split`,`right-split`,`top-split`,`bottom-split`
 | animation | string | auto | Sets the mode of animation `auto`, `charge`, `off`.
 | indicator | string | auto | Sets position off the indicator `auto`,`auto-vertical`,`left`,`right`,`top`,`bottom`,`off`
 | hue | number | 220 | Changed the color hue of the bar `0`-`360`.

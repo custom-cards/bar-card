@@ -17,10 +17,12 @@ class BarCard extends HTMLElement {
     if (!config.min) config.min = 0
     if (!config.max) config.max = 100
     if (!config.padding) config.padding = '4px'
+    if (!config.align) config.align = 'center'
+    if (!config.show_icon) config.show_icon = false
 
     // Check entity types
-    let updateArray = false
-    let updateEntity = false
+    let updateArray
+    let updateEntity
     if (config.entities) {
         let newArray = []
         config.entities.forEach(section => {
@@ -32,7 +34,6 @@ class BarCard extends HTMLElement {
           } else {
             updateEntity = true
           }
-
         })
         if(updateArray == true){
           config.entities = newArray;
@@ -48,7 +49,7 @@ class BarCard extends HTMLElement {
       } else {
         config.width = '100%'
       }
-      if (config.title_position == "top" || config.title_position == "bottom"){
+      if (config.title_position == 'top' || config.title_position == 'bottom' || config.title_position == 'off'){
         config.width = '100%'
       }
     }
@@ -57,14 +58,13 @@ class BarCard extends HTMLElement {
     let cardContainer = document.createElement('card-container')
     let cardContainerStyle = document.createElement('style')
     cardContainerStyle.textContent = `
-    card-container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-    }
-    
+      card-container {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+      }  
     `
-    // For each entity in entities list
+    // For each entity in entities list create cardElements
     for (var i = 0; i <= config.entities.length-1; i++){
       let entityName = config.entities[i].entity.split('.')
       cardContainer.appendChild(this._cardElements(config, entityName[0]+'_'+entityName[1]+i, config.entities[i].entity))
@@ -73,7 +73,7 @@ class BarCard extends HTMLElement {
     this.shadowRoot.appendChild(cardContainer)
     this.shadowRoot.appendChild(cardContainerStyle)
     
-    // For each entity in entities list. Initial update.
+    // For each entity in entities list update entity. Initial update.
     if (updateEntity == true) {
       for(var i=0; i <= config.entities.length-1; i++){
         let entityName = config.entities[i].entity.split('.')
@@ -81,6 +81,7 @@ class BarCard extends HTMLElement {
       }
     }
 
+    // Set config for this card.
     this._config = config
   }
 
@@ -94,8 +95,8 @@ class BarCard extends HTMLElement {
     }
   }
 
+  // Create card elements
   _cardElements(config, id, entity) {
-    // Create card elements
     const card = document.createElement('ha-card')
     const container = document.createElement('div')
     container.id = 'container_'+id
@@ -107,6 +108,12 @@ class BarCard extends HTMLElement {
     bar.id = 'bar_'+id
     const value = document.createElement('div')
     value.id = 'value_'+id
+
+    // Check if icon is enabled
+    if (config.show_icon == true) {
+      var icon = document.createElement('ha-icon')
+      icon.id = 'icon_'+id
+    }     
 
     // Check if animation is enabled
     if (config.animation !== "off") {
@@ -171,6 +178,10 @@ class BarCard extends HTMLElement {
       background.appendChild(indicatorBar)
     }
 
+    if (config.show_icon == true) {
+      background.appendChild(icon) 
+    }
+
     // Select title position
     switch (config.title_position) {
       case 'left':
@@ -186,6 +197,9 @@ class BarCard extends HTMLElement {
       case 'inside':
         background.appendChild(title)
         container.appendChild(background)
+        break
+      case 'off':
+        container.appendChild(background)      
     }
 
     background.appendChild(value)
@@ -198,39 +212,39 @@ class BarCard extends HTMLElement {
 
     return card
   }
-
+  
+  // Create style elements
   _styleElements(config, id) {
     const style = document.createElement('style');
-    // Create CSS style variables
     if (config.bar_style) var barStyle = this._customStyle(config.bar_style)
     if (config.title_style) var titleStyle = this._customStyle(config.title_style)
     if (config.indicator_style) var indicatorStyle = this._customStyle(config.indicator_style)
     if (config.card_style) var cardStyle = this._customStyle(config.card_style)
 
-    // Sets position of the title
+    // Sets position of the titleBar
     let titleAlign
     let titleWidth
-    let flexDirection
+    let titleflexDirection
     switch (config.title_position) {
       case 'left':
         titleWidth = 'width: calc(100% - ' + config.width + ');'
         titleAlign = 'justify-content: flex-start;'
-        flexDirection = 'flex-direction: row;'
+        titleflexDirection = 'flex-direction: row;'
         break
       case 'right':
         titleWidth = 'width: calc(100% - ' + config.width + ');'
         titleAlign = 'justify-content: flex-start;'
-        flexDirection = 'flex-direction: row-reverse;'
+        titleflexDirection = 'flex-direction: row-reverse;'
         break
       case 'top':
         titleWidth = 'width: 100%;'
         titleAlign = 'justify-content: center;'
-        flexDirection = 'flex-direction: column;'
+        titleflexDirection = 'flex-direction: column;'
         break
       case 'bottom':
         titleWidth = 'width: 100%;'
         titleAlign = 'justify-content: center;'
-        flexDirection = 'flex-direction: column-reverse;'
+        titleflexDirection = 'flex-direction: column-reverse;'
         break
     }
 
@@ -266,7 +280,7 @@ class BarCard extends HTMLElement {
       #targetMarker_${id}, #targetMarkerColor_${id} {
         position: absolute;
         background: #FFF0;
-        ` + markerDirection + `: var(--targetMarker-percent);
+        ${markerDirection}: var(--targetMarker-percent);
         height: ${config.height};
         border-left: 2px dashed var(--targetMarker-color);
       }
@@ -279,7 +293,7 @@ class BarCard extends HTMLElement {
       #targetMarker_${id}, #targetMarkerColor_${id} {
         position: absolute;
         background: #FFF0;
-        ` + markerDirection + `: var(--targetMarker-percent);
+        ${markerDirection}: var(--targetMarker-percent);
         width: 100%;
         border-top: 2px dashed var(--targetMarker-color);
       }
@@ -291,16 +305,23 @@ class BarCard extends HTMLElement {
 
     // Set title style based on title position
     let positionTitleStyle
+    let paddingStyle
+    if (config.direction == 'up' || config.direction == 'down'){
+      paddingStyle = '4px'
+    }
     if (config.title_position == 'inside') {
       positionTitleStyle = `
       width: calc(100% - 8px);
-      text-align: center;
-      z-index: 1;
+      z-index: 2;
       font-weight: bold;
       color: #FFF;
       text-shadow: 1px 1px #000;
-      padding-left: 4px;
-      padding-right: 4px;
+      padding-top: ${paddingStyle};
+      padding-bottom: ${paddingStyle};
+      --padding-left: 4px;
+      --padding-right: 4px;
+      padding-left: var(--padding-left);
+      padding-right: var(--padding-right);
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: ${insideWhitespace};
@@ -315,8 +336,82 @@ class BarCard extends HTMLElement {
       `      
     }
 
-    // Set CSS styles
+    let justifyContent
+    let alignItems
+    let textAlign
+    let flexDirection
+    switch (config.align) {
+      case 'right':
+        flexDirection = 'column'
+        textAlign = 'right'
+        alignItems = 'flex-end'
+        justifyContent = 'center'
+        break
+      case 'left':
+        flexDirection = 'column'
+        justifyContent = 'center'
+        alignItems = 'flex-start'
+        textAlign = 'left'
+        break
+      case 'top':
+        flexDirection = 'column'
+        justifyContent = 'flex-start'
+        alignItems = 'center'
+        textAlign = 'center'
+        break
+      case 'top-split':
+        flexDirection = 'row'
+        justifyContent = 'space-between'
+        alignItems = 'flex-start'
+        if (config.show_icon == true) textAlign = 'center'
+        else textAlign = 'left'
+        break
+      case 'bottom':
+        flexDirection = 'column'
+        justifyContent = 'flex-end'
+        alignItems = 'center'
+        textAlign = 'center'
+        break
+      case 'bottom-split':
+        flexDirection = 'row'
+        justifyContent = 'space-between'
+        alignItems = 'flex-end'
+        if (config.show_icon == true) textAlign = 'center'
+        else textAlign = 'left'
+        break
+      case 'split':
+        alignItems = 'center'
+        flexDirection = 'row'
+        justifyContent = 'space-between'
+        if (config.show_icon == true) textAlign = 'center'
+        else textAlign = 'left'
+        break
+      case 'left-split':
+        flexDirection = 'column'
+        justifyContent = 'space-between'
+        alignItems = 'flex-start'
+        break
+      case 'right-split':
+        flexDirection = 'column'
+        justifyContent = 'space-between'
+        alignItems = 'flex-end'
+        textAlign = 'right'
+        break
+      case 'center':
+        flexDirection = 'column'
+        if (config.title_position != 'inside') textAlign = 'left'
+        else textAlign = 'center'
+        justifyContent = 'center'
+        alignItems = 'center'
+        break
+      case 'center-split':
+        flexDirection = 'column'
+        textAlign = 'center'
+        justifyContent = 'space-between'
+        alignItems = 'center'
+    }
 
+    // Set CSS styles
     let haCardWidth
     if (config.columns) {
       haCardWidth = Math.trunc(100 / Number(config.columns))
@@ -328,36 +423,23 @@ class BarCard extends HTMLElement {
         background-color: var(--paper-card-background-color);
         padding: ${config.padding};
         width: calc(${haCardWidth}% - (${config.padding} * 2));
-        ` + cardStyle + `
+        ${cardStyle}
       }
       #container_${id} {
         display: flex;
         align-items: center;
         justify-content: center;
-        ` + flexDirection + `
+        ${titleflexDirection}
       }
       #background_${id} {
         position: relative;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        flex-direction: ${flexDirection};
+        align-items: ${alignItems};
+        justify-content: ${justifyContent};
         width: ${config.width};
         height: ${config.height};
-        ` + barStyle + `
-      }
-      #title_${id} {
-        ` + positionTitleStyle + `
-        ` + titleStyle + `
-      }
-      #titleBar_${id} {
-        position: relative;
-        display: flex;
-        align-items: center;
-        height: 40px;
-        ` + titleAlign + `
-        ` + titleWidth + `
-        ` + titleStyle + `
+        ${barStyle}
       }
       #bar_${id}, #backgroundBar_${id}, #targetBar_${id}, #targetBarColor_${id}, #valueBar_${id}, #chargeBar_${id}, #chargeBarColor_${id}, #valueBar_${id}, #indicatorBar_${id} {
         position: absolute;
@@ -382,16 +464,42 @@ class BarCard extends HTMLElement {
         background: linear-gradient(to ${barFrom}, #FFF0 var(--targetBar-left-percent), var(--bar-fill-color) var(--targetBar-left-percent), var(--bar-fill-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
         mix-blend-mode: color;
       }
-      #value_${id} {
-        z-index: 1;
-        //width: 100%;
-        padding-left: 4px;
-        padding-right: 4px;
-        text-align: center;
+      #icon_${id} {
+        --padding-left: 2px;
+        --padding-right: 2px;
+        padding-left: var(--padding-left);
+        padding-right: var(--padding-right);
+        padding-top: ${paddingStyle};
+        padding-bottom: ${paddingStyle};
         font-weight: bold;
         color: #FFF;
         text-shadow: 1px 1px #000;
-        ` + barStyle + `
+      }
+      #title_${id} {
+        ${positionTitleStyle}
+        ${titleStyle};
+        text-align: ${textAlign};
+      }
+      #value_${id} {
+        z-index: 1;
+        padding-bottom: ${paddingStyle};
+        --padding-right: 4px;
+        --padding-left: 4px;
+        padding-left: var(--padding-left);
+        padding-right: var(--padding-right);
+        font-weight: bold;
+        color: #FFF;
+        text-shadow: 1px 1px #000;
+        white-space: nowrap;
+      }
+      #titleBar_${id} {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 40px;
+        ${titleAlign}
+        ${titleWidth}
+        ${titleStyle}
       }
       #indicatorBar_${id} {
         display: flex;
@@ -406,21 +514,21 @@ class BarCard extends HTMLElement {
         color: #7F7F7F;
         opacity: 0.75;
         text-shadow: 0px 0px;
-        ` + indicatorStyle + `
+        ${indicatorStyle}
       }
       #indicatorColor_${id} {
         margin-left: -25px;
         color: var(--bar-fill-color);
         mix-blend-mode: color;
         opacity: 1;
-        ` + indicatorStyle + `
+        ${indicatorStyle}
       }
       #indicatorContainer_${id} {
         display: flex;
         margin-top: 5px;
         margin-bottom: 5px;
       }
-      ` + markerStyle + `
+      ${markerStyle}
     `
     return style
   }
@@ -541,54 +649,130 @@ class BarCard extends HTMLElement {
   _updateIndicator (position, direction, id) {
     const config = this._config
     const root = this.shadowRoot
+    const element = root.getElementById('indicatorBar_'+id)
     switch (position) {
       case 'right':
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'center')
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'flex-end')
+        element.style.setProperty('--flex-align', 'center')
+        element.style.setProperty('--flex-justify', 'flex-end')
         break
       case 'left':
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'center')
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'flex-start')
+        element.style.setProperty('--flex-align', 'center')
+        element.style.setProperty('--flex-justify', 'flex-start')
         break
       case 'top':
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'flex-start')
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'center')
+        element.style.setProperty('--flex-align', 'flex-start')
+        element.style.setProperty('--flex-justify', 'center')
         break
       case 'bottom':
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'flex-end')
-        root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'center')
+        element.style.setProperty('--flex-align', 'flex-end')
+        element.style.setProperty('--flex-justify', 'center')
         break
       case 'auto':
         switch (direction) {
           case 'up':
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'center')
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'flex-end')
+            element.style.setProperty('--flex-align', 'center')
+            element.style.setProperty('--flex-justify', 'flex-end')
             break
           case 'down':
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'center')
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'flex-start')
+            element.style.setProperty('--flex-align', 'center')
+            element.style.setProperty('--flex-justify', 'flex-start')
             break
         }
         break
       case 'auto-vertical':
         switch (direction) {
           case 'up':
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'flex-start')
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'center')
+            element.style.setProperty('--flex-align', 'flex-start')
+            element.style.setProperty('--flex-justify', 'center')
             break
           case 'down':
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-align', 'flex-end')
-            root.getElementById('indicatorBar_'+id).style.setProperty('--flex-justify', 'center')
+            element.style.setProperty('--flex-align', 'flex-end')
+            element.style.setProperty('--flex-justify', 'center')
             break
         }
     }
     if (config.indicator != 'off') {
+      const iconElement = root.getElementById('icon_'+id)
+      const valueElement = root.getElementById('value_'+id)
+      const titleElement = root.getElementById('title_'+id)
       switch (direction) {
         case 'up':
+          if (config.indicator == 'auto' && config.align == 'split'){
+            if (config.title_position != 'inside' && config.title_position != 'off') {
+              if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
+              else valueElement.style.removeProperty('--padding-left')
+            } else {
+              if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
+              if (config.title_position == 'inside' && config.show_icon == false) titleElement.style.removeProperty('--padding-left')
+            }
+            valueElement.style.setProperty('--padding-right','25px')
+          }
+          if (config.indicator == 'left' && config.align == 'split' || config.align == 'left') {
+            if (config.title_position == 'inside') {
+              if (config.show_icon !== true && config.title_position !== 'off' && config.indicator != 'right') titleElement.style.setProperty('--padding-left','25px')
+            } else {
+              if (config.indicator != 'right' && config.indicator != 'auto-vertical') valueElement.style.setProperty('--padding-left','25px')
+            }
+            if (config.align == 'left' && config.indicator == 'auto') {
+              titleElement.style.removeProperty('--padding-left')
+              valueElement.style.removeProperty('--padding-left')
+              if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
+            }
+            if (config.indicator == 'left') {
+              titleElement.style.setProperty('--padding-left','25px')
+              valueElement.style.setProperty('--padding-left','25px')
+              if (config.show_icon == true) iconElement.style.setProperty('--padding-left','25px')
+            }
+            if (config.show_icon == true && config.align == 'split') iconElement.style.setProperty('--padding-left', '21px')
+          }
+          if (config.indicator == 'right' && config.align == 'split' || config.align == 'right') {
+            if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
+            if (config.align == 'right' && config.title_position == 'inside' || config.indicator != 'left' && config.indicator != 'auto-vertical') {
+              if (config.indicator != 'left') {
+              titleElement.style.setProperty('--padding-right','25px')
+              valueElement.style.setProperty('--padding-right','25px')
+              if (config.show_icon == true) iconElement.style.setProperty('--padding-right','21px')
+              }
+            } 
+          }
           root.getElementById('indicator_'+id).textContent = '▲'
           root.getElementById('indicatorColor_'+id).textContent = '▲'
           break
         case 'down':
+          if (config.indicator == 'auto' && config.align == 'split') {
+            if (config.title_position != 'inside' && config.title_position != 'off') {
+              valueElement.style.setProperty('--padding-left','25px')
+            } else {
+              valueElement.style.removeProperty('--padding-right')
+              if (config.title_position == 'inside' && config.show_icon == false) titleElement.style.setProperty('--padding-left', '25px')
+            }
+            valueElement.style.removeProperty('--padding-right')
+            if (config.show_icon == true) iconElement.style.setProperty('--padding-left', '21px')
+          }
+          if (config.indicator == 'left' && config.align == 'split' || config.align == 'left') {
+            if (config.title_position == 'inside' && config.indicator != 'right') {
+              if (config.show_icon !== true && config.title_position !== 'off') titleElement.style.setProperty('--padding-left','25px')
+            }
+            if (config.align == 'left' && config.indicator != 'right' && config.indicator != 'auto-vertical') {
+              titleElement.style.setProperty('--padding-left','25px')
+              valueElement.style.setProperty('--padding-left','25px')
+              if (config.show_icon == true) iconElement.style.setProperty('--padding-left','21px')
+            } 
+          }
+          if (config.indicator == 'right' && config.align == 'split' || config.align == 'right') {
+            if (config.align == 'split') valueElement.style.setProperty('--padding-right','25px')
+            if (config.show_icon == true) iconElement.style.removeProperty('--padding-left')
+            if (config.align == 'right' && config.indicator != 'right') {
+              titleElement.style.removeProperty('--padding-right')
+              valueElement.style.removeProperty('--padding-right')
+              if (config.show_icon == true) iconElement.style.removeProperty('--padding-right')
+            }
+            if (config.indicator == 'right') {
+              titleElement.style.setProperty('--padding-right','25px')
+              valueElement.style.setProperty('--padding-right','25px')
+              if (config.show_icon == true) iconElement.style.setProperty('--padding-right','21px')
+            } 
+          }
           root.getElementById('indicator_'+id).textContent = '▼'
           root.getElementById('indicatorColor_'+id).textContent = '▼'
           break
@@ -624,15 +808,23 @@ class BarCard extends HTMLElement {
     root.getElementById('targetMarker_'+id).style.setProperty('--targetMarker-color', markerColor)
   }
 
+  // On entity update
   _updateEntity (entity, id) {
     const config = this._config
     const root = this.shadowRoot
     const hass = this._hass
-    if (!config.entity) {
+    if (!config.entity || !config.title) {
       config.title = hass.states[entity].attributes.friendly_name
     }
 
-    root.getElementById('title_'+id).textContent = config.title
+    if (config.show_icon == true) {
+      if (!config.icon){
+        root.getElementById('icon_'+id).icon = hass.states[entity].attributes.icon
+      } else {
+        root.getElementById('icon_'+id).icon = config.icon
+      }
+    }
+    if (config.title_position != 'off') root.getElementById('title_'+id).textContent = config.title
 
     if (!this._entityState) this._entityState = []
 
@@ -702,6 +894,7 @@ class BarCard extends HTMLElement {
     }
 
     if (!this._currentAnimation) this._currentAnimation = {}
+
     // Select 'auto' animation
     if (config.animation == 'auto') {
       if (entityState > this._entityState[id]) {
