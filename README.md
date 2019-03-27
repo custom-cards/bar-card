@@ -1,4 +1,5 @@
 # bar-card
+### [Examples](#examples-1)
 
 ![](images/bar_examples.gif)
 
