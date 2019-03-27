@@ -46,6 +46,31 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | value_style | object | none | A list of CSS styles applied to the entity value.
 | charge_entity | string | none | Charge enitity, **required** when using charge animation mode. States can be `on`/`off`, `true`/`false`, `charging`/`discharging`
 
+## Installation
+
+### Step 1
+
+Copy `bar-card.js` to `<config directory>/www/custom-lovelace/bar-card/bar-card.js`.
+
+### Step 2
+
+Add `bar-card` resource to `ui-lovelace.yaml`.
+
+```yaml
+resources:
+- url: /local/custom-lovelace/bar-card/bar-card.js?v=0.1.5
+  type: js
+```
+
+### Step 3
+
+Add a custom card to your `ui-lovelace.yaml`.
+
+```yaml
+- type: custom:bar-card
+  entity: sensor.example
+```
+
 ## Examples
 
 ### Default
