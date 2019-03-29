@@ -54,10 +54,11 @@ class BarCard extends HTMLElement {
     }
 
     // Define card container
-    let cardContainer = document.createElement('card-container')
+    let cardContainer = document.createElement('ha-card')
     let cardContainerStyle = document.createElement('style')
     cardContainerStyle.textContent = `
-      card-container {
+      ha-card {
+        padding: calc(${config.padding} / 2);
         display: flex;
         justify-content: space-around;
         flex-wrap: wrap;
@@ -96,7 +97,8 @@ class BarCard extends HTMLElement {
 
   // Create card elements
   _cardElements(config, id, entity) {
-    const card = document.createElement('ha-card')
+    const card = document.createElement('div')
+    card.id = 'card_'+id
     const container = document.createElement('div')
     container.id = 'container_'+id
     const background = document.createElement('div')
@@ -413,10 +415,10 @@ class BarCard extends HTMLElement {
       haCardWidth = 100;
     }
     style.textContent = `
-      ha-card {
+      #card_${id} {
         background-color: var(--paper-card-background-color);
         padding: ${config.padding};
-        width: calc(${haCardWidth}% - (${config.padding} * 1.4));
+        width: calc(${haCardWidth}% - ${config.padding} * 2);
         ${cardStyle}
       }
       #container_${id} {
@@ -904,11 +906,17 @@ class BarCard extends HTMLElement {
         if (entityState > this._entityState[id]) {
           if (config.indicator !== 'off') this._updateIndicator(config.indicator, 'up', id, barColor)
           this._animationDirection = 'normal'
+          if (this._currentAnimation[id]) {
+            this._currentAnimation[id].pause()
+          }
           this._currentAnimation[id] = this._updateAnimation(entityState, config.delay, false, id)
         }
         if (entityState < this._entityState[id]) {
           if (config.indicator !== 'off') this._updateIndicator(config.indicator, 'down', id, barColor)
           this._animationDirection = 'reverse'
+          if (this._currentAnimation[id]) {
+            this._currentAnimation[id].pause()
+          }
           this._currentAnimation[id] = this._updateAnimation(entityState, config.delay, false, id)
         }
         if (entityState == configMax || entityState == configMin) {
