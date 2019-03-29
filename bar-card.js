@@ -290,7 +290,7 @@ class BarCard extends HTMLElement {
         ${markerDirection}: var(--targetMarker-percent);
         height: ${config.height};
         border-left: 2px dashed var(--bar-color);
-        filter: brightness(0.6);
+        filter: brightness(0.75);
       }
       `
     } else {
@@ -301,7 +301,7 @@ class BarCard extends HTMLElement {
         ${markerDirection}: var(--targetMarker-percent);
         width: 100%;
         border-top: 2px dashed var(--bar-color);
-        filter: brightness(0.6);
+        filter: brightness(0.75);
       }
       `
     }
@@ -313,7 +313,7 @@ class BarCard extends HTMLElement {
       width: calc(100% - 8px);
       font-weight: bold;
       color: #FFF;
-      text-shadow: 1px 1px #000C;
+      text-shadow: 1px 1px #0007;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: ${insideWhitespace};
@@ -416,7 +416,7 @@ class BarCard extends HTMLElement {
       ha-card {
         background-color: var(--paper-card-background-color);
         padding: ${config.padding};
-        width: calc(${haCardWidth}% - (${config.padding} * 2));
+        width: calc(${haCardWidth}% - (${config.padding} * 1.4));
         ${cardStyle}
       }
       #container_${id} {
@@ -452,27 +452,27 @@ class BarCard extends HTMLElement {
       }
       #backgroundBar_${id} {
         background: var(--bar-color);
-        filter: brightness(0.5);
-        opacity: 0.15
+        filter: brightness(0.25);
+        opacity: 0.25;
       }
       #bar_${id} {
         background: linear-gradient(to ${barFrom}, var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
       }
       #chargeBar_${id} {
         background: linear-gradient(to ${barFrom}, #FFF0 var(--bar-percent), var(--bar-color) var(--bar-percent), var(--bar-color) var(--bar-charge-percent), #FFF0 var(--bar-charge-percent));
-        filter: brightness(0.5);
+        filter: brightness(0.75);
         opacity: var(--bar-charge-opacity);
       }
       #targetBar_${id} {
-        filter: brightness(0.5);
-        opacity: 0.5;
+        filter: brightness(0.66);
+        opacity: 0.33;
         background: linear-gradient(to ${barFrom}, #FFF0 var(--targetBar-left-percent), var(--bar-color) var(--targetBar-left-percent), var(--bar-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
       }
       #icon_${id} {
         position: relative;
         font-weight: bold;
         color: #FFF;
-        text-shadow: 1px 1px #000C;
+        filter: drop-shadow(1px 1px #0005);
         ${iconStyle}
       }
       #title_${id} {
@@ -486,7 +486,7 @@ class BarCard extends HTMLElement {
         font-weight: bold;
         font-size: 13px;
         color: #FFF;
-        text-shadow: 1px 1px #000C;
+        text-shadow: 1px 1px #0007;
         white-space: nowrap;
         ${valueStyle}
       }
@@ -508,7 +508,7 @@ class BarCard extends HTMLElement {
       }
       #indicator_${id} {
         position: relative;
-        filter: brightness(0.6);
+        filter: brightness(0.75);
         color: var(--bar-color);
         --padding-left: 0px;
         padding-left: var(--padding-left);
@@ -893,8 +893,9 @@ class BarCard extends HTMLElement {
         this._entityTarget[id] = configTarget
       }
       barElement.style.setProperty('--bar-color', barColor)
-      root.getElementById('chargeBar_'+id).style.setProperty('--bar-color', barColor)
-      root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', barColor)
+      if (config.animation !== 'off') root.getElementById('chargeBar_'+id).style.setProperty('--bar-color', barColor)
+      if (entityState == 'N/A') root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', '#000')
+      else root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', barColor)
       root.getElementById('value_'+id).textContent = `${entityState} ${measurement}`
 
       // Select 'auto' animation
@@ -978,11 +979,10 @@ class BarCard extends HTMLElement {
     // On target update
     if (config.target) {
       if (configTarget != this._entityTarget[id]) {
-        console.log('target')
         const barColor = this._calculateBarColor(entityState)
         this._updateTargetBar(entityState, configTarget, barColor, id, entity)
         this._entityTarget[id] = configTarget
-        if (this._currentAnimation) {
+        if (this._currentAnimation && config.animation !== 'off') {
           this._currentAnimation = this._updateAnimation(entityState, config.delay, false, id)
         }
       }
@@ -990,7 +990,6 @@ class BarCard extends HTMLElement {
 
     // On min update
     if (configMin !== this._currentMin[id]) {
-      console.log('min')
       this._updateBar(entityState, hass, id, entity)
       this._currentMin[id] = configMin
       if (config.target) {
@@ -998,14 +997,13 @@ class BarCard extends HTMLElement {
         this._updateTargetBar(entityState, configTarget, barColor, id, entity)
         this._currentMin[id] = configMin
       }
-      if (this._currentAnimation) {
+      if (this._currentAnimation && config.animation !== 'off') {
         this._currentAnimation = this._updateAnimation(entityState, config.delay, false, id)
       }
     }
 
     // On max update
     if (configMax !== this._currentMax[id]) {
-      console.log('max')
       this._updateBar(entityState, hass, id, entity)
       this._currentMax[id] = configMax
       if (config.target) {
@@ -1013,7 +1011,7 @@ class BarCard extends HTMLElement {
         this._updateTargetBar(entityState, configTarget, barColor, id, entity)
         this._currentMax[id] = configMax
       }
-      if (this._currentAnimation) {
+      if (this._currentAnimation && config.animation !== 'off') {
         this._currentAnimation = this._updateAnimation(entityState, config.delay, false, id)
       }
     }
