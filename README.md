@@ -283,11 +283,10 @@ Add a custom card to your `ui-lovelace.yaml`.
     title_position: inside
     columns: 3
     padding: 2px
+    align: left
     title_style:
-      text-align: left
       font-size: 16px
-    bar_style:
-      align-items: flex-start
+    value_style:
       font-size: 8px
   filter:
     include:
