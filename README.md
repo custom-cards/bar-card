@@ -32,7 +32,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | indicator | string | auto | Defines position off the indicator `auto`,`auto-vertical`,`left`,`right`,`top`,`bottom`,`off`
 | height | string | 40px | Scales the height of the bar.
 | width | string | 70% | Scales the width of the bar.
-| padding | string | 4px | Defines padding amount around the card.
+| padding | string | 4px | Defines padding amount around the bar.
 | min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
 | max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
 | target | number | none | Defines a target marker value, accepts entity id or attribute object value.
