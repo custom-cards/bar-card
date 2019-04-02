@@ -28,7 +28,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | show_icon | boolean | false | Defines if icon should be shown.
 | icon | string | icon | Defines icon to be displayed. If no icon is defined entity icon attribute will be used. 
 | align | string | center | Defines the alignment of text and icon inside the bar. `left`,`right`,`top`,`bottom`,`split`,`center-split`,`left-split`,`right-split`,`top-split`,`bottom-split`
-| animation | string | auto | Defines the mode of animation `auto`, `charge`, `off`.
+| animation | string | on | Defines the mode of animation `auto`, `off`.
 | indicator | string | auto | Defines position off the indicator `auto`,`auto-vertical`,`left`,`right`,`top`,`bottom`,`off`
 | height | string | 40px | Scales the height of the bar.
 | width | string | 70% | Scales the width of the bar.
@@ -40,11 +40,13 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
 | direction | string | right | Direction of the bar. `left`,`right`,`up`,`down`,`left-reverse`,`right-reverse`,`up-reverse`,`down-reverse`
 | severity | object | none | A list of severity values.
+| charge_entity | string | none | Defines entity to be used as animation trigger, animation will be based on this entity's state. Entity states can be `on`/`off`, `true`/`false`, `charging`/`discharging`
 | card_style | object | none | A list of CSS styles applied to the card background.
 | icon_style | object| none | A list of CSS styles applied to the icon.
 | title_style | object | none | A list of CSS styles applied to the title.
 | value_style | object | none | A list of CSS styles applied to the entity value.
-| charge_entity | string | none | Charge enitity, **required** when using charge animation mode. States can be `on`/`off`, `true`/`false`, `charging`/`discharging`
+| background_style | object | none | A list of CSS styles applied to the bar background.
+
 
 ## Installation
 

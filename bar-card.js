@@ -29,6 +29,7 @@ class BarCard extends HTMLElement {
     if (!config.icon_style) config.icon_style = false
     if (!config.title_style) config.title_style = false
     if (!config.value_style) config.value_style = false
+    if (!config.background_style) config.background_style = false
 
     // Check entity types
     let updateArray
@@ -246,6 +247,7 @@ class BarCard extends HTMLElement {
     if (config.value_style !== false) var valueStyle = this._customStyle(config.value_style)
     if (config.title_style !== false) var titleStyle = this._customStyle(config.title_style)
     if (config.icon_style !== false) var iconStyle = this._customStyle(config.icon_style)
+    if (config.background_style !== false) var backgroundStyle = this._customStyle(config.background_style)
 
     // Sets position of the titleBar
     let titleAlign
@@ -473,6 +475,7 @@ class BarCard extends HTMLElement {
         background: var(--bar-color);
         filter: brightness(0.5);
         opacity: 0.25;
+        ${backgroundStyle}
       }
       #bar_${id} {
         background: linear-gradient(to ${barFrom}, var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
@@ -958,7 +961,7 @@ class BarCard extends HTMLElement {
     } 
 
     // Animation is charge
-    if (config.animation == 'charge') {
+    if (config.charge_entity !== false) {
       if (!this._currentChargeState) this._currentChargeState = {}
       if (this._currentChargeState[id] !== chargeEntityState || entityState !== this._entityState[id]) {
         const barColor = this._calculateBarColor(config, entityState)
