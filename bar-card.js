@@ -583,7 +583,7 @@ class BarCard extends HTMLElement {
     sections.forEach(section => {
       if (numberValue <= section.value && !color) {
         const keys = Object.keys(section)
-        if (keys[1] == 'color') color = section.color
+        if (keys[0] == 'color' || keys[1] == 'color') color = section.color
         else color = 'hsl(' + section.hue + ',50%,50%)'
       }
     })
