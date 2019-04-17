@@ -64,7 +64,7 @@ Add `bar-card` resource to `ui-lovelace.yaml`.
 
 ```yaml
 resources:
-- url: /local/custom-lovelace/bar-card/bar-card.js?v=0.2.0
+- url: /local/custom-lovelace/bar-card/bar-card.js?v=1.0.0
   type: js
 ```
 
