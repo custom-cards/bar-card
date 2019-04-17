@@ -19,28 +19,32 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
 | entities | array | none | A list of entities. Cards will share config.
-| columns | number | none | Defines the number of columns when using entities list.
-| attribute | string | none | Defines the attribute to be displayed.
-| unit_of_measurement | string | none | Defines the unit of measurement to be displayed.
-| color | string | var(--primary-color) | Defines the color of the bar, can be any valid CSS color value or variable.
+| columns | number | none | Number of columns when using entities list.
+| attribute | string | none | Attribute to be displayed.
+| unit_of_measurement | string | none | Unit of measurement to be displayed.
+| color | string | var(--primary-color) | Color of the bar, can be any valid CSS color value or variable.
 | title | string | friendly_name | Title displayed next to the bar.
-| title_position | string | left | Position of the title. `left`,`right`,`top`,`bottom`,`inside`,`off`
+| title_position | string | left | Position of the title. `left`, `right`, `top`, `bottom`, `inside`, `off`
 | show_icon | boolean | false | Defines if icon should be shown.
-| icon | string | icon | Defines icon to be displayed. If no icon is defined entity icon attribute will be used. 
-| align | string | center | Defines the alignment of text and icon inside the bar. `left`,`right`,`top`,`bottom`,`split`,`center-split`,`left-split`,`right-split`,`top-split`,`bottom-split`
-| animation | string | on | Defines the mode of animation `auto`, `off`.
-| indicator | string | auto | Defines position off the indicator `auto`,`auto-vertical`,`left`,`right`,`top`,`bottom`,`off`
+| icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
+| align | string | center | Alignment of text and icon inside the bar. `left`, `right`, `top`, `bottom`, `split`, `center-split`, `left-split`, `right-split`, `top-split`, `bottom-split`
+| animation | string | on | Mode of animation `auto`,  `off`.
+| indicator | string | auto | Position off the indicator `auto`, `auto-vertical`, `left`, `right`, `top`, `bottom`, `off`
 | height | string | 40px | Scales the height of the bar.
 | width | string | 70% | Scales the width of the bar.
-| padding | string | 4px | Defines padding amount around the card.
+| padding | string | 4px | Padding amount around the bar.
 | min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
 | max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
-| target | number | none | Defines a target marker value, accepts entity id or attribute object value.
+| target | number | none | Target marker value, accepts entity id or attribute object value.
 | speed | number | 2500 | The speed of the bar animation in milliseconds.
 | delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
-| direction | string | right | Direction of the bar. `left`,`right`,`up`,`down`,`left-reverse`,`right-reverse`,`up-reverse`,`down-reverse`
+| direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
 | severity | object | none | A list of severity values.
-| charge_entity | string | none | Defines entity to be used as animation trigger, animation will be based on this entity's state. Entity states can be `on`/`off`, `true`/`false`, `charging`/`discharging`
+| charge_entity | string | none | Defines entity to be used as animation trigger, animation will be based on this entity's state. Entity states can be `on`/`off`,  `true`/`false`,  `charging`/`discharging`
+| entity_config | boolean | false | Sets the card to use the configured entity attributes as the card config.
+| tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
+| service_config | object | none | A list of service call options. Should include `domain`, `service`, `data`
+| visibility | string | none | Sets visibilty threshold for the bar. Defined as comparison operator and a number. e.g. `<= 25`
 | card_style | object | none | A list of CSS styles applied to the card background.
 | icon_style | object| none | A list of CSS styles applied to the icon.
 | title_style | object | none | A list of CSS styles applied to the title.
@@ -60,7 +64,7 @@ Add `bar-card` resource to `ui-lovelace.yaml`.
 
 ```yaml
 resources:
-- url: /local/custom-lovelace/bar-card/bar-card.js?v=0.1.5
+- url: /local/custom-lovelace/bar-card/bar-card.js?v=0.2.0
   type: js
 ```
 

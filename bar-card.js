@@ -5,6 +5,8 @@ class BarCard extends HTMLElement {
   }
   setConfig (config) {
     // Default Card variables
+    const initialConfig = Object.assign({}, config)
+
     if (!config.height) config.height = '40px'
     if (!config.direction) config.direction = 'right'
     if (!config.rounding) config.rounding = '3px'
@@ -17,6 +19,7 @@ class BarCard extends HTMLElement {
     if (!config.padding) config.padding = '4px'
     if (!config.align) config.align = 'center'
     if (!config.color) config.color = 'var(--primary-color)'
+    if (!config.tap_action) config.tap_action = 'info'
     if (!config.show_icon) config.show_icon = false
     if (!config.title) config.title = false
     if (!config.severity) config.severity = false
@@ -30,6 +33,7 @@ class BarCard extends HTMLElement {
     if (!config.title_style) config.title_style = false
     if (!config.value_style) config.value_style = false
     if (!config.background_style) config.background_style = false
+    if (!config.visibility) config.visibility = false
 
     // Check entity types
     let updateArray
@@ -81,13 +85,19 @@ class BarCard extends HTMLElement {
     `
     // For each entity in entities list create cardElements
     this._configArray = []
+    this._initialConfigArray = []
     for (let i = 0; i <= config.entities.length-1; i++){
       const entityName = config.entities[i].entity.split('.')
       this._configArray[i] = Object.assign({},config)
+      this._initialConfigArray[i] = Object.assign({}, initialConfig)
       Object.keys(config).forEach(section => {
         const config = this._configArray[i]
         const entities = config.entities[i]
-        if (entities[section] !== undefined) config[section] = entities[section]
+        const initialConfig = this._initialConfigArray[i]
+        if (entities[section] !== undefined) {
+          config[section] = entities[section]
+          initialConfig[section] = entities[section]
+        }
       })
       cardContainer.appendChild(this._cardElements(this._configArray[i], entityName[0]+'_'+entityName[1]+'_'+i, config.entities[i].entity))
     }
@@ -132,84 +142,46 @@ class BarCard extends HTMLElement {
     bar.id = 'bar_'+id
     const contentBar = document.createElement('div')
     contentBar.id = 'contentBar_'+id
-
-    // Check if icon is enabled
-    if (config.show_icon == true) {
-      var icon = document.createElement('ha-icon')
-      icon.id = 'icon_'+id
-    }     
-    
-    // Check if title is not inside
-    if (config.title !== "inside"){
-      var title = document.createElement('div')
-      title.id = 'title_'+id
-      var titleBar = document.createElement('div')
-      titleBar.id = 'titleBar_'+id
-    }
-
+    var icon = document.createElement('ha-icon')
+    icon.id = 'icon_'+id  
+    var title = document.createElement('div')
+    title.id = 'title_'+id
+    var titleBar = document.createElement('div')
+    titleBar.id = 'titleBar_'+id
     const value = document.createElement('div')
     value.id = 'value_'+id
-
-    // Check if animation is enabled
-    if (config.animation !== "off") {
-      var chargeBar = document.createElement('div')
-      chargeBar.id = 'chargeBar_'+id
-    }
-
-    // Check if target is defined
-    if (config.target != false) {
-      var targetBar = document.createElement('div')
-      targetBar.id = 'targetBar_'+id
-      var targetMarker = document.createElement('div')
-      targetMarker.id = 'targetMarker_'+id
-    }
-
-    // Check if indicator is enabled
-    if (config.indicator !== "off"){
-      var indicatorContainer = document.createElement('div')
-      indicatorContainer.id = 'indicatorContainer_'+id
-      var indicatorBar = document.createElement('div')
-      indicatorBar.id = 'indicatorBar_'+id
-      var indicator = document.createElement('div')
-      indicator.id = 'indicator_'+id
-    }
+    var chargeBar = document.createElement('div')
+    chargeBar.id = 'chargeBar_'+id
+    var targetBar = document.createElement('div')
+    targetBar.id = 'targetBar_'+id
+    var targetMarker = document.createElement('div')
+    targetMarker.id = 'targetMarker_'+id
+    var indicatorContainer = document.createElement('div')
+    indicatorContainer.id = 'indicatorContainer_'+id
+    var indicatorBar = document.createElement('div')
+    indicatorBar.id = 'indicatorBar_'+id
+    var indicator = document.createElement('div')
+    indicator.id = 'indicator_'+id
         
     // Start building card
     background.appendChild(backgroundBar)
     background.appendChild(bar)
-
-    // Check if target is configured
-    if (config.target != false) {
-      bar.appendChild(targetMarker)
-      background.appendChild(targetBar)
+    bar.appendChild(targetMarker)
+    background.appendChild(targetBar)
+    background.appendChild(chargeBar)
+    indicatorContainer.appendChild(indicator)
+    switch (config.align) {
+      case 'center':
+      case 'center-split':
+      case 'left-split':
+      case 'right-split':
+        indicatorBar.appendChild(indicatorContainer)
+        background.appendChild(indicatorBar)
+        break
+      default:
+        background.appendChild(indicatorContainer)
     }
-
-    // Check if animation is not disabled
-    if (config.animation !== "off") {
-      background.appendChild(chargeBar)
-    }
-
-    // Check if indicator is not disabled
-    if (config.indicator != 'off') {
-      indicatorContainer.appendChild(indicator)
-      switch (config.align) {
-        case 'center':
-        case 'center-split':
-        case 'left-split':
-        case 'right-split':
-          indicatorBar.appendChild(indicatorContainer)
-          background.appendChild(indicatorBar)
-          break
-        default:
-          background.appendChild(indicatorContainer)
-      }
-    }
-
-    if (config.show_icon == true) {
-      contentBar.appendChild(icon) 
-    }
-
-    // Select title position
+    contentBar.appendChild(icon) 
     switch (config.title_position) {
       case 'left':
       case 'right':
@@ -229,14 +201,22 @@ class BarCard extends HTMLElement {
       case 'off':
         container.appendChild(background)      
     }
-
     contentBar.appendChild(value)
     background.appendChild(contentBar)
     card.appendChild(container)
     card.appendChild(this._styleElements(config, id))
-    card.addEventListener('click', event => {
-      this._showAttributes('hass-more-info', { entityId: entity })
-    })
+    switch (config.tap_action) {
+      case 'info':
+        card.addEventListener('click', event => {
+          this._showAttributes('hass-more-info', { entityId: entity })
+        })
+        break
+      case 'service':
+        card.addEventListener('click', event => {
+          this._serviceCall(config.service_options.domain, config.service_options.service, config.service_options.data)
+        })
+        break
+    }
 
     return card
   }
@@ -309,25 +289,15 @@ class BarCard extends HTMLElement {
     let markerStyle
     if (barFrom == 'left' || barFrom == 'right') {
       markerStyle = `
-      #targetMarker_${id} {
-        position: absolute;
-        background: #FFF0;
         ${markerDirection}: var(--targetMarker-percent);
         height: ${config.height};
         border-left: 2px dashed var(--bar-color);
-        filter: brightness(0.75);
-      }
       `
     } else {
       markerStyle = `
-      #targetMarker_${id} {
-        position: absolute;
-        background: #FFF0;
         ${markerDirection}: var(--targetMarker-percent);
         width: 100%;
         border-top: 2px dashed var(--bar-color);
-        filter: brightness(0.75);
-      }
       `
     }
 
@@ -418,8 +388,7 @@ class BarCard extends HTMLElement {
         break
       case 'center':
         flexDirection = 'column'
-        if (config.title_position != 'inside') textAlign = 'left'
-        else textAlign = 'center'
+        textAlign = 'center'
         justifyContent = 'center'
         alignItems = 'center'
         break
@@ -429,6 +398,7 @@ class BarCard extends HTMLElement {
         justifyContent = 'space-between'
         alignItems = 'center'
     }
+    if (config.title_position != 'inside') textAlign = 'left'
 
     // Set CSS styles
     let haCardWidth
@@ -439,6 +409,8 @@ class BarCard extends HTMLElement {
       #card_${id} {
         padding: ${config.padding};
         width: calc(${haCardWidth}% - (${config.padding} * 2));
+        --card-display: visible;
+        display: var(--card-display);
       }
       #container_${id} {
         position: relative;
@@ -448,6 +420,7 @@ class BarCard extends HTMLElement {
         ${titleflexDirection}
       }
       #background_${id} {
+        cursor: pointer;
         position: relative;
         display: flex;
         flex-direction: var(--flex-direction);
@@ -482,15 +455,24 @@ class BarCard extends HTMLElement {
       }
       #chargeBar_${id} {
         background: linear-gradient(to ${barFrom}, #FFF0 var(--bar-percent), var(--bar-color) var(--bar-percent), var(--bar-color) var(--bar-charge-percent), #FFF0 var(--bar-charge-percent));
-        filter: brightness(0.75);
+        filter: var(--bar-charge-brightness);
         opacity: var(--bar-charge-opacity);
       }
       #targetBar_${id} {
+        display: var(--target-display);
         filter: brightness(0.66);
         opacity: 0.33;
         background: linear-gradient(to ${barFrom}, #FFF0 var(--targetBar-left-percent), var(--bar-color) var(--targetBar-left-percent), var(--bar-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
       }
+      #targetMarker_${id} {
+        display: var(--target-display);
+        position: absolute;
+        background: #FFF0;
+        ${markerStyle}
+        filter: brightness(0.75);
+      }
       #icon_${id} {
+        display: var(--icon-display);
         position: relative;
         font-weight: bold;
         color: #FFF;
@@ -543,7 +525,6 @@ class BarCard extends HTMLElement {
         align-items: center;
         justify-content: center;
       }
-      ${markerStyle}
     `
     return style
   }
@@ -558,8 +539,8 @@ class BarCard extends HTMLElement {
   }
 
   // Translates entity percentage to bar percentage
-  _translatePercent (value, min, max, index) {
-    const config = Object.assign({}, this._configArray[index])
+  _translatePercent (value, min, max, index, entity) {
+    const config = this._configAttributeCheck(entity, index)
     switch (config.direction) {
       case 'right-reverse':
       case 'left-reverse':
@@ -576,15 +557,13 @@ class BarCard extends HTMLElement {
     return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
   }
 
-  // Returns hue value based on severity array
+  // Returns color based on severity array
   _computeSeverity (stateValue, sections) {
     let numberValue = Number(stateValue)
     let color
     sections.forEach(section => {
       if (numberValue <= section.value && !color) {
-        const keys = Object.keys(section)
-        if (keys[1] == 'color') color = section.color
-        else color = 'hsl(' + section.hue + ',50%,50%)'
+        color = section.color
       }
     })
     return color
@@ -614,7 +593,7 @@ class BarCard extends HTMLElement {
 
   // Check if min is defined otherwise check for min attribute
   _minCheck (entity, hass, index) {
-    const config = Object.assign({}, this._configArray[index])
+    const config = this._configAttributeCheck(entity, index)
     if (config.min == undefined) {
       if (hass.states[entity] != undefined) {
         if (hass.states[entity].attributes.min) return hass.states[entity].attributes.min
@@ -629,7 +608,7 @@ class BarCard extends HTMLElement {
 
   // Check if max is defined otherwise check for max attribute
   _maxCheck (entity, hass, index) {
-    const config = Object.assign({}, this._configArray[index])
+    const config = this._configAttributeCheck(entity, index)
     if (config.max == undefined) {
       if (hass.states[entity] != undefined) {
         if (hass.states[entity].attributes.max) return hass.states[entity].attributes.max
@@ -640,6 +619,11 @@ class BarCard extends HTMLElement {
     } else {
       return config.max
     }
+  }
+
+  _serviceCall (domain, service, data) {
+    const hass = this._hass
+    hass.callService(domain, service, data)
   }
 
   // Press action
@@ -663,13 +647,13 @@ class BarCard extends HTMLElement {
     const maxValue = this._valueEntityCheck(this._maxCheck(entity, hass, index), hass)
     const barElement = this.shadowRoot.getElementById('bar_'+id)
 
-    barElement.style.setProperty('--bar-percent', `${this._translatePercent(entityState, minValue, maxValue, index)}%`)
-    barElement.style.setProperty('--bar-charge-percent', `${this._translatePercent(entityState, minValue, maxValue, index)}%`)
+    barElement.style.setProperty('--bar-percent', `${this._translatePercent(entityState, minValue, maxValue, index, entity)}%`)
+    barElement.style.setProperty('--bar-charge-percent', `${this._translatePercent(entityState, minValue, maxValue, index, entity)}%`)
   }
 
   // Create animation
   _updateAnimation (entityState, configDuration, configStop, id, entity, index) {
-    const config = Object.assign({}, this._configArray[index])
+    const config = this._configAttributeCheck(entity, index)
     const root = this.shadowRoot
     const hass = this._hass
     const element = root.getElementById('chargeBar_'+id)
@@ -678,9 +662,9 @@ class BarCard extends HTMLElement {
     const minValue = this._valueEntityCheck(this._minCheck(entity, hass, index), hass)
     const maxValue = this._valueEntityCheck(this._maxCheck(entity, hass, index), hass)
 
-    let currentPercent = this._translatePercent(entityState, minValue, maxValue, index)
-    let totalFrames = ((currentPercent) * 10) + (config.delay / (config.speed / 250))
-    let scaledPercent = (currentPercent) * 10
+    let currentPercent = this._translatePercent(entityState, minValue, maxValue, index, entity)
+    let totalFrames = currentPercent * 3 + (config.delay / (config.speed / 250) / 3)
+    let scaledPercent = currentPercent * 3
 
     if (configStop == true) {
       configDuration = 0
@@ -708,20 +692,22 @@ class BarCard extends HTMLElement {
     let i = scaledPercent
     if (configDirection == 'normal') {
       for (; i <= totalFrames;) {
-        let opacity = this._mapRange(i / 10, currentPercent, currentPercent + 25, 1, 0)
-        let keyframe = {'--bar-charge-percent': i / 10 + '%', '--bar-percent': currentPercent + '%', '--bar-charge-opacity': opacity}
+        let opacity = this._mapRange(i / 3, currentPercent, currentPercent + 25, 0.5, 0)
+        let keyframe = {'--bar-charge-percent': i / 3 + '%', '--bar-percent': currentPercent + '%', '--bar-charge-opacity': opacity}
         keyframes.push(keyframe)
         i++
       }
+      element.style.setProperty('--bar-charge-brightness','brightness(1)')
     }
     if (configDirection == 'reverse') {
       for (; i <= totalFrames;) {
-        const reversePercent = currentPercent - ((i - scaledPercent) / 10)
-        let opacity = this._mapRange(i / 10, currentPercent, currentPercent + 25, 1, 0)
+        const reversePercent = currentPercent - ((i - scaledPercent) / 3)
+        let opacity = this._mapRange(i / 3, currentPercent, currentPercent + 25, 0.5, 0)
         let keyframe = {'--bar-charge-percent': currentPercent + '%', '--bar-percent': reversePercent + '%', '--bar-charge-opacity': opacity}
         keyframes.push(keyframe)
         i++
       }
+      element.style.setProperty('--bar-charge-brightness','brightness(0.25)')
     }
     const animation = element.animate(keyframes, options)
     animation.id = id
@@ -770,6 +756,9 @@ class BarCard extends HTMLElement {
         indicatorElement.textContent = '▼'
         switch (position) {
           case 'right':
+            root.getElementById('background_'+id).style.setProperty('--flex-direction','row-reverse')
+            indicatorElement.style.setProperty('--padding-right','4px')
+            indicatorElement.style.setProperty('--padding-left','0px')
             break
           case 'left':
           case 'auto':
@@ -802,55 +791,67 @@ class BarCard extends HTMLElement {
 
   // Scale the target bar size
   _updateTargetBar (entityState, target, color, id, entity, index) {
+    const config = this._configAttributeCheck(entity, index)
     const root = this.shadowRoot
     const targetBarElement = root.getElementById('targetBar_'+id)
     const targetMarkerElement = root.getElementById('targetMarker_'+id)
-    const hass = this._hass
-
-    const minValue = this._valueEntityCheck(this._minCheck(entity, hass, index), hass, index)
-    const maxValue = this._valueEntityCheck(this._maxCheck(entity, hass, index), hass, index)
-
-    let currentPercent = this._translatePercent(entityState, minValue, maxValue, index)
-    let targetPercent = this._translatePercent(target, minValue, maxValue, index)
-
-    let initialPercent
-    let diffPercent
-    if (currentPercent > targetPercent) {
-      initialPercent = targetPercent
-      diffPercent = currentPercent
+    if (config.target !== false) {
+      const hass = this._hass
+      const minValue = this._valueEntityCheck(this._minCheck(entity, hass, index), hass, index)
+      const maxValue = this._valueEntityCheck(this._maxCheck(entity, hass, index), hass, index)
+      let currentPercent = this._translatePercent(entityState, minValue, maxValue, index, entity)
+      let targetPercent = this._translatePercent(target, minValue, maxValue, index, entity)
+      let initialPercent
+      let diffPercent    
+      if (currentPercent > targetPercent) {
+        initialPercent = targetPercent
+        diffPercent = currentPercent
+      } else {
+        initialPercent = currentPercent
+        diffPercent = targetPercent
+      }
+      targetBarElement.style.setProperty('--targetBar-left-percent', initialPercent + '%')
+      targetBarElement.style.setProperty('--targetBar-right-percent', diffPercent + '%')
+      targetBarElement.style.setProperty('--bar-color', color)
+      targetMarkerElement.style.setProperty('--targetMarker-percent', targetPercent + '%')
+      targetMarkerElement.style.setProperty('--bar-color', color)
     } else {
-      initialPercent = currentPercent
-      diffPercent = targetPercent
+      targetBarElement.style.setProperty('--target-display', 'none')
+      targetMarkerElement.style.setProperty('--target-display', 'none')
     }
-    targetBarElement.style.setProperty('--targetBar-left-percent', initialPercent + '%')
-    targetBarElement.style.setProperty('--targetBar-right-percent', diffPercent + '%')
-    targetBarElement.style.setProperty('--bar-color', color)
-    targetMarkerElement.style.setProperty('--targetMarker-percent', targetPercent + '%')
-    targetMarkerElement.style.setProperty('--bar-color', color)
   }
 
   _calculateBarColor (config, entityState) {
     let barColor
     if (config.severity == false) {
-      if (config.hue) {
-          let hue
-          hue = 220
-          if (config.hue !== undefined) {
-            hue = config.hue
-          }
-          barColor = 'hsl(' + hue + ',' + config.saturation + ',50%)'
-      } else if (config.color) {
-        barColor = config.color
-      }   
+      barColor = config.color  
     } else {
       barColor = this._computeSeverity(entityState, config.severity)
     }
     return barColor
   }
 
+  // Check entity attribute overrides
+  _configAttributeCheck (entity, index) {
+    const hass = this._hass
+    const config = Object.assign({}, this._configArray[index])
+    const entityAttributes = hass.states[entity].attributes
+    if (config.entity_config == true) {
+      Object.keys(config).forEach(section => {
+        if (this._initialConfigArray[index][section] == undefined) {
+          if (entityAttributes[section] !== undefined) {
+            if (section == 'severity' && typeof(entityAttributes[section]) == 'string') config[section] = JSON.parse(entityAttributes[section])
+            else config[section] = entityAttributes[section]
+          }
+        }
+      })
+    }
+    return config  
+  }
+
   // On entity update
   _updateEntity (entity, id, index) {
-    const config = Object.assign({}, this._configArray[index])
+    const config = this._configAttributeCheck(entity, index)
     const root = this.shadowRoot
     const hass = this._hass
     if (config.title == false) config.title = hass.states[entity].attributes.friendly_name
@@ -858,6 +859,8 @@ class BarCard extends HTMLElement {
     if (config.show_icon == true) {
       if (config.icon == false) root.getElementById('icon_'+id).icon = hass.states[entity].attributes.icon
       else root.getElementById('icon_'+id).icon = config.icon
+    } else {
+      root.getElementById('icon_'+id).style.setProperty('--icon-display', 'none')
     }
     if (config.title_position != 'off') root.getElementById('title_'+id).textContent = config.title
     if (!this._entityState) this._entityState = []
@@ -909,16 +912,26 @@ class BarCard extends HTMLElement {
     // On entity update
     if (entityState !== this._entityState[id]) {
       const barColor = this._calculateBarColor(config, entityState)
-      this._updateBar(entityState, hass, id, entity, index)
-      if (config.target != false) {
-        this._updateTargetBar(entityState, configTarget, barColor, id, entity, index)
-        this._entityTarget[id] = configTarget
+
+      if (config.visibility !== false) {
+        if (entityState == 'N/A' || config.visibility == true) {
+          root.getElementById('card_'+id).style.setProperty('--card-display', 'visible')
+        } else {
+          if (eval(entityState + " " + config.visibility)) {
+            root.getElementById('card_'+id).style.setProperty('--card-display', 'visible')
+          } else {
+            root.getElementById('card_'+id).style.setProperty('--card-display', 'none')
+          }
+        }
       }
+      this._updateBar(entityState, hass, id, entity, index)
+      this._updateTargetBar(entityState, configTarget, barColor, id, entity, index)
+      this._entityTarget[id] = configTarget
       barElement.style.setProperty('--bar-color', barColor)
+      root.getElementById('value_'+id).textContent = `${entityState} ${measurement}`
       if (config.animation !== 'off') root.getElementById('chargeBar_'+id).style.setProperty('--bar-color', barColor)
       if (entityState == 'N/A') root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', '#666')
       else root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', barColor)
-      root.getElementById('value_'+id).textContent = `${entityState} ${measurement}`
 
       if (config.indicator !== 'off') {
         if (entityState > this._entityState[id]) this._updateIndicator(config, config.indicator, 'up', id, barColor)
