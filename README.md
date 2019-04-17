@@ -342,6 +342,20 @@ Add a custom card to your `ui-lovelace.yaml`.
     - binary_sensor.motion_toilet
 ```
 
+### Service Call
+```yaml
+- type: custom:bar-card
+  title: Service Call
+  entity: sensor.example
+  tap_action: service
+  service_options:
+    domain: mqtt
+    service: publish
+    data:
+      topic: "example"
+      payload: "example"
+```
+
 ## Credits
 Inspired by [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
 
