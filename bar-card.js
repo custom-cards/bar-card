@@ -21,6 +21,7 @@ class BarCard extends HTMLElement {
     if (!config.color) config.color = 'var(--primary-color)'
     if (!config.tap_action) config.tap_action = 'info'
     if (!config.show_icon) config.show_icon = false
+    if (!config.show_value) config.show_value = true
     if (!config.title) config.title = false
     if (!config.severity) config.severity = false
     if (!config.target) config.target = false
@@ -851,13 +852,18 @@ class BarCard extends HTMLElement {
 
   // On entity update
   _updateEntity (entity, id, index) {
+    const hass = this._hass
+    const entityObject = hass.states[entity]
+
+    if (entityObject == undefined) throw new Error(entity + " doesn't exist.")
+
     const config = this._configAttributeCheck(entity, index)
     const root = this.shadowRoot
-    const hass = this._hass
-    if (config.title == false) config.title = hass.states[entity].attributes.friendly_name
+
+    if (config.title == false) config.title = entityObject.attributes.friendly_name
 
     if (config.show_icon == true) {
-      if (config.icon == false) root.getElementById('icon_'+id).icon = hass.states[entity].attributes.icon
+      if (config.icon == false) root.getElementById('icon_'+id).icon = entityObject.attributes.icon
       else root.getElementById('icon_'+id).icon = config.icon
     } else {
       root.getElementById('icon_'+id).style.setProperty('--icon-display', 'none')
@@ -873,13 +879,13 @@ class BarCard extends HTMLElement {
 
     // Check for unknown state
     let entityState
-    if (hass.states[entity] == undefined || hass.states[entity].state == 'unknown') {
+    if (entityObject == undefined || entityObject.state == 'unknown') {
       entityState = 'N/A'
     } else {
       if (config.attribute != false) {
-        entityState = hass.states[entity].attributes[config.attribute]
+        entityState = entityObject.attributes[config.attribute]
       } else {
-        entityState = hass.states[entity].state
+        entityState = entityObject.state
       }
       if (!isNaN(entityState)) {
       entityState = Math.min(entityState, configMax)
@@ -889,9 +895,9 @@ class BarCard extends HTMLElement {
 
     // Set measurement
     let measurement
-    if (hass.states[entity] == undefined || hass.states[entity].state == 'unknown') measurement = ''
+    if (entityObject == undefined || entityObject.state == 'unknown') measurement = ''
     else if (config.unit_of_measurement !== false) measurement = config.unit_of_measurement
-    else measurement = hass.states[entity].attributes.unit_of_measurement || ''
+    else measurement = entityObject.attributes.unit_of_measurement || ''
 
     // Define target, min and max if not defined
     if (!this._entityTarget) this._entityTarget = {}
@@ -928,7 +934,7 @@ class BarCard extends HTMLElement {
       this._updateTargetBar(entityState, configTarget, barColor, id, entity, index)
       this._entityTarget[id] = configTarget
       barElement.style.setProperty('--bar-color', barColor)
-      root.getElementById('value_'+id).textContent = `${entityState} ${measurement}`
+      if (config.show_value == true) root.getElementById('value_'+id).textContent = `${entityState} ${measurement}`
       if (config.animation !== 'off') root.getElementById('chargeBar_'+id).style.setProperty('--bar-color', barColor)
       if (entityState == 'N/A') root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', '#666')
       else root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', barColor)
