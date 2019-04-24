@@ -18,7 +18,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
-| entities | array | none | A list of entities. Cards will share config.
+| entities | array | none | A list of entities. Accepts individual config options per defined entity.
 | columns | number | none | Number of columns when using entities list.
 | attribute | string | none | Attribute to be displayed.
 | show_value | boolean | true | Hides value display when set to `false`.
