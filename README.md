@@ -29,7 +29,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | show_icon | boolean | false | Defines if icon should be shown.
 | icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
 | align | string | center | Alignment of text and icon inside the bar. `left`, `right`, `top`, `bottom`, `split`, `center-split`, `left-split`, `right-split`, `top-split`, `bottom-split`
-| animation | string | on | Mode of animation `auto`,  `off`.
+| animation | string | on | Mode of animation `auto`,  `'off'`.
 | indicator | string | auto | Position off the indicator `auto`, `auto-vertical`, `left`, `right`, `top`, `bottom`, `off`
 | height | string | 40px | Scales the height of the bar.
 | width | string | 70% | Scales the width of the bar.
