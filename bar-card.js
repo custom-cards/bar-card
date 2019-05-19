@@ -11,16 +11,18 @@ class BarCard extends HTMLElement {
     if (!config.direction) config.direction = 'right'
     if (!config.rounding) config.rounding = '3px'
     if (!config.title_position) config.title_position = 'left'
+    if (!config.icon_position) config.icon_position = 'off'
     if (!config.indicator) config.indicator = 'auto'
     if (!config.saturation) config.saturation = '50%'
     if (!config.animation) config.animation = 'auto'
     if (!config.speed) config.speed = 1000
     if (!config.delay) config.delay = 5000
+    if (!config.min) config.min = 0
+    if (!config.max) config.max = 100
     if (!config.padding) config.padding = '4px'
     if (!config.align) config.align = 'center'
     if (!config.color) config.color = 'var(--primary-color)'
     if (!config.tap_action) config.tap_action = 'info'
-    if (!config.show_icon) config.show_icon = false
     if (!config.show_value) config.show_value = true
     if (!config.title) config.title = false
     if (!config.severity) config.severity = false
@@ -60,13 +62,39 @@ class BarCard extends HTMLElement {
 
     // Check if title position is inside
     if (!config.width) {
-      if (config.title_position != 'inside') {
-        config.width = '70%'
-      } else {
-        config.width = '100%'
+      switch (config.title_position) {
+        case 'inside':
+        case 'top':
+        case 'bottom':
+        case 'off':
+          config.width = '100%'
+          break
+        case 'left':
+        case 'right':
+          config.width = '70%'
       }
-      if (config.title_position == 'top' || config.title_position == 'bottom' || config.title_position == 'off'){
-        config.width = '100%'
+      switch (config.icon_position) {
+        case 'top':
+        case 'bottom':
+          config.width = '100%'
+          break
+        case 'left':
+        case 'right':
+          config.width = 'calc(100% - 50px)'
+          break
+        case 'inside':
+        case 'off':
+          switch (config.title_position) {
+            case 'inside':
+            case 'top':
+            case 'bottom':
+            case 'off':
+              config.width = '100%'
+              break
+            case 'left':
+            case 'right':
+              config.width = '70%'
+          }
       }
     }
 
@@ -182,7 +210,18 @@ class BarCard extends HTMLElement {
       default:
         background.appendChild(indicatorContainer)
     }
-    contentBar.appendChild(icon) 
+    switch (config.icon_position) {
+      case 'inside':
+      case 'off':
+        contentBar.appendChild(icon)
+        break
+      case 'left':
+      case 'right':
+      case 'top':
+      case 'bottom':
+        titleBar.appendChild(icon)
+        container.appendChild(titleBar)
+    }
     switch (config.title_position) {
       case 'left':
       case 'right':
@@ -243,6 +282,28 @@ class BarCard extends HTMLElement {
       case 'right':
         titleWidth = 'width: calc(100% - ' + config.width + ');'
         titleAlign = 'justify-content: flex-start;'
+        titleflexDirection = 'flex-direction: row-reverse;'
+        break
+      case 'top':
+        titleWidth = 'width: 100%;'
+        titleAlign = 'justify-content: center;'
+        titleflexDirection = 'flex-direction: column;'
+        break
+      case 'bottom':
+        titleWidth = 'width: 100%;'
+        titleAlign = 'justify-content: center;'
+        titleflexDirection = 'flex-direction: column-reverse;'
+        break
+    }
+    switch (config.icon_position) {
+      case 'left':
+        titleWidth = 'width: calc(100% - ' + config.width + ');'
+        titleAlign = 'justify-content: center;'
+        titleflexDirection = 'flex-direction: row;'
+        break
+      case 'right':
+        titleWidth = 'width: calc(100% - ' + config.width + ');'
+        titleAlign = 'justify-content: center;'
         titleflexDirection = 'flex-direction: row-reverse;'
         break
       case 'top':
@@ -353,7 +414,8 @@ class BarCard extends HTMLElement {
         flexDirection = 'row'
         justifyContent = 'space-between'
         alignItems = 'flex-start'
-        if (config.show_icon == true) textAlign = 'center'
+        if (config.icon_position != 'off') textAlign = 'center'
+        if (config.icon_position == 'inside') textAlign = 'left'
         else textAlign = 'left'
         break
       case 'bottom':
@@ -366,14 +428,16 @@ class BarCard extends HTMLElement {
         flexDirection = 'row'
         justifyContent = 'space-between'
         alignItems = 'flex-end'
-        if (config.show_icon == true) textAlign = 'center'
+        if (config.icon_position != 'off') textAlign = 'center'
+        if (config.icon_position == 'inside') textAlign = 'left'
         else textAlign = 'left'
         break
       case 'split':
         alignItems = 'center'
         flexDirection = 'row'
         justifyContent = 'space-between'
-        if (config.show_icon == true) textAlign = 'center'
+        if (config.icon_position != 'off') textAlign = 'center'
+        if (config.icon_position == 'inside') textAlign = 'left'
         else textAlign = 'left'
         break
       case 'left-split':
@@ -595,31 +659,15 @@ class BarCard extends HTMLElement {
   // Check if min is defined otherwise check for min attribute
   _minCheck (entity, hass, index) {
     const config = this._configAttributeCheck(entity, index)
-    if (config.min == undefined) {
-      if (hass.states[entity] != undefined) {
-        if (hass.states[entity].attributes.min) return hass.states[entity].attributes.min
-        else return 0
-      } else {
-        return 0
-      }
-    } else {
-      return config.min
-    }
+    if (hass.states[entity].attributes.min && config.entity_config == true) return hass.states[entity].attributes.min
+    else return config.min
   }
 
   // Check if max is defined otherwise check for max attribute
   _maxCheck (entity, hass, index) {
     const config = this._configAttributeCheck(entity, index)
-    if (config.max == undefined) {
-      if (hass.states[entity] != undefined) {
-        if (hass.states[entity].attributes.max) return hass.states[entity].attributes.max
-        else return 100
-      } else {
-        return 100
-      }
-    } else {
-      return config.max
-    }
+    if (hass.states[entity].attributes.max && config.entity_config == true) return hass.states[entity].attributes.max
+    else return config.max 
   }
 
   _serviceCall (domain, service, data) {
@@ -862,7 +910,7 @@ class BarCard extends HTMLElement {
 
     if (config.title == false) config.title = entityObject.attributes.friendly_name
 
-    if (config.show_icon == true) {
+    if (config.icon_position != 'off') {
       if (config.icon == false) root.getElementById('icon_'+id).icon = entityObject.attributes.icon
       else root.getElementById('icon_'+id).icon = config.icon
     } else {
