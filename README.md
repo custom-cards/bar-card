@@ -26,8 +26,8 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | color | string | var(--primary-color) | Color of the bar, can be any valid CSS color value or variable.
 | title | string | friendly_name | Title displayed next to the bar.
 | title_position | string | left | Position of the title. `left`, `right`, `top`, `bottom`, `inside`, `off`
-| icon_position | string | off | Position of the icon. `left`, `right`, `top`, `bottom`, `inside`, `off`
 | icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
+| icon_position | string | off | Position of the icon. `left`, `right`, `top`, `bottom`, `inside`, `off`
 | align | string | center | Alignment of text and icon inside the bar. `left`, `right`, `top`, `bottom`, `split`, `center-split`, `left-split`, `right-split`, `top-split`, `bottom-split`
 | animation | string | on | Mode of animation `auto`,  `'off'`.
 | indicator | string | auto | Position off the indicator `auto`, `auto-vertical`, `left`, `right`, `top`, `bottom`, `off`
