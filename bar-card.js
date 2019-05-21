@@ -298,12 +298,14 @@ class BarCard extends HTMLElement {
     switch (config.icon_position) {
       case 'left':
         titleWidth = 'width: calc(100% - ' + config.width + ');'
-        titleAlign = 'justify-content: center;'
+        if (config.title_position == 'off' || config.title_position == 'inside') titleAlign = 'justify-content: center;'
+        else titleAlign = 'justify-content: flex-start;'
         titleflexDirection = 'flex-direction: row;'
         break
       case 'right':
         titleWidth = 'width: calc(100% - ' + config.width + ');'
-        titleAlign = 'justify-content: center;'
+        if (config.title_position == 'off' || config.title_position == 'inside') titleAlign = 'justify-content: center;'
+        else titleAlign = 'justify-content: flex-start;'
         titleflexDirection = 'flex-direction: row-reverse;'
         break
       case 'top':
@@ -386,6 +388,12 @@ class BarCard extends HTMLElement {
       overflow: hidden;
       `      
     }
+    let iconMarginStyle = ''
+    if (config.icon_position !== 'inside' && config.title_position !== 'off' && config.title_position !== 'inside') {
+      iconMarginStyle = `
+      margin-left: 8px;
+      `
+    }
 
     let justifyContent
     let alignItems
@@ -415,7 +423,7 @@ class BarCard extends HTMLElement {
         justifyContent = 'space-between'
         alignItems = 'flex-start'
         if (config.icon_position != 'off') textAlign = 'center'
-        if (config.icon_position == 'inside') textAlign = 'left'
+        if (config.icon_position == 'inside') textAlign = 'center'
         else textAlign = 'left'
         break
       case 'bottom':
@@ -429,7 +437,7 @@ class BarCard extends HTMLElement {
         justifyContent = 'space-between'
         alignItems = 'flex-end'
         if (config.icon_position != 'off') textAlign = 'center'
-        if (config.icon_position == 'inside') textAlign = 'left'
+        if (config.icon_position == 'inside') textAlign = 'center'
         else textAlign = 'left'
         break
       case 'split':
@@ -437,7 +445,7 @@ class BarCard extends HTMLElement {
         flexDirection = 'row'
         justifyContent = 'space-between'
         if (config.icon_position != 'off') textAlign = 'center'
-        if (config.icon_position == 'inside') textAlign = 'left'
+        if (config.icon_position == 'inside') textAlign = 'center'
         else textAlign = 'left'
         break
       case 'left-split':
@@ -542,6 +550,7 @@ class BarCard extends HTMLElement {
         font-weight: bold;
         color: #FFF;
         filter: drop-shadow(1px 1px #0005);
+        ${iconMarginStyle}
         ${iconStyle}
       }
       #title_${id} {
