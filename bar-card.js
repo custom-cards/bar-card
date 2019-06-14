@@ -37,6 +37,7 @@ class BarCard extends HTMLElement {
     if (!config.value_style) config.value_style = false
     if (!config.background_style) config.background_style = false
     if (!config.visibility) config.visibility = false
+    if (!config.show_minmax) config.show_minmax = false
 
     // Check entity types
     let updateArray
@@ -177,8 +178,12 @@ class BarCard extends HTMLElement {
     title.id = 'title_'+id
     var titleBar = document.createElement('div')
     titleBar.id = 'titleBar_'+id
+    const minValue = document.createElement('div')
+    minValue.id = 'min_value_'+id
     const value = document.createElement('div')
     value.id = 'value_'+id
+    const maxValue = document.createElement('div')
+    maxValue.id = 'max_value_'+id
     var chargeBar = document.createElement('div')
     chargeBar.id = 'chargeBar_'+id
     var targetBar = document.createElement('div')
@@ -241,7 +246,9 @@ class BarCard extends HTMLElement {
       case 'off':
         container.appendChild(background)      
     }
+    contentBar.appendChild(minValue)
     contentBar.appendChild(value)
+    contentBar.appendChild(maxValue)
     background.appendChild(contentBar)
     card.appendChild(container)
     card.appendChild(this._styleElements(config, id))
@@ -559,7 +566,7 @@ class BarCard extends HTMLElement {
         ${titlePositionStyle}
         ${titleStyle};
       }
-      #value_${id} {
+      #value_${id}, #min_value_${id}, #max_value_${id} {
         position: relative;
         font-weight: bold;
         font-size: 13px;
@@ -991,6 +998,10 @@ class BarCard extends HTMLElement {
       this._updateTargetBar(entityState, configTarget, barColor, id, entity, index)
       this._entityTarget[id] = configTarget
       barElement.style.setProperty('--bar-color', barColor)
+      if (config.show_minmax == true) {
+        root.getElementById('min_value_'+id).textContent = `${configMin} ${measurement}`
+        root.getElementById('max_value_'+id).textContent = `${configMax} ${measurement}`
+      }
       if (config.show_value == true) root.getElementById('value_'+id).textContent = `${entityState} ${measurement}`
       if (config.animation !== 'off') root.getElementById('chargeBar_'+id).style.setProperty('--bar-color', barColor)
       if (entityState == 'N/A') root.getElementById('backgroundBar_'+id).style.setProperty('--bar-color', '#666')
