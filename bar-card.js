@@ -598,12 +598,12 @@ class BarCard extends HTMLElement {
       }
       #value_container_${id} {
         position: relative;
-        display: flex;
+        display: ${config.show_minmax ? 'flex' : 'contents'};
         align-items: center;
         justify-content: center;
         width: 100%;
         height: 100%;
-        text-align: ${textAlign};
+        ${config.show_minmax ? 'text-align: center;' : ''};
         ${valueflexDirection};
       }
       #value_${id}, #min_value_${id}, #max_value_${id} {
@@ -613,8 +613,8 @@ class BarCard extends HTMLElement {
         color: #FFF;
         text-shadow: 1px 1px #0007;
         white-space: nowrap;
-        flex-grow: 1;
-        text-align: ${textAlign};
+        ${config.show_minmax ? 'flew-grow: 1;' : ''};
+        ${config.show_minmax ? 'text-align: center;' : ''};
       }
       #value_${id} {
         ${valueStyle}
