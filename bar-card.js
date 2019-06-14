@@ -329,6 +329,27 @@ class BarCard extends HTMLElement {
         titleflexDirection = 'flex-direction: column-reverse;'
         break
     }
+    
+    // Set value flex direction based on card direction
+    let valueflexDirection
+    switch (config.direction) {
+      case 'left':
+      case 'left-reverse':
+        valueflexDirection = 'flex-direction: column;'
+        break
+      case 'right':
+      case 'right-reverse':
+        valueflexDirection = 'flex-direction: column-reverse;'
+        break
+      case 'up':
+      case 'up-reverse':
+        valueflexDirection = 'flex-direction: row-reverse;'
+        break
+      case 'down':
+      case 'down-reverse':
+        valueflexDirection = 'flex-direction: row;'
+        break
+    }
 
     // Set marker direction based on card direction
     let markerDirection
@@ -574,6 +595,10 @@ class BarCard extends HTMLElement {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        flex-direction: ${valueflexDirection};
       }
       #value_${id}, #min_value_${id}, #max_value_${id} {
         position: relative;
@@ -582,6 +607,8 @@ class BarCard extends HTMLElement {
         color: #FFF;
         text-shadow: 1px 1px #0007;
         white-space: nowrap;
+        text-align: center;
+        flex-grow: 1;
         ${valueStyle}
       }
       #titleBar_${id} {
