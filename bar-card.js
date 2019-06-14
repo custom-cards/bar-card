@@ -35,6 +35,7 @@ class BarCard extends HTMLElement {
     if (!config.icon_style) config.icon_style = false
     if (!config.title_style) config.title_style = false
     if (!config.value_style) config.value_style = false
+    if (!config.minmax_style) config.minmax_style = false
     if (!config.background_style) config.background_style = false
     if (!config.visibility) config.visibility = false
     if (!config.show_minmax) config.show_minmax = false
@@ -275,6 +276,7 @@ class BarCard extends HTMLElement {
   _styleElements(config, id) {
     const style = document.createElement('style');
     if (config.value_style !== false) var valueStyle = this._customStyle(config.value_style)
+    if (config.minmax_style !== false) var minmaxStyle = this._customStyle(config.minmax_style)
     if (config.title_style !== false) var titleStyle = this._customStyle(config.title_style)
     if (config.icon_style !== false) var iconStyle = this._customStyle(config.icon_style)
     if (config.background_style !== false) var backgroundStyle = this._customStyle(config.background_style)
@@ -609,7 +611,12 @@ class BarCard extends HTMLElement {
         white-space: nowrap;
         text-align: center;
         flex-grow: 1;
+      }
+      #value_${id} {
         ${valueStyle}
+      }
+      #min_value_${id}, #max_value_${id} {
+        ${minmaxStyle}
       }
       #titleBar_${id} {
         position: relative;
