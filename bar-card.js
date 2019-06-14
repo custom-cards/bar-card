@@ -178,6 +178,8 @@ class BarCard extends HTMLElement {
     title.id = 'title_'+id
     var titleBar = document.createElement('div')
     titleBar.id = 'titleBar_'+id
+    const valueContainer = document.createElement('div')
+    valueContainer.id = 'value_container_'+id
     const minValue = document.createElement('div')
     minValue.id = 'min_value_'+id
     const value = document.createElement('div')
@@ -246,9 +248,10 @@ class BarCard extends HTMLElement {
       case 'off':
         container.appendChild(background)      
     }
-    contentBar.appendChild(minValue)
-    contentBar.appendChild(value)
-    contentBar.appendChild(maxValue)
+    contentBar.appendChild(valueContainer)
+    valueContainer.appendChild(minValue)
+    valueContainer.appendChild(value)
+    valueContainer.appendChild(maxValue)
     background.appendChild(contentBar)
     card.appendChild(container)
     card.appendChild(this._styleElements(config, id))
@@ -565,6 +568,13 @@ class BarCard extends HTMLElement {
         text-align: ${textAlign};
         ${titlePositionStyle}
         ${titleStyle};
+      }
+      #value_container_${id} {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        ${valueflexDirection}
       }
       #value_${id}, #min_value_${id}, #max_value_${id} {
         position: relative;
