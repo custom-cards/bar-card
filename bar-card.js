@@ -335,19 +335,19 @@ class BarCard extends HTMLElement {
     switch (config.direction) {
       case 'left':
       case 'left-reverse':
-        valueflexDirection = 'flex-direction: column;'
+        valueflexDirection = 'flex-direction: row;'
         break
       case 'right':
       case 'right-reverse':
-        valueflexDirection = 'flex-direction: column-reverse;'
+        valueflexDirection = 'flex-direction: row-reverse;'
         break
       case 'up':
       case 'up-reverse':
-        valueflexDirection = 'flex-direction: row-reverse;'
+        valueflexDirection = 'flex-direction: column-reverse;'
         break
       case 'down':
       case 'down-reverse':
-        valueflexDirection = 'flex-direction: row;'
+        valueflexDirection = 'flex-direction: column;'
         break
     }
 
