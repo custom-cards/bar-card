@@ -613,7 +613,7 @@ class BarCard extends HTMLElement {
         color: #FFF;
         text-shadow: 1px 1px #0007;
         white-space: nowrap;
-        ${config.show_minmax ? 'flew-grow: 1;' : ''};
+        ${config.show_minmax ? 'flex-grow: 1;' : ''};
         ${config.show_minmax ? 'text-align: center;' : ''};
       }
       #value_${id} {
