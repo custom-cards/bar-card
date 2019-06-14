@@ -250,9 +250,13 @@ class BarCard extends HTMLElement {
         container.appendChild(background)      
     }
     contentBar.appendChild(valueContainer)
-    valueContainer.appendChild(minValue)
+    if (config.show_minmax == true) {
+      valueContainer.appendChild(minValue)
+    }
     valueContainer.appendChild(value)
-    valueContainer.appendChild(maxValue)
+    if (config.show_minmax == true) {
+      valueContainer.appendChild(maxValue)
+    }
     background.appendChild(contentBar)
     card.appendChild(container)
     card.appendChild(this._styleElements(config, id))
@@ -599,7 +603,7 @@ class BarCard extends HTMLElement {
         justify-content: center;
         width: 100%;
         height: 100%;
-        text-align: center;
+        text-align: ${textAlign};
         ${valueflexDirection};
       }
       #value_${id}, #min_value_${id}, #max_value_${id} {
@@ -609,8 +613,8 @@ class BarCard extends HTMLElement {
         color: #FFF;
         text-shadow: 1px 1px #0007;
         white-space: nowrap;
-        text-align: center;
         flex-grow: 1;
+        text-align: ${textAlign};
       }
       #value_${id} {
         ${valueStyle}
