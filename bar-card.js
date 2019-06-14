@@ -598,7 +598,7 @@ class BarCard extends HTMLElement {
         width: 100%;
         height: 100%;
         text-align: center;
-        flex-direction: ${valueflexDirection};
+        ${valueflexDirection};
       }
       #value_${id}, #min_value_${id}, #max_value_${id} {
         position: relative;
