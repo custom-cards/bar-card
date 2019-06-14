@@ -24,6 +24,7 @@ class BarCard extends HTMLElement {
     if (!config.color) config.color = 'var(--primary-color)'
     if (!config.tap_action) config.tap_action = 'info'
     if (!config.show_value) config.show_value = true
+    if (!config.show_minmax) config.show_minmax = false
     if (!config.title) config.title = false
     if (!config.severity) config.severity = false
     if (!config.target) config.target = false
@@ -38,7 +39,6 @@ class BarCard extends HTMLElement {
     if (!config.minmax_style) config.minmax_style = false
     if (!config.background_style) config.background_style = false
     if (!config.visibility) config.visibility = false
-    if (!config.show_minmax) config.show_minmax = false
 
     // Check entity types
     let updateArray
