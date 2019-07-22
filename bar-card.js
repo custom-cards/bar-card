@@ -1140,7 +1140,7 @@ class BarCard extends HTMLElement {
       this._updateBar(entityState, hass, id, entity, index)
       this._currentMin[id] = configMin
       if (config.target != false) {
-        const barColor = this._calculateBarColor(config, entityState, hass
+        const barColor = this._calculateBarColor(config, entityState, hass)
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index)
         this._currentMin[id] = configMin
       }
