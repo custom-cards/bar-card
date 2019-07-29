@@ -24,6 +24,7 @@ class BarCard extends HTMLElement {
     if (!config.color) config.color = 'var(--primary-color)'
     if (!config.tap_action) config.tap_action = 'info'
     if (!config.show_value) config.show_value = true
+    if (!config.enforce_value_in_range) config.enforce_value_in_range = false
     if (!config.show_minmax) config.show_minmax = false
     if (!config.title) config.title = false
     if (!config.severity) config.severity = false
@@ -999,7 +1000,7 @@ class BarCard extends HTMLElement {
       } else {
         entityState = entityObject.state
       }
-      if (!isNaN(entityState)) {
+      if (config.enforce_value_in_range && !isNaN(entityState)) {
       entityState = Math.min(entityState, configMax)
       entityState = Math.max(entityState, configMin)
       }

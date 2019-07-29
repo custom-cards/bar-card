@@ -22,6 +22,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | columns | number | none | Number of columns when using entities list.
 | attribute | string | none | Attribute to be displayed.
 | show_value | boolean | true | Hides value display when set to `false`.
+| enforce_value_in_range | boolean | false | Ensure the value is always within the minimum and maximum when set to `true`.
 | show_minmax | boolean | false | Hides the minimum and maximum value when set to `false`.
 | unit_of_measurement | string | none | Unit of measurement to be displayed.
 | color | string | var(--primary-color) | Color of the bar, can be any valid CSS color value or variable.
