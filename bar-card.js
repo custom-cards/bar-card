@@ -967,11 +967,17 @@ class BarCard extends HTMLElement {
   _updateEntity (entity, id, index) {
     const hass = this._hass
     const entityObject = hass.states[entity]
+    const root = this.shadowRoot
 
-    if (entityObject == undefined) throw new Error(entity + " doesn't exist.")
+    if (entityObject == undefined) {
+      root.getElementById('value_'+id).textContent = `Entity doesn't exist.`
+      root.getElementById('value_'+id).style.setProperty('color', '#FF0000')
+      root.getElementById('icon_'+id).style.setProperty('--icon-display', 'none')
+      root.getElementById('titleBar_'+id).style.setProperty('display', 'none')
+      return
+    } 
 
     const config = this._configAttributeCheck(entity, index)
-    const root = this.shadowRoot
 
     if (config.title == false) config.title = entityObject.attributes.friendly_name
 
