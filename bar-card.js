@@ -21,7 +21,7 @@ class BarCard extends HTMLElement {
     if (!config.max) config.max = 100
     if (!config.padding) config.padding = '4px'
     if (!config.align) config.align = 'center'
-    if (!config.color) config.color = 'var(--primary-color)'
+    if (!config.color) config.color = 'var(--custom-bar-card-color, var(--primary-color))'
     if (!config.tap_action) config.tap_action = 'info'
     if (!config.show_value) config.show_value = true
     if (!config.limit_value) config.limit_value = false
