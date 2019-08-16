@@ -1183,3 +1183,9 @@ class BarCard extends HTMLElement {
 }
 
 customElements.define('bar-card', BarCard)
+
+console.info(
+  `%cBAR-CARD\n%c1.5.2`,
+  "color: green; font-weight: bold;",
+  "color: white;"
+);
