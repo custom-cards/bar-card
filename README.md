@@ -26,7 +26,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | show_minmax | boolean | false | Shows the minimum and maximum value when set to `true`.
 | decimal | number | false | The amount of decimals to be displayed for the value. Shows full number when set to `false`.
 | unit_of_measurement | string | none | Unit of measurement to be displayed.
-| color | string | var(--primary-color) | Color of the bar, can be any valid CSS color value or variable.
+| color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar, can be any valid CSS color value or variable. Custom themes should set `custom-bar-card-color` if `primary-color` is not a good default
 | title | string | friendly_name | Title displayed next to the bar.
 | title_position | string | left | Position of the title. `left`, `right`, `top`, `bottom`, `inside`, `'off'`
 | icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
