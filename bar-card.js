@@ -1011,11 +1011,16 @@ class BarCard extends HTMLElement {
       } else {
         entityState = entityObject.state
       }
-      if (config.limit_value && !isNaN(entityState)) {
+      
+      if(!isNaN(entityState)){
+        entityState = Number(entityState)
+      }
+
+      if (config.limit_value) {
         entityState = Math.min(entityState, configMax)
         entityState = Math.max(entityState, configMin)
       }
-      entityState = Number(entityState)
+      
       if (config.decimal !== false) {
         entityState.toFixed(config.decimal)
       }
