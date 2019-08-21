@@ -762,8 +762,13 @@ class BarCard extends HTMLElement {
     const maxValue = this._valueEntityCheck(this._maxCheck(entity, hass, index), hass)
     const barElement = this.shadowRoot.getElementById('bar_'+id)
 
-    barElement.style.setProperty('--bar-percent', `${this._translatePercent(entityState, minValue, maxValue, index, entity)}%`)
-    barElement.style.setProperty('--bar-charge-percent', `${this._translatePercent(entityState, minValue, maxValue, index, entity)}%`)
+    if (!isNaN(entityState)) {
+      barElement.style.setProperty('--bar-percent', `${this._translatePercent(entityState, minValue, maxValue, index, entity)}%`)
+      barElement.style.setProperty('--bar-charge-percent', `${this._translatePercent(entityState, minValue, maxValue, index, entity)}%`)
+    } else {
+      barElement.style.setProperty('--bar-percent', `100%`)
+      barElement.style.setProperty('--bar-charge-percent', `100%`)
+    }
   }
 
   // Create animation
@@ -1052,14 +1057,16 @@ class BarCard extends HTMLElement {
     if (entityState !== this._entityState[id]) {
       const barColor = this._calculateBarColor(config, entityState, hass)
 
-      if (config.visibility !== false) {
-        if (entityState == 'N/A' || config.visibility == true) {
-          root.getElementById('card_'+id).style.setProperty('--card-display', 'visible')
-        } else {
-          if (eval(entityState + " " + config.visibility)) {
+      if (!isNaN(entityState)) {
+        if (config.visibility !== false) {
+          if (entityState == 'N/A' || config.visibility == true) {
             root.getElementById('card_'+id).style.setProperty('--card-display', 'visible')
           } else {
-            root.getElementById('card_'+id).style.setProperty('--card-display', 'none')
+            if (eval(entityState + " " + config.visibility)) {
+              root.getElementById('card_'+id).style.setProperty('--card-display', 'visible')
+            } else {
+              root.getElementById('card_'+id).style.setProperty('--card-display', 'none')
+            }
           }
         }
       }
@@ -1190,7 +1197,7 @@ class BarCard extends HTMLElement {
 customElements.define('bar-card', BarCard)
 
 console.info(
-  `%cBAR-CARD\n%cVersion: 1.5.2`,
+  `%cBAR-CARD\n%cVersion: 1.5.4`,
   "color: green; font-weight: bold;",
   ""
 );
