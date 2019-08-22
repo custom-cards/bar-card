@@ -700,6 +700,19 @@ class BarCard extends HTMLElement {
     return color
   }
 
+  // Returns icon based on severity array
+  _computeSeverityIcon (stateValue, sections, hass) {
+    let numberValue = Number(stateValue)
+    let icon
+    sections.forEach(section => {
+      let actualValue = this._valueEntityCheck(section.value, hass)
+      if (numberValue <= actualValue && !icon) {
+        icon = section.icon
+      }
+    })
+    return icon
+  }
+
   // Check if value is NaN, otherwise assume it's an entity
   _valueEntityCheck (value, hass) {
     if (isNaN(value)) {
@@ -975,6 +988,7 @@ class BarCard extends HTMLElement {
     const entityObject = hass.states[entity]
     const root = this.shadowRoot
 
+    // Check if entity exists
     if (entityObject == undefined) {
       root.getElementById('value_'+id).textContent = `Entity doesn't exist.`
       root.getElementById('value_'+id).style.setProperty('color', '#FF0000')
@@ -987,16 +1001,13 @@ class BarCard extends HTMLElement {
       return
     }
     
+    // Define config
     const config = this._configAttributeCheck(entity, index)
 
+    // Define Title
     if (config.title == false) config.title = entityObject.attributes.friendly_name
 
-    if (config.icon_position != 'off') {
-      if (config.icon == false) root.getElementById('icon_'+id).icon = entityObject.attributes.icon
-      else root.getElementById('icon_'+id).icon = config.icon
-    } else {
-      root.getElementById('icon_'+id).style.setProperty('--icon-display', 'none')
-    }
+    // Check for title position config
     if (config.title_position != 'off') root.getElementById('title_'+id).textContent = config.title
     if (!this._entityState) this._entityState = []
 
@@ -1006,7 +1017,7 @@ class BarCard extends HTMLElement {
     const configMin = this._valueEntityCheck(this._minCheck(entity, hass, index), hass)
     const configMax = this._valueEntityCheck(this._maxCheck(entity, hass, index), hass)
 
-    // Check for unknown state
+    // Define Entity State
     let entityState
     if (entityObject == undefined || entityObject.state == 'unknown' || entityObject.state == 'unavailable') {
       entityState = 'N/A'
@@ -1029,6 +1040,21 @@ class BarCard extends HTMLElement {
       if (config.decimal !== false) {
         entityState.toFixed(config.decimal)
       }
+    }
+
+    // Define Icon
+    if (config.icon_position != 'off') {
+      if (config.icon == false) {
+        root.getElementById('icon_'+id).icon = entityObject.attributes.icon
+      } else { 
+        if (config.severity == false || this._computeSeverityIcon(entityState, config.severity, hass) == undefined) {
+          root.getElementById('icon_'+id).icon = config.icon
+        } else {
+          root.getElementById('icon_'+id).icon = this._computeSeverityIcon(entityState, config.severity, hass)
+        }
+      }
+    } else {
+      root.getElementById('icon_'+id).style.setProperty('--icon-display', 'none')
     }
 
     // Set measurement
@@ -1197,7 +1223,7 @@ class BarCard extends HTMLElement {
 customElements.define('bar-card', BarCard)
 
 console.info(
-  `%cBAR-CARD\n%cVersion: 1.5.4`,
+  `%cBAR-CARD\n%cVersion: 1.6.0`,
   "color: green; font-weight: bold;",
   ""
 );
