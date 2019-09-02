@@ -1038,7 +1038,7 @@ class BarCard extends HTMLElement {
       }
       
       if (config.decimal !== false) {
-        entityState.toFixed(config.decimal)
+        entityState = entityState.toFixed(config.decimal)
       }
     }
 
