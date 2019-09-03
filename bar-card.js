@@ -1223,7 +1223,7 @@ class BarCard extends HTMLElement {
 customElements.define('bar-card', BarCard)
 
 console.info(
-  `%cBAR-CARD\n%cVersion: 1.6.0`,
+  `%cBAR-CARD\n%cVersion: 1.6.1`,
   "color: green; font-weight: bold;",
   ""
 );
