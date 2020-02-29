@@ -10,6 +10,7 @@ class BarCard extends HTMLElement {
     this.attachShadow({ mode: 'open' })
   }
   setConfig (config) {
+    config = JSON.parse(JSON.stringify(config))
     while(this.shadowRoot.lastChild)
       this.shadowRoot.removeChild(this.shadowRoot.lastChild);
 
