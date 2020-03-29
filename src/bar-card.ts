@@ -1,11 +1,9 @@
-console.info(`%cBAR-CARD\n%cVersion: 2.0.0b0`, 'color: green; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 2.0.0`, 'color: green; font-weight: bold;', '');
 
 export interface config {
   align: string;
   animation: string;
   attribute: any;
-  background_style: any;
-  card_style: any;
   charge_entity: any;
   color: string;
   columns: number;
@@ -17,12 +15,10 @@ export interface config {
   height: string;
   icon: any;
   icon_position: string;
-  icon_style: any;
   indicator: string;
   limit_value: boolean;
   max: number;
   min: number;
-  minmax_style: any;
   padding: string;
   rounding: string;
   saturation: string;
@@ -35,9 +31,7 @@ export interface config {
   target: any;
   title: string;
   title_position: string;
-  title_style: any;
   unit_of_measurement: string;
-  value_style: any;
   visibility: string;
   width: string;
 }
@@ -62,14 +56,31 @@ class BarCard extends HTMLElement {
   setConfig(config: config) {
     while (this.shadowRoot.lastChild) this.shadowRoot.removeChild(this.shadowRoot.lastChild);
 
+    // Deep copy function.
+    function deepcopy(value: any): any {
+      if (!(!!value && typeof value == 'object')) {
+        return value;
+      }
+      if (Object.prototype.toString.call(value) == '[object Date]') {
+        return new Date(value.getTime());
+      }
+      if (Array.isArray(value)) {
+        return value.map(deepcopy);
+      }
+      var result: any = {};
+      Object.keys(value).forEach(
+        function(key) { result[key] = deepcopy(value[key]); });
+      return result;
+    }
+
+    // Avoid card config modifying lovelace config.
+    const initialConfig = deepcopy(config);
+
     // Default Card variables
-    const initialConfig = Object.assign({}, config);
     const defaultConfig = {
       align: 'center',
       animation: 'auto',
       attribute: false,
-      background_style: false,
-      card_style: false,
       charge_entity: false,
       color: 'var(--custom-bar-card-color, var(--primary-color))',
       decimal: false,
@@ -78,14 +89,10 @@ class BarCard extends HTMLElement {
       height: '40px',
       icon: false,
       icon_position: 'off',
-      icon_style: false,
       indicator: 'auto',
       limit_value: false,
       max: 100,
       min: 0,
-      minmax_style: false,
-      padding: '4px',
-      rounding: '3px',
       saturation: '50%',
       severity: false,
       show_minmax: false,
@@ -95,13 +102,11 @@ class BarCard extends HTMLElement {
       target: false,
       title: false,
       title_position: 'left',
-      title_style: false,
       unit_of_measurement: false,
-      value_style: false,
       visibility: false
     };
 
-    // Merge default and card config, this also avoids this card config modifying the lovelace config object.
+    // Merge default and card config.
     config = Object.assign(defaultConfig, config);
 
     // Check entity types
@@ -124,6 +129,18 @@ class BarCard extends HTMLElement {
       }
     } else if (config.entity) {
       config.entities = [{ entity: config.entity }];
+    }
+
+    if (config.severity) {
+      // Clone array
+      let newArray = config.severity.slice();
+
+      // Sort array by seconds.
+      newArray.sort(function(a: any,b: any) {
+          return a.value - b.value;
+      });
+
+      config.severity = newArray;
     }
 
     // Check if title position is inside
@@ -163,19 +180,16 @@ class BarCard extends HTMLElement {
           }
       }
     }
-    let cardStyle: any;
-    if (config.card_style) cardStyle = this._customStyle(config.card_style);
 
     // Define card container
-    const cardContainer = document.createElement('ha-card');
+    const haCard = document.createElement('ha-card');
+    const cardContainer = document.createElement('card');
     const cardContainerStyle = document.createElement('style');
     cardContainerStyle.textContent = `
-      ha-card {
-        padding: calc(${config.padding} / 2);
+      card {
         display: flex;
         justify-content: space-around;
         flex-wrap: wrap;
-        ${cardStyle}
       }
     `;
 
@@ -199,7 +213,8 @@ class BarCard extends HTMLElement {
     }
 
     // Add card container to root
-    this.shadowRoot.appendChild(cardContainer);
+    haCard.appendChild(cardContainer);
+    this.shadowRoot.appendChild(haCard);
     this.shadowRoot.appendChild(cardContainerStyle);
 
     // For each entity in entities list update entity.
@@ -214,7 +229,7 @@ class BarCard extends HTMLElement {
     this._config = config;
   }
 
-  // On hass update
+  // Set hass object.
   set hass(hass: any) {
     this._hass = hass;
     const config = this._config;
@@ -226,7 +241,7 @@ class BarCard extends HTMLElement {
 
   // Create card elements
   _cardElements(config: config, id: string, entity: any) {
-    const card = document.createElement('ha-card');
+    const card = document.createElement('card');
     card.id = 'card_' + id;
     const container = document.createElement('bar-card-container');
     container.id = 'container_' + id;
@@ -337,17 +352,6 @@ class BarCard extends HTMLElement {
   // Create style elements
   _styleElements(config: config, id: string) {
     const style = document.createElement('style');
-    let valueStyle;
-    let minmaxStyle;
-    let titleStyle;
-    let iconStyle;
-    let backgroundStyle;
-
-    if (config.value_style) valueStyle = this._customStyle(config.value_style);
-    if (config.minmax_style) minmaxStyle = this._customStyle(config.minmax_style);
-    if (config.title_style) titleStyle = this._customStyle(config.title_style);
-    if (config.icon_style) iconStyle = this._customStyle(config.icon_style);
-    if (config.background_style) backgroundStyle = this._customStyle(config.background_style);
 
     // Set titleBar position
     let titleAlign;
@@ -589,12 +593,16 @@ class BarCard extends HTMLElement {
     if (config.columns) haCardWidth = Math.trunc(100 / Number(config.columns));
     else haCardWidth = 100;
 
+
     style.textContent = `
       #card_${id} {
-        padding: ${config.padding};
-        width: calc(${haCardWidth}% - (${config.padding} * 2));
+        width: ${haCardWidth}%;
         --card-display: visible;
         display: var(--card-display);
+        margin-bottom: 8px;
+      }
+      #card_${id}:last-child{
+        margin-bottom: 0px;
       }
       #container_${id} {
         position: relative;
@@ -626,13 +634,12 @@ class BarCard extends HTMLElement {
         position: absolute;
         height: 100%;
         width: 100%;
-        border-radius: ${config.rounding};
+        border-radius: var(--ha-card-border-radius);
       }
       #backgroundBar_${id} {
         background: var(--bar-color);
         filter: brightness(0.5);
         opacity: 0.25;
-        ${backgroundStyle}
       }
       #bar_${id} {
         background: linear-gradient(to ${barFrom}, var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
@@ -662,13 +669,11 @@ class BarCard extends HTMLElement {
         color: #FFF;
         filter: drop-shadow(1px 1px #0005);
         ${iconMarginStyle}
-        ${iconStyle}
       }
       #title_${id} {
         position: relative;
         text-align: ${textAlign};
         ${titlePositionStyle}
-        ${titleStyle};
       }
       #value_container_${id} {
         position: relative;
@@ -690,12 +695,6 @@ class BarCard extends HTMLElement {
         ${config.show_minmax ? 'flex-grow: 1;' : ''};
         ${config.show_minmax ? 'text-align: center;' : ''};
       }
-      #value_${id} {
-        ${valueStyle}
-      }
-      #min_value_${id}, #max_value_${id} {
-        ${minmaxStyle}
-      }
       #titleBar_${id} {
         position: relative;
         display: flex;
@@ -703,7 +702,6 @@ class BarCard extends HTMLElement {
         height: 32px;
         ${titleAlign}
         ${titleWidth}
-        ${titleStyle}
       }
       #indicatorBar_${id} {
         display: flex;
@@ -762,7 +760,7 @@ class BarCard extends HTMLElement {
   }
 
   // Returns color based on severity array
-  _computeSeverity(stateValue: any, sections: any[], hass: any) {
+  _computeSeverity(stateValue: any, sections: any[], hass: any, config: any) {
     const numberValue = Number(stateValue);
     let color: null | string = null;
 
@@ -777,6 +775,7 @@ class BarCard extends HTMLElement {
         color = section.color;
       }
     });
+    if (color == null) color = config.color;
     return color;
   }
 
@@ -1039,7 +1038,7 @@ class BarCard extends HTMLElement {
   _calculateBarColor(config: any, entityState: string, hass: any) {
     let barColor;
     if (!config.severity) barColor = config.color;
-    else barColor = this._computeSeverity(entityState, config.severity, hass);
+    else barColor = this._computeSeverity(entityState, config.severity, hass, config);
     return barColor;
   }
 
@@ -1069,10 +1068,13 @@ class BarCard extends HTMLElement {
 
     // Check if entity exists
     if (entityObject == undefined) {
-      root.getElementById('value_' + id).textContent = `Entity doesn't exist.`;
-      root.getElementById('value_' + id).style.setProperty('color', '#FF0000');
-      if (root.getElementById('icon' + id) !== null) root.getElementById('icon_' + id).style.setProperty('--icon-display', 'none');
-      if (root.getElementById('titleBar_' + id) !== null) root.getElementById('titleBar_' + id).style.setProperty('display', 'none');
+      const container = root.getElementById('container_' + id);
+      if (container.parentNode) {
+        container.parentNode.removeChild(container);
+      }
+      const warning = document.createElement('hui-warning');
+      warning.textContent = `Entity not available: ${entity}`;
+      root.getElementById('card_' + id).appendChild(warning);
       return;
     }
 
