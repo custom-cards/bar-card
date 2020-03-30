@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 2.0.1`, 'color: green; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 2.0.2`, 'color: green; font-weight: bold;', '');
 
 export interface config {
   align: string;
@@ -241,41 +241,41 @@ class BarCard extends HTMLElement {
 
   // Create card elements
   _cardElements(config: config, id: string, entity: any) {
-    const card = document.createElement('card');
+    const card = document.createElement('bar-card-card');
     card.id = 'card_' + id;
     const container = document.createElement('bar-card-container');
     container.id = 'container_' + id;
     const background = document.createElement('bar-card-background');
     background.id = 'background_' + id;
-    const backgroundBar = document.createElement('bar-card-backgroundBar');
+    const backgroundBar = document.createElement('bar-card-backgroundbar');
     backgroundBar.id = 'backgroundBar_' + id;
     const bar = document.createElement('bar-card-bar');
     bar.id = 'bar_' + id;
-    const contentBar = document.createElement('bar-card-contentBar');
+    const contentBar = document.createElement('bar-card-contentbar');
     contentBar.id = 'contentBar_' + id;
     const icon = document.createElement('ha-icon');
     icon.id = 'icon_' + id;
     const title = document.createElement('bar-card-title');
     title.id = 'title_' + id;
-    const titleBar = document.createElement('bar-card-titleBar');
+    const titleBar = document.createElement('bar-card-titlebar');
     titleBar.id = 'titleBar_' + id;
-    const valueContainer = document.createElement('bar-card-valueContainer');
+    const valueContainer = document.createElement('bar-card-valuecontainer');
     valueContainer.id = 'value_container_' + id;
-    const minValue = document.createElement('bar-card-minValue');
+    const minValue = document.createElement('bar-card-minvalue');
     minValue.id = 'min_value_' + id;
     const value = document.createElement('bar-card-value');
     value.id = 'value_' + id;
-    const maxValue = document.createElement('bar-card-maxValue');
+    const maxValue = document.createElement('bar-card-maxvalue');
     maxValue.id = 'max_value_' + id;
     const chargeBar = document.createElement('bar-card-chargeBar');
     chargeBar.id = 'chargeBar_' + id;
     const targetBar = document.createElement('bar-card-targetBar');
     targetBar.id = 'targetBar_' + id;
-    const targetMarker = document.createElement('bar-card-targetMarker');
+    const targetMarker = document.createElement('bar-card-targetmarker');
     targetMarker.id = 'targetMarker_' + id;
-    const indicatorContainer = document.createElement('bar-card-indicatorContainer');
+    const indicatorContainer = document.createElement('bar-card-indicatorcontainer');
     indicatorContainer.id = 'indicatorContainer_' + id;
-    const indicatorBar = document.createElement('bar-card-indicatorBar');
+    const indicatorBar = document.createElement('bar-card-indicatorbar');
     indicatorBar.id = 'indicatorBar_' + id;
     const indicator = document.createElement('bar-card-indicator');
     indicator.id = 'indicator_' + id;
@@ -595,23 +595,23 @@ class BarCard extends HTMLElement {
 
 
     style.textContent = `
-      #card_${id} {
+      bar-card-card {
         width: ${haCardWidth}%;
         --card-display: visible;
         display: var(--card-display);
         margin-bottom: 8px;
       }
-      #card_${id}:last-child{
+      bar-card-card:last-child{
         margin-bottom: 0px;
       }
-      #container_${id} {
+      bar-card-container {
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
         ${titleflexDirection}
       }
-      #background_${id} {
+      bar-card-background {
         cursor: pointer;
         position: relative;
         display: flex;
@@ -619,7 +619,7 @@ class BarCard extends HTMLElement {
         width: ${config.width};
         height: ${config.height};
       }
-      #contentBar_${id} {
+      bar-card-contentbar {
         position: relative;
         display: flex;
         flex-direction: ${flexDirection};
@@ -630,39 +630,39 @@ class BarCard extends HTMLElement {
         width: calc(100% - (var(--padding)*2));
         padding: var(--padding);
       }
-      #bar_${id}, #backgroundBar_${id}, #targetBar_${id}, #valueBar_${id}, #chargeBar_${id}, #chargeBarColor_${id}, #valueBar_${id}, #indicatorBar_${id} {
+      bar-card-bar, bar-card-backgroundbar, bar-card-targetbar, bar-card-valuebar, bar-card-chargebar, bar-card-chargebarcolor, bar-card-valuebar, bar-card-indicatorbar {
         position: absolute;
         height: 100%;
         width: 100%;
         border-radius: var(--bar-card-border-radius, var(--ha-card-border-radius));
       }
-      #backgroundBar_${id} {
+      bar-card-backgroundbar {
         background: var(--bar-color);
         filter: brightness(0.5);
         opacity: 0.25;
       }
-      #bar_${id} {
+      bar-card-bar {
         background: linear-gradient(to ${barFrom}, var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
       }
-      #chargeBar_${id} {
+      bar-card-chargebar {
         background: linear-gradient(to ${barFrom}, #FFF0 var(--bar-percent), var(--bar-color) var(--bar-percent), var(--bar-color) var(--bar-charge-percent), #FFF0 var(--bar-charge-percent));
         filter: var(--bar-charge-brightness);
         opacity: var(--bar-charge-opacity);
       }
-      #targetBar_${id} {
+      bar-card-targetbar {
         display: var(--target-display);
         filter: brightness(0.66);
         opacity: 0.33;
         background: linear-gradient(to ${barFrom}, #FFF0 var(--targetBar-left-percent), var(--bar-color) var(--targetBar-left-percent), var(--bar-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
       }
-      #targetMarker_${id} {
+      bar-card-targetmarker {
         display: var(--target-display);
         position: absolute;
         background: #FFF0;
         ${markerStyle}
         filter: brightness(0.75);
       }
-      #icon_${id} {
+      ha-icon {
         display: var(--icon-display);
         position: relative;
         font-weight: bold;
@@ -670,12 +670,12 @@ class BarCard extends HTMLElement {
         filter: drop-shadow(1px 1px #0005);
         ${iconMarginStyle}
       }
-      #title_${id} {
+      bar-card-title {
         position: relative;
         text-align: ${textAlign};
         ${titlePositionStyle}
       }
-      #value_container_${id} {
+      bar-card-valuecontainer {
         position: relative;
         display: ${config.show_minmax ? 'flex' : 'contents'};
         align-items: center;
@@ -685,7 +685,7 @@ class BarCard extends HTMLElement {
         ${config.show_minmax ? 'text-align: center;' : ''};
         ${valueflexDirection};
       }
-      #value_${id}, #min_value_${id}, #max_value_${id} {
+      bar-card-value, bar-card-minvalue, bar-card-maxvalue {
         position: relative;
         font-weight: bold;
         font-size: 13px;
@@ -695,7 +695,7 @@ class BarCard extends HTMLElement {
         ${config.show_minmax ? 'flex-grow: 1;' : ''};
         ${config.show_minmax ? 'text-align: center;' : ''};
       }
-      #titleBar_${id} {
+      bar-card-titlebar {
         position: relative;
         display: flex;
         align-items: center;
@@ -703,14 +703,14 @@ class BarCard extends HTMLElement {
         ${titleAlign}
         ${titleWidth}
       }
-      #indicatorBar_${id} {
+      bar-card-indicatorbar {
         display: flex;
         --flex-direction: row;
         flex-direction: var(--flex-direction);
         align-items: var(--flex-align);
         justify-content: var(--justify-content);
       }
-      #indicator_${id} {
+      bar-card-indicator {
         position: relative;
         filter: brightness(0.75);
         color: var(--bar-color);
@@ -719,7 +719,7 @@ class BarCard extends HTMLElement {
         --padding-right: 0px;
         padding-right: var(--padding-right);
       }
-      #indicatorContainer_${id} {
+      bar-card-indicatorcontainer {
         position: relative;
         display: flex;
         align-items: center;
