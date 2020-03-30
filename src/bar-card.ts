@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 2.0.0`, 'color: green; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 2.0.1`, 'color: green; font-weight: bold;', '');
 
 export interface config {
   align: string;
