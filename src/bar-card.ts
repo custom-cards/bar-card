@@ -634,7 +634,7 @@ class BarCard extends HTMLElement {
         position: absolute;
         height: 100%;
         width: 100%;
-        border-radius: var(--ha-card-border-radius);
+        border-radius: var(--bar-card-border-radius, var(--ha-card-border-radius));
       }
       #backgroundBar_${id} {
         background: var(--bar-color);
