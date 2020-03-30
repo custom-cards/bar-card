@@ -36,7 +36,6 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | indicator | string | auto | Position off the indicator `auto`, `auto-vertical`, `left`, `right`, `top`, `bottom`, `'off'`
 | height | string | 40px | Scales the height of the bar.
 | width | string | 70% | Scales the width of the bar.
-| padding | string | 4px | Padding amount around the bar.
 | min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
 | max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
 | target | number | none | Target marker value, accepts entity id or attribute object value.
@@ -49,13 +48,6 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
 | service_config | object | none | A list of service call options. Should include `domain`, `service`, `data`
 | visibility | string | none | Sets visibilty threshold for the bar. Defined as comparison operator and a number. e.g. `<= 25`
-| card_style | object | none | A list of CSS styles applied to the card background.
-| icon_style | object| none | A list of CSS styles applied to the icon.
-| title_style | object | none | A list of CSS styles applied to the title.
-| value_style | object | none | A list of CSS styles applied to the entity value.
-| minmax_style | object | none | A list of CSS styles applied to the minimum and maximum values.
-| background_style | object | none | A list of CSS styles applied to the bar background.
-
 
 ## Installation
 
