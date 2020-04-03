@@ -19,6 +19,7 @@ export interface config {
   limit_value: boolean;
   max: number;
   min: number;
+  positions: any;
   padding: string;
   rounding: string;
   saturation: string;
@@ -27,6 +28,7 @@ export interface config {
   show_minmax: boolean;
   show_value: boolean;
   speed: number;
+  stack: string;
   tap_action: string;
   target: any;
   title: string;
@@ -53,6 +55,7 @@ class BarCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
   }
+  // Set config object.
   setConfig(config: config) {
     while (this.shadowRoot.lastChild) this.shadowRoot.removeChild(this.shadowRoot.lastChild);
 
@@ -78,7 +81,6 @@ class BarCard extends HTMLElement {
 
     // Default Card variables
     const defaultConfig = {
-      align: 'center',
       animation: 'auto',
       attribute: false,
       charge_entity: false,
@@ -88,22 +90,23 @@ class BarCard extends HTMLElement {
       direction: 'right',
       height: '40px',
       icon: false,
-      icon_position: 'off',
-      indicator: 'auto',
       limit_value: false,
       max: 100,
       min: 0,
-      saturation: '50%',
+      positions: {
+        icon: 'outside',
+        indicator: 'outside',
+        title: 'inside',
+        minmax: 'off',
+        value: 'inside'
+      },
       severity: false,
-      show_minmax: false,
-      show_value: true,
       speed: 1000,
+      stack: 'vertical',
       tap_action: 'info',
       target: false,
       title: false,
-      title_position: 'left',
-      unit_of_measurement: false,
-      visibility: false
+      unit_of_measurement: false
     };
 
     // Merge default and card config.
@@ -131,11 +134,12 @@ class BarCard extends HTMLElement {
       config.entities = [{ entity: config.entity }];
     }
 
+    // Adjust severity config object.
     if (config.severity) {
       // Clone array
       let newArray = config.severity.slice();
 
-      // Sort array by seconds.
+      // Sort array by value.
       newArray.sort(function(a: any,b: any) {
           return a.value - b.value;
       });
@@ -143,57 +147,28 @@ class BarCard extends HTMLElement {
       config.severity = newArray;
     }
 
-    // Check if title position is inside
-    if (!config.width) {
-      switch (config.title_position) {
-        case 'inside':
-        case 'top':
-        case 'bottom':
-        case 'off':
-          config.width = '100%';
-          break;
-        case 'left':
-        case 'right':
-          config.width = '70%';
-      }
-      switch (config.icon_position) {
-        case 'top':
-        case 'bottom':
-          config.width = '100%';
-          break;
-        case 'left':
-        case 'right':
-          config.width = 'calc(100% - 50px)';
-          break;
-        case 'inside':
-        case 'off':
-          switch (config.title_position) {
-            case 'inside':
-            case 'top':
-            case 'bottom':
-            case 'off':
-              config.width = '100%';
-              break;
-            case 'left':
-            case 'right':
-              config.width = '70%';
-          }
-      }
-    }
-
     // Define card container
     const haCard = document.createElement('ha-card');
-    const cardContainer = document.createElement('card');
-    const cardContainerStyle = document.createElement('style');
-    cardContainerStyle.textContent = `
-      card {
+    const haCardStyle = document.createElement('style');
+    let direction;
+    switch (config.stack) {
+      case 'horizontal':
+        direction = 'row';
+        break;
+      case 'vertical':
+        direction = 'column';
+    }
+    haCardStyle.textContent = `
+      ha-card {
         display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
+        align-items: stretch;
+        flex-direction: ${direction};
+        background: #0000;
+        box-shadow: none;
       }
     `;
 
-    // For each entity in entities list create cardElements
+    // For each entity in entities list create cardElements.
     this._configArray = [];
     this._initialConfigArray = [];
     for (let i = 0; i <= config.entities.length - 1; i++) {
@@ -209,13 +184,12 @@ class BarCard extends HTMLElement {
           initialConfig[section] = entities[section];
         }
       });
-      cardContainer.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
+      haCard.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
     }
 
-    // Add card container to root
-    haCard.appendChild(cardContainer);
+    // Add card container to root.
     this.shadowRoot.appendChild(haCard);
-    this.shadowRoot.appendChild(cardContainerStyle);
+    this.shadowRoot.appendChild(haCardStyle);
 
     // For each entity in entities list update entity.
     if (this._hass) {
@@ -243,8 +217,6 @@ class BarCard extends HTMLElement {
   _cardElements(config: config, id: string, entity: any) {
     const card = document.createElement('bar-card-card');
     card.id = 'card_' + id;
-    const container = document.createElement('bar-card-container');
-    container.id = 'container_' + id;
     const background = document.createElement('bar-card-background');
     background.id = 'background_' + id;
     const backgroundBar = document.createElement('bar-card-backgroundbar');
@@ -255,85 +227,60 @@ class BarCard extends HTMLElement {
     contentBar.id = 'contentBar_' + id;
     const icon = document.createElement('ha-icon');
     icon.id = 'icon_' + id;
+    const iconBar = document.createElement('bar-card-iconbar');
+    iconBar.id = 'iconBar_' + id;
     const title = document.createElement('bar-card-title');
     title.id = 'title_' + id;
     const titleBar = document.createElement('bar-card-titlebar');
     titleBar.id = 'titleBar_' + id;
-    const valueContainer = document.createElement('bar-card-valuecontainer');
-    valueContainer.id = 'value_container_' + id;
     const minValue = document.createElement('bar-card-minvalue');
-    minValue.id = 'min_value_' + id;
+    minValue.id = 'minValue_' + id;
+    const divider = document.createElement('bar-card-divider');
+    divider.id = 'divider' + id;
+    divider.textContent = `/`;
+    const maxValue = document.createElement('bar-card-maxvalue');
+    maxValue.id = 'maxValue_' + id;
     const value = document.createElement('bar-card-value');
     value.id = 'value_' + id;
-    const maxValue = document.createElement('bar-card-maxvalue');
-    maxValue.id = 'max_value_' + id;
     const chargeBar = document.createElement('bar-card-chargeBar');
     chargeBar.id = 'chargeBar_' + id;
     const targetBar = document.createElement('bar-card-targetBar');
     targetBar.id = 'targetBar_' + id;
     const targetMarker = document.createElement('bar-card-targetmarker');
     targetMarker.id = 'targetMarker_' + id;
-    const indicatorContainer = document.createElement('bar-card-indicatorcontainer');
-    indicatorContainer.id = 'indicatorContainer_' + id;
     const indicatorBar = document.createElement('bar-card-indicatorbar');
     indicatorBar.id = 'indicatorBar_' + id;
     const indicator = document.createElement('bar-card-indicator');
     indicator.id = 'indicator_' + id;
 
-    // Start building card
+    // Build card.
+    iconBar.appendChild(icon);
+    if (config.positions.icon == 'inside') contentBar.appendChild(iconBar)
+    if (config.positions.indicator == 'inside') contentBar.appendChild(indicator);
+    if (config.positions.title == 'inside') contentBar.appendChild(title);
+    if (config.positions.minmax == 'inside') {
+      contentBar.appendChild(minValue);
+      contentBar.appendChild(divider);
+      contentBar.appendChild(maxValue);
+    }
+    if (config.positions.value == 'inside') contentBar.appendChild(value);
     background.appendChild(backgroundBar);
     background.appendChild(bar);
-    bar.appendChild(targetMarker);
-    background.appendChild(targetBar);
     background.appendChild(chargeBar);
-    indicatorContainer.appendChild(indicator);
-    switch (config.align) {
-      case 'center':
-      case 'center-split':
-      case 'left-split':
-      case 'right-split':
-        indicatorBar.appendChild(indicatorContainer);
-        background.appendChild(indicatorBar);
-        break;
-      default:
-        background.appendChild(indicatorContainer);
-    }
-    switch (config.icon_position) {
-      case 'inside':
-      case 'off':
-        contentBar.appendChild(icon);
-        break;
-      case 'left':
-      case 'right':
-      case 'top':
-      case 'bottom':
-        titleBar.appendChild(icon);
-        container.appendChild(titleBar);
-    }
-    switch (config.title_position) {
-      case 'left':
-      case 'right':
-      case 'top':
-      case 'bottom':
-        titleBar.appendChild(title);
-        container.appendChild(titleBar);
-        container.appendChild(background);
-        break;
-      case 'inside':
-        contentBar.appendChild(title);
-        container.appendChild(contentBar);
-        container.appendChild(background);
-        break;
-      case 'off':
-        container.appendChild(background);
-    }
-    contentBar.appendChild(valueContainer);
-    if (config.show_minmax == true) valueContainer.appendChild(minValue);
-    valueContainer.appendChild(value);
-    if (config.show_minmax == true) valueContainer.appendChild(maxValue);
+    background.appendChild(targetBar);
+    background.appendChild(targetMarker);
     background.appendChild(contentBar);
-    card.appendChild(container);
-    card.appendChild(this._styleElements(config, id));
+    if (config.positions.icon == 'outside' || config.positions.icon == undefined) card.appendChild(iconBar);
+    if (config.positions.indicator == 'outside' || config.positions.indicator == undefined) card.appendChild(indicator);
+    if (config.positions.title == 'outside' || config.positions.title == undefined) card.appendChild(title);
+    if (config.positions.minmax == 'outside' || config.positions.minmax == undefined) {
+      card.appendChild(minValue);
+      card.appendChild(divider);
+      card.appendChild(maxValue);
+    };
+    card.appendChild(background);
+    if (config.positions.value == 'outside' || config.positions.value == undefined) card.appendChild(value);
+    card.appendChild(this._styleElements(config));
     switch (config.tap_action) {
       case 'info':
         card.addEventListener('click', event => {
@@ -350,291 +297,159 @@ class BarCard extends HTMLElement {
   }
 
   // Create style elements
-  _styleElements(config: config, id: string) {
+  _styleElements(config: config) {
     const style = document.createElement('style');
 
-    // Set titleBar position
-    let titleAlign;
-    let titleWidth;
-    let titleflexDirection;
-    switch (config.title_position) {
-      case 'left':
-        titleWidth = 'width: calc(100% - ' + config.width + ');';
-        titleAlign = 'justify-content: flex-start;';
-        titleflexDirection = 'flex-direction: row;';
-        break;
-      case 'right':
-        titleWidth = 'width: calc(100% - ' + config.width + ');';
-        titleAlign = 'justify-content: flex-start;';
-        titleflexDirection = 'flex-direction: row-reverse;';
-        break;
-      case 'top':
-        titleWidth = 'width: 100%;';
-        titleAlign = 'justify-content: center;';
-        titleflexDirection = 'flex-direction: column;';
-        break;
-      case 'bottom':
-        titleWidth = 'width: 100%;';
-        titleAlign = 'justify-content: center;';
-        titleflexDirection = 'flex-direction: column-reverse;';
-        break;
-    }
-
-    // Set icon position
-    switch (config.icon_position) {
-      case 'left':
-        titleWidth = 'width: calc(100% - ' + config.width + ');';
-        if (config.title_position == 'off' || config.title_position == 'inside') titleAlign = 'justify-content: center;';
-        else titleAlign = 'justify-content: flex-start;';
-        titleflexDirection = 'flex-direction: row;';
-        break;
-      case 'right':
-        titleWidth = 'width: calc(100% - ' + config.width + ');';
-        if (config.title_position == 'off' || config.title_position == 'inside') titleAlign = 'justify-content: center;';
-        else titleAlign = 'justify-content: flex-start;';
-        titleflexDirection = 'flex-direction: row-reverse;';
-        break;
-      case 'top':
-        titleWidth = 'width: 100%;';
-        titleAlign = 'justify-content: center;';
-        titleflexDirection = 'flex-direction: column;';
-        break;
-      case 'bottom':
-        titleWidth = 'width: 100%;';
-        titleAlign = 'justify-content: center;';
-        titleflexDirection = 'flex-direction: column-reverse;';
-        break;
-    }
-
-    // Set value flex direction based on card direction
-    let valueflexDirection;
-
-    switch (config.direction) {
-      case 'left':
-      case 'left-reverse':
-        valueflexDirection = 'flex-direction: row-reverse;';
-        break;
-      case 'right':
-      case 'right-reverse':
-        valueflexDirection = 'flex-direction: row;';
-        break;
-      case 'up':
-      case 'up-reverse':
-        valueflexDirection = 'flex-direction: column-reverse;';
-        break;
-      case 'down':
-      case 'down-reverse':
-        valueflexDirection = 'flex-direction: column;';
-        break;
-    }
-
-    // Set marker direction based on card direction
+    // Set styles based on config.
     let markerDirection;
-    let barFrom;
-    let insideWhitespace;
+    let markerStyle;
+    let backgroundWidth = '';
+    let barDirection = 'left';
+    let barFlexGrow = '1'
+    let barAlignItems = 'stretch';
+    let barCardMargin = 'margin-bottom: 8px;';
+    let barCardMarginLast = 'margin-bottom: 0px;';
+    let barCardMarginLeft = 'auto'
+    let valueMargin = 'margin-left: auto;';
+    let titleMargin = 'margin-left: 4px;';
+    let titleDisplay = 'display: flex;';
+    let barCardDirection = 'row';
+    let indicatorLeft = '0px';
+    let indicatorMarginLeft = '4px';
+    let contentBarDirection = 'row';
+    let iconMarginRight = '12px';
+    let iconMarginTop = '0px';
 
+    if (config.width !== undefined) {
+      backgroundWidth = `width: ${config.width};`;
+      barFlexGrow = '0';
+      barAlignItems = 'center';
+    }
+
+    // Stack styles.
+    switch (config.stack) {
+      case 'horizontal':
+        barCardMargin = 'margin-right: 8px;';
+        barCardMarginLast = 'margin-right: 0px;';
+        break;
+    }
+
+    // Min Max styles.
+    switch (config.positions.minmax) {
+      case 'off':
+        break;
+      default:
+        valueMargin = 'margin-left: 8px;';
+    }
+
+    // Indicator styles.
+    switch (config.positions.indicator) {
+      case 'outside':
+        indicatorLeft = '-3px';
+        indicatorMarginLeft = '-16px';
+        break;
+    }
+
+    // Bar Card styles.
+    switch (config.direction) {
+      case 'up':
+      case 'down':
+        barCardMarginLeft = '0px';
+        titleDisplay = '';
+        indicatorLeft = '0px';
+        indicatorMarginLeft = '0px';
+        iconMarginRight = '0px';
+        iconMarginTop = '-8px';
+        break;
+    }
+
+    // Set element directions based on config.
     switch (config.direction) {
       case 'left':
       case 'left-reverse':
-        barFrom = 'left';
+        barDirection = 'left';
         markerDirection = 'right';
-        insideWhitespace = 'nowrap';
         break;
       case 'right':
       case 'right-reverse':
-        barFrom = 'right';
+        barDirection = 'right';
         markerDirection = 'left';
-        insideWhitespace = 'nowrap';
         break;
       case 'up':
       case 'up-reverse':
-        barFrom = 'top';
+        barDirection = 'top';
         markerDirection = 'bottom';
         break;
       case 'down':
       case 'down-reverse':
-        barFrom = 'bottom';
+        barDirection = 'bottom';
         markerDirection = 'top';
         break;
     }
 
-    // Set marker style based on bar direction
-    let markerStyle;
-
-    if (barFrom == 'left' || barFrom == 'right') {
-      markerStyle = `
-        ${markerDirection}: var(--targetMarker-percent);
-        height: ${config.height};
-        border-left: 2px dashed var(--bar-color);
-      `;
-    } else {
-      markerStyle = `
-        ${markerDirection}: var(--targetMarker-percent);
-        width: 100%;
-        border-top: 2px dashed var(--bar-color);
-      `;
-    }
-
-    // Set title style based on title position
-    let titlePositionStyle;
-
-    if (config.title_position == 'inside') {
-      titlePositionStyle = `
-      width: calc(100% - 8px);
-      font-weight: bold;
-      color: #FFF;
-      text-shadow: 1px 1px #0007;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: ${insideWhitespace};
-      `;
-    } else {
-      titlePositionStyle = `
-      color: var(--primary-text-color);
-      padding-left: 10px;
-      padding-right: 10px;
-      padding-top: 4px;
-      padding-bottom: 4px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      `;
-    }
-
-    let iconMarginStyle = '';
-
-    if (config.icon_position !== 'inside' && config.title_position !== 'off' && config.title_position !== 'inside') {
-      iconMarginStyle = `
-      margin-left: 8px;
-      `;
-    }
-
-    let justifyContent;
-    let alignItems;
-    let textAlign;
-    let flexDirection;
-
-    switch (config.align) {
-      case 'right':
-        flexDirection = 'column';
-        textAlign = 'right';
-        alignItems = 'flex-end';
-        justifyContent = 'center';
-        break;
+    // Target marker styles.
+    switch (barDirection) {
       case 'left':
-        flexDirection = 'column';
-        justifyContent = 'center';
-        alignItems = 'flex-start';
-        textAlign = 'left';
+      case 'right':
+        markerStyle = `
+          ${markerDirection}: var(--targetMarker-percent);
+          height: 100%;
+          border-left: 2px solid var(--bar-color);
+        `;
         break;
       case 'top':
-        flexDirection = 'column';
-        justifyContent = 'flex-start';
-        alignItems = 'center';
-        textAlign = 'center';
-        break;
-      case 'top-split':
-        flexDirection = 'row';
-        justifyContent = 'space-between';
-        alignItems = 'flex-start';
-        if (config.icon_position != 'off') textAlign = 'center';
-        if (config.icon_position == 'inside') textAlign = 'center';
-        else textAlign = 'left';
-        break;
       case 'bottom':
-        flexDirection = 'column';
-        justifyContent = 'flex-end';
-        alignItems = 'center';
-        textAlign = 'center';
+        markerStyle = `
+          ${markerDirection}: var(--targetMarker-percent);
+          width: 100%;
+          border-top: 2px solid var(--bar-color);
+        `;
         break;
-      case 'bottom-split':
-        flexDirection = 'row';
-        justifyContent = 'space-between';
-        alignItems = 'flex-end';
-        if (config.icon_position != 'off') textAlign = 'center';
-        if (config.icon_position == 'inside') textAlign = 'center';
-        else textAlign = 'left';
-        break;
-      case 'split':
-        alignItems = 'center';
-        flexDirection = 'row';
-        justifyContent = 'space-between';
-        if (config.icon_position != 'off') textAlign = 'center';
-        if (config.icon_position == 'inside') textAlign = 'center';
-        else textAlign = 'left';
-        break;
-      case 'left-split':
-        flexDirection = 'column';
-        justifyContent = 'space-between';
-        alignItems = 'flex-start';
-        break;
-      case 'right-split':
-        flexDirection = 'column';
-        justifyContent = 'space-between';
-        alignItems = 'flex-end';
-        textAlign = 'right';
-        break;
-      case 'center':
-        flexDirection = 'column';
-        textAlign = 'center';
-        justifyContent = 'center';
-        alignItems = 'center';
-        break;
-      case 'center-split':
-        flexDirection = 'column';
-        textAlign = 'center';
-        justifyContent = 'space-between';
-        alignItems = 'center';
     }
-    if (config.title_position != 'inside') textAlign = 'left';
+
+    // Direction styles.
+    switch (config.direction) {
+      case 'up':
+      case 'down':
+        valueMargin = 'margin-bottom: 4px;';
+        contentBarDirection = 'column';
+        titleMargin = 'margin-bottom: auto;';
+        barCardDirection = 'column-reverse';
+        break;
+    }
 
     // Set CSS styles
-    let haCardWidth;
-
-    if (config.columns) haCardWidth = Math.trunc(100 / Number(config.columns));
-    else haCardWidth = 100;
-
-
     style.textContent = `
       bar-card-card {
-        width: ${haCardWidth}%;
-        --card-display: visible;
-        display: var(--card-display);
-        margin-bottom: 8px;
+        display: flex;
+        ${barCardMargin}
+        flex-direction: ${barCardDirection};
+        align-items: ${barAlignItems};
+        flex-basis: 100%;
       }
       bar-card-card:last-child{
-        margin-bottom: 0px;
-      }
-      bar-card-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        ${titleflexDirection}
+        ${barCardMarginLast}
       }
       bar-card-background {
         cursor: pointer;
         position: relative;
-        display: flex;
-        flex-direction: var(--flex-direction);
-        width: ${config.width};
+        flex-grow: ${barFlexGrow};
         height: ${config.height};
+        ${backgroundWidth}
+        margin-left: ${barCardMarginLeft};
       }
-      bar-card-contentbar {
-        position: relative;
-        display: flex;
-        flex-direction: ${flexDirection};
-        align-items: ${alignItems};
-        justify-content: ${justifyContent};
-        --padding: 4px;
-        height: calc(${config.height} - (var(--padding)*2));
-        width: calc(100% - (var(--padding)*2));
-        padding: var(--padding);
-      }
-      bar-card-bar, bar-card-backgroundbar, bar-card-targetbar, bar-card-valuebar, bar-card-chargebar, bar-card-chargebarcolor, bar-card-valuebar, bar-card-indicatorbar {
+      bar-card-bar, bar-card-contentbar, bar-card-backgroundbar, bar-card-targetbar, bar-card-valuebar, bar-card-chargebar, bar-card-chargebarcolor, bar-card-valuebar, bar-card-indicatorbar {
         position: absolute;
         height: 100%;
         width: 100%;
         border-radius: var(--bar-card-border-radius, var(--ha-card-border-radius));
+      }
+      bar-card-contentbar {
+        color: var(--primary-text-color);
+        display: flex;
+        flex-direction: ${contentBarDirection};
+        align-items: center;
+        justify-content: flex-start;
       }
       bar-card-backgroundbar {
         background: var(--bar-color);
@@ -642,10 +457,10 @@ class BarCard extends HTMLElement {
         opacity: 0.25;
       }
       bar-card-bar {
-        background: linear-gradient(to ${barFrom}, var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
+        background: linear-gradient(to ${barDirection}, var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
       }
       bar-card-chargebar {
-        background: linear-gradient(to ${barFrom}, #FFF0 var(--bar-percent), var(--bar-color) var(--bar-percent), var(--bar-color) var(--bar-charge-percent), #FFF0 var(--bar-charge-percent));
+        background: linear-gradient(to ${barDirection}, #FFF0 var(--bar-percent), var(--bar-color) var(--bar-percent), var(--bar-color) var(--bar-charge-percent), #FFF0 var(--bar-charge-percent));
         filter: var(--bar-charge-brightness);
         opacity: var(--bar-charge-opacity);
       }
@@ -653,90 +468,73 @@ class BarCard extends HTMLElement {
         display: var(--target-display);
         filter: brightness(0.66);
         opacity: 0.33;
-        background: linear-gradient(to ${barFrom}, #FFF0 var(--targetBar-left-percent), var(--bar-color) var(--targetBar-left-percent), var(--bar-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
+        background: linear-gradient(to ${barDirection}, #FFF0 var(--targetBar-left-percent), var(--bar-color) var(--targetBar-left-percent), var(--bar-color) var(--targetBar-right-percent), #FFF0 var(--targetBar-right-percent));
       }
       bar-card-targetmarker {
         display: var(--target-display);
         position: absolute;
         background: #FFF0;
-        ${markerStyle}
         filter: brightness(0.75);
+        opacity: 50%;
+        ${markerStyle}
       }
-      ha-icon {
-        display: var(--icon-display);
+      bar-card-iconbar {
+        display: flex;
         position: relative;
-        font-weight: bold;
-        color: #FFF;
-        filter: drop-shadow(1px 1px #0005);
-        ${iconMarginStyle}
+        align-items: center;
+        align-self: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        margin-right: ${iconMarginRight};
+        margin-top: ${iconMarginTop};
+      }
+      bar-card-value {
+        margin: 4px;
+        ${valueMargin}
+      }
+      bar-card-value, bar-card-minvalue, bar-card-maxvalue, bar-card-divider {
+        position: relative;
+        align-self: center;
+        white-space: nowrap;
+      }
+      bar-card-minvalue, bar-card-maxvalue, bar-card-divider {
+        margin: 2px;
+        font-size: 10px;
+        opacity: 0.5;
+      }
+      bar-card-divider {
+        margin-left: 0px;
+        margin-right: 0px;
+      }
+      bar-card-minvalue {
+        margin-left: auto;
       }
       bar-card-title {
+        ${titleDisplay}
         position: relative;
-        text-align: ${textAlign};
-        ${titlePositionStyle}
-      }
-      bar-card-valuecontainer {
-        position: relative;
-        display: ${config.show_minmax ? 'flex' : 'contents'};
+        text-align: center;
+        align-self: stretch;
         align-items: center;
         justify-content: center;
-        width: 100%;
-        height: 100%;
-        ${config.show_minmax ? 'text-align: center;' : ''};
-        ${valueflexDirection};
-      }
-      bar-card-value, bar-card-minvalue, bar-card-maxvalue {
-        position: relative;
-        font-weight: bold;
-        font-size: 13px;
-        color: #FFF;
-        text-shadow: 1px 1px #0007;
-        white-space: nowrap;
-        ${config.show_minmax ? 'flex-grow: 1;' : ''};
-        ${config.show_minmax ? 'text-align: center;' : ''};
-      }
-      bar-card-titlebar {
-        position: relative;
-        display: flex;
-        align-items: center;
-        height: 32px;
-        ${titleAlign}
-        ${titleWidth}
-      }
-      bar-card-indicatorbar {
-        display: flex;
-        --flex-direction: row;
-        flex-direction: var(--flex-direction);
-        align-items: var(--flex-align);
-        justify-content: var(--justify-content);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 4px;
+        ${titleMargin}
       }
       bar-card-indicator {
         position: relative;
+        text-align: center;
+        align-self: center;
         filter: brightness(0.75);
         color: var(--bar-color);
-        --padding-left: 0px;
-        padding-left: var(--padding-left);
-        --padding-right: 0px;
-        padding-right: var(--padding-right);
-      }
-      bar-card-indicatorcontainer {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 16px;
+        height: 16px;
+        margin-left: ${indicatorMarginLeft};
+        left: ${indicatorLeft};
       }
     `;
     return style;
-  }
-
-  // Create style string from CSS options
-  _customStyle(style: any) {
-    let styleString = '';
-
-    Object.keys(style).forEach(section => {
-      styleString = styleString + section + ':' + style[section] + '; ';
-    });
-    return styleString;
   }
 
   // Translates entity percentage to bar percentage
@@ -853,6 +651,31 @@ class BarCard extends HTMLElement {
     return event;
   }
 
+  _calculateBarColor(config: any, entityState: string, hass: any) {
+    let barColor;
+    if (!config.severity) barColor = config.color;
+    else barColor = this._computeSeverity(entityState, config.severity, hass, config);
+    return barColor;
+  }
+
+  // Check entity attribute overrides
+  _configAttributeCheck(entity: string, index: number) {
+    const hass = this._hass;
+    const config = Object.assign({}, this._configArray[index]);
+    const entityAttributes = hass.states[entity].attributes;
+    if (config.entity_config == true) {
+      Object.keys(config).forEach(section => {
+        if (this._initialConfigArray[index][section] == undefined) {
+          if (entityAttributes[section] !== undefined) {
+            if (section == 'severity' && typeof entityAttributes[section] == 'string') config[section] = JSON.parse(entityAttributes[section]);
+            else config[section] = entityAttributes[section];
+          }
+        }
+      });
+    }
+    return config;
+  }
+
   // Update bar percentages
   _updateBar(entityState: any, hass: any, id: string, entity: string, index: number) {
     const minValue = this._valueEntityCheck(this._minCheck(entity, hass, index), hass);
@@ -932,74 +755,15 @@ class BarCard extends HTMLElement {
   _updateIndicator(config: any, position: string, direction: string, id: string, color: string) {
     const root: any = this.shadowRoot;
     const indicatorElement = root.getElementById('indicator_' + id);
-    const indicatorBarElement = root.getElementById('indicatorBar_' + id);
-
     indicatorElement.style.setProperty('--bar-color', color);
 
     switch (direction) {
       case 'up':
         indicatorElement.textContent = '▲';
-        switch (position) {
-          case 'left':
-            indicatorElement.style.setProperty('--padding-left', '4px');
-            break;
-          case 'right':
-          case 'auto':
-            root.getElementById('background_' + id).style.setProperty('--flex-direction', 'row-reverse');
-            switch (config.align) {
-              case 'center':
-              case 'center-split':
-              case 'left-split':
-              case 'right-split':
-                indicatorBarElement.style.setProperty('--justify-content', 'flex-end');
-            }
-            indicatorElement.style.setProperty('--padding-right', '4px');
-            indicatorElement.style.setProperty('--padding-left', '0px');
-            break;
-          case 'top':
-          case 'auto-vertical':
-            indicatorBarElement.style.setProperty('--justify-content', 'flex-start');
-            indicatorBarElement.style.setProperty('--flex-direction', 'column');
-            break;
-          case 'bottom':
-            indicatorBarElement.style.setProperty('--justify-content', 'flex-end');
-            indicatorBarElement.style.setProperty('--flex-direction', 'column');
-        }
         break;
       case 'down':
         indicatorElement.textContent = '▼';
-        switch (position) {
-          case 'right':
-            root.getElementById('background_' + id).style.setProperty('--flex-direction', 'row-reverse');
-            indicatorElement.style.setProperty('--padding-right', '4px');
-            indicatorElement.style.setProperty('--padding-left', '0px');
-            break;
-          case 'left':
-          case 'auto':
-            root.getElementById('background_' + id).style.setProperty('--flex-direction', 'row');
-            switch (config.align) {
-              case 'center':
-              case 'center-split':
-              case 'left-split':
-              case 'right-split':
-                indicatorBarElement.style.setProperty('--justify-content', 'flex-start');
-            }
-            indicatorElement.style.setProperty('--padding-left', '4px');
-            indicatorElement.style.setProperty('--padding-right', '0px');
-            break;
-          case 'bottom':
-          case 'auto-vertical':
-            indicatorBarElement.style.setProperty('--justify-content', 'flex-end');
-            indicatorBarElement.style.setProperty('--flex-direction', 'column');
-          case 'top':
-            indicatorBarElement.style.setProperty('--justify-content', 'flex-start');
-            indicatorBarElement.style.setProperty('--flex-direction', 'column');
-        }
         break;
-      case 'off':
-        indicatorElement.textContent = '';
-        indicatorElement.style.setProperty('--padding-left', '0px');
-        indicatorElement.style.setProperty('--padding-right', '0px');
     }
   }
 
@@ -1033,31 +797,6 @@ class BarCard extends HTMLElement {
       targetBarElement.style.setProperty('--target-display', 'none');
       targetMarkerElement.style.setProperty('--target-display', 'none');
     }
-  }
-
-  _calculateBarColor(config: any, entityState: string, hass: any) {
-    let barColor;
-    if (!config.severity) barColor = config.color;
-    else barColor = this._computeSeverity(entityState, config.severity, hass, config);
-    return barColor;
-  }
-
-  // Check entity attribute overrides
-  _configAttributeCheck(entity: string, index: number) {
-    const hass = this._hass;
-    const config = Object.assign({}, this._configArray[index]);
-    const entityAttributes = hass.states[entity].attributes;
-    if (config.entity_config == true) {
-      Object.keys(config).forEach(section => {
-        if (this._initialConfigArray[index][section] == undefined) {
-          if (entityAttributes[section] !== undefined) {
-            if (section == 'severity' && typeof entityAttributes[section] == 'string') config[section] = JSON.parse(entityAttributes[section]);
-            else config[section] = entityAttributes[section];
-          }
-        }
-      });
-    }
-    return config;
   }
 
   // On entity update
@@ -1120,7 +859,7 @@ class BarCard extends HTMLElement {
     }
 
     // Define Icon
-    if (config.icon_position != 'off') {
+    if (config.positions.icon != 'off') {
       if (!config.icon) {
         root.getElementById('icon_' + id).icon = entityObject.attributes.icon;
       } else {
@@ -1130,8 +869,6 @@ class BarCard extends HTMLElement {
           root.getElementById('icon_' + id).icon = this._computeSeverityIcon(entityState, config.severity, hass);
         }
       }
-    } else {
-      root.getElementById('icon_' + id).style.setProperty('--icon-display', 'none');
     }
 
     // Set measurement
@@ -1177,16 +914,18 @@ class BarCard extends HTMLElement {
       this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
       this._entityTarget[id] = configTarget;
       barElement.style.setProperty('--bar-color', barColor);
-      if (config.show_minmax == true) {
-        root.getElementById('min_value_' + id).textContent = `${configMin} ${measurement}`;
-        root.getElementById('max_value_' + id).textContent = `${configMax} ${measurement}`;
+      if (config.positions.minmax != 'off') {
+        root.getElementById('minValue_' + id).style.setProperty('--bar-color', barColor);
+        root.getElementById('maxValue_' + id).style.setProperty('--bar-color', barColor);
+        root.getElementById('minValue_' + id).textContent = `${configMin}${measurement}`;
+        root.getElementById('maxValue_' + id).textContent = `${configMax} ${measurement}`;
       }
-      if (config.show_value == true) root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
+      if (config.positions.value != 'off') root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
       if (config.animation !== 'off') root.getElementById('chargeBar_' + id).style.setProperty('--bar-color', barColor);
       if (entityState == 'N/A') root.getElementById('backgroundBar_' + id).style.setProperty('--bar-color', '#666');
       else root.getElementById('backgroundBar_' + id).style.setProperty('--bar-color', barColor);
 
-      if (config.indicator !== 'off') {
+      if (config.positions.indicator !== 'off') {
         if (entityState > this._entityState[id]) this._updateIndicator(config, config.indicator, 'up', id, barColor);
         if (entityState < this._entityState[id]) this._updateIndicator(config, config.indicator, 'down', id, barColor);
       }
