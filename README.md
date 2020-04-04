@@ -1,16 +1,21 @@
 # bar-card
 ### [Examples](#examples-1)
 
-![](images/bar_examples.gif)
+![](https://github.com/custom-cards/bar-card/blob/master/images/default.gif?raw=true)
+
+![](https://github.com/custom-cards/bar-card/blob/master/images/severity.gif?raw=true)
+
+![](https://github.com/custom-cards/bar-card/blob/master/images/entity_row.gif?raw=true)
+
+![](https://github.com/custom-cards/bar-card/blob/master/images/direction.gif?raw=true)
+
+![](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
+
+![](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
 
 ## Description
 
 Bar Card is a customizable animated card for the Home Assistant Lovelace front-end.
-
-### Features
-- Customizable bar, text and animation.
-- Automatic animation mode. Starts animating based on value increase or decrease.
-- Charge based animation mode. Will show increase based on custom entity state.
 
 ## Options
 
@@ -18,339 +23,181 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
-| entities | array | none | A list of entities. Accepts individual config options per defined entity.
-| columns | number | none | Number of columns when using entities list.
-| attribute | string | none | Attribute to be displayed.
-| show_value | boolean | true | Hides value display when set to `false`.
-| limit_value | boolean | false | Ensure the value is always within the minimum and maximum when set to `true`.
-| show_minmax | boolean | false | Shows the minimum and maximum value when set to `true`.
-| decimal | number | false | The amount of decimals to be displayed for the value. Shows full number when set to `false`.
-| unit_of_measurement | string | none | Unit of measurement to be displayed.
+| animation | object | none | Defines animation options. See [Animation Options](#animation-options-1)
 | color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar, can be any valid CSS color value or variable. Custom themes should set `custom-bar-card-color` if `primary-color` is not a good default
-| title | string | friendly_name | Title displayed next to the bar.
-| title_position | string | left | Position of the title. `left`, `right`, `top`, `bottom`, `inside`, `'off'`
-| icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
-| icon_position | string | off | Position of the icon. `left`, `right`, `top`, `bottom`, `inside`, `'off'`
-| align | string | center | Alignment of text and icon inside the bar. `left`, `right`, `top`, `bottom`, `split`, `center-split`, `left-split`, `right-split`, `top-split`, `bottom-split`
-| animation | string | on | Mode of animation `auto`,  `'off'`.
-| indicator | string | auto | Position off the indicator `auto`, `auto-vertical`, `left`, `right`, `top`, `bottom`, `'off'`
-| height | string | 40px | Scales the height of the bar.
-| width | string | 70% | Scales the width of the bar.
-| min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
-| max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
-| target | number | none | Target marker value, accepts entity id or attribute object value.
-| speed | number | 2500 | The speed of the bar animation in milliseconds.
-| delay | number| 7500 | The amout of time between the bar animation loop in milliseconds.
+| decimal | number | false | The amount of decimals to be displayed for the value. Shows full number when set to `false`.
 | direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
-| severity | object | none | A list of severity values.
-| charge_entity | string | none | Defines entity to be used as animation trigger, animation will be based on this entity's state. Entity states can be `on`/`off`,  `true`/`false`,  `charging`/`discharging`
+| entities | array | none | A list of entities. Accepts individual config options per defined entity.
 | entity_config | boolean | false | Sets the card to use the configured entity attributes as the card config.
+| entity_row | boolean | false | Removes the background card for use inside entities card.
+| height | string | 40px | Scales the height of the bar.
+| icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
+| limit_value | boolean | false | Displayed value is always within the minimum and maximum when set to `true`.
+| max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
+| min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
+| name | string | none | Sets the name of the bar title.
+| positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options-1).
+| service_options | object | none | A list of service call options. Should include `domain`, `service`, `data`
+| severity | object | none | A list of severity values. See [Severity Options](#severity-options-1).
+| stack | string | vertical | Sets the card to stack entities `veritcal` or `horizontal`.
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
-| service_config | object | none | A list of service call options. Should include `domain`, `service`, `data`
-| visibility | string | none | Sets visibilty threshold for the bar. Defined as comparison operator and a number. e.g. `<= 25`
+| target | number | none | Target marker value, accepts entity id or attribute object value.
+| title | string | friendly_name | Adds title header to the card.
+| unit_of_measurement | string | none | Unit of measurement to be displayed.
+| width | string | 70% | Scales the width of the bar.
+
+## Severity Options
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| from | number | **Required** | Defines from which value the color should be displayed.
+| to | number | **Required** | Defines to which value the color should be displayed.
+| color | array | **Required** | Defines the color to be displayed.
+
+## Animation Options
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| state | string | off | Defines from which value the color should be displayed. `on`, `off`
+| speed | number | 1000 | Defines the speed of the bar animation in milliseconds.
+| delay | number | 5000 | Defines the amout of time between the bar animation loop in milliseconds.
+
+## Positions Options
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| icon | string | outside | `inside`, `outside`, `off`
+| indicator | string | outside | `inside`, `outside`, `off`
+| title | string | inside | `inside`, `outside`, `off`
+| minmax | string | off | `inside`, `outside`, `off`
+| value | string | inside | `inside`, `outside`, `off`
 
 ## Installation
 
-### Step 1
-
-Copy `bar-card.js` to `<config directory>/www/custom-lovelace/bar-card/bar-card.js`.
-
-### Step 2
-
-Add `bar-card` resource to `ui-lovelace.yaml`.
-
-```yaml
-resources:
-- url: /local/custom-lovelace/bar-card/bar-card.js?v=1.0.0
-  type: js
-```
-
-### Step 3
-
-Add a custom card to your `ui-lovelace.yaml`.
-
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-```
+Prefered way of installation is [Home Assistant Community Store](https://github.com/hacs/integration).
 
 ## Examples
 
 ### Default
+![](https://github.com/custom-cards/bar-card/blob/master/images/default.gif?raw=true)
+
 ```yaml
-- type: custom:bar-card
-  title: Default
-  entity: sensor.example
+entity: sensor.example
+title: Default
+type: 'custom:bar-card'
 ```
 
 ### Severity
+![](https://github.com/custom-cards/bar-card/blob/master/images/severity.gif?raw=true)
 ```yaml
-- type: custom:bar-card
-  title: Severity
-  entity: sensor.example
-  severity:
-  - value: 33
-    color: '#bf4040'
-  - value: 66
-    color: '#bf9540'
-  - value: 100
-    color: '#40bf40'
+entity: sensor.example
+title: Severity
+type: 'custom:bar-card'
+severity:
+  - color: Red
+    from: 0
+    to: 25
+  - color: Orange
+    from: 26
+    to: 50
+  - color: Green
+    from: 51
+    to: 100
 ```
 
-### Target
+### Entity Row
+![](https://github.com/custom-cards/bar-card/blob/master/images/entity_row.gif?raw=true)
 ```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Target
-  target: 50
+entities:
+  - sensor.example
+  - entity: sensor.example
+    positions:
+      minmax: inside
+    entity_row: true
+    target: 50
+    type: 'custom:bar-card'
+  - entity: light.group_bedroom
+    name: Example
+title: Entity Row
+type: entities
 ```
 
-### Icon
+### Direction
+![](https://github.com/custom-cards/bar-card/blob/master/images/direction.gif?raw=true)
 ```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Icon
-  show_icon: true
-  icon: mdi:eye
+entities:
+  - sensor.example
+  - sensor.example
+  - sensor.example
+title: Direction
+direction: up
+height: 200px
+stack: horizontal
+type: 'custom:bar-card'
 ```
 
-### Title Inside
+### 2.0.0 Default Layout (using [card-mod](https://github.com/thomasloven/lovelace-card-mod))
+![](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
 ```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Inside
-  title_position: inside
+entity: sensor.example
+positions:
+  icon: 'off'
+  indicator: inside
+  title: outside
+type: 'custom:bar-card'
+width: 70%
+title: 2.0.0 Default Layout
+style: |-
+  bar-card-value {
+    margin-right: auto;
+    font-size: 13px;
+    font-weight: bold;
+    text-shadow: 1px 1px #0005;
+  }
 ```
 
-### Icon no Title
+### Custom CSS Layout (using [card-mod](https://github.com/thomasloven/lovelace-card-mod))
+![](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
 ```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title_position: 'off'
-  show_icon: true
-  align: split
-  icon: mdi:eye
-```
-
-### Align Left
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Align Left
-  title_position: inside
-  align: left
-```
-
-### Align Right
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Align Right
-  title_position: inside
-  align: right
-```
-
-### Align Split
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Align Split
-  title_position: inside
-  align: split
-```
-
-### Align Split + Icon
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Align Split + Icon
-  title_position: inside
-  show_icon: true
-  icon: mdi:eye
-  align: split
-```
-
-### Align Top Split
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Top Split
-  title_position: inside
-  align: top-split
-```
-
-### Align Bottom Split
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: Bottom Split
-  title_position: inside
-  align: bottom-split
-```
-
-### Direction Up
-```yaml
-- type: custom:bar-card
-  height: 160px
-  width: 100px
-  direction: up
-  title: Up
-  title_position: bottom
-  indicator: auto-vertical
-  entity: sensor.example
-```
-
-### Up Icon no Title
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  height: 200px
-  width: 100px
-  direction: up
-  show_icon: true
-  icon: mdi:eye
-  title_position: 'off'
-```
-
-### Up Left Split
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  height: 200px
-  width: 100px
-  direction: up
-  align: left-split
-  title: Left Split
-  title_position: inside
-```
-
-### Up Center Split
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  height: 200px
-  width: 100px
-  direction: up
-  show_icon: true
-  icon: mdi:eye
-  align: center-split
-  title: Center Split + Icon
-  title_position: inside
-```
-
-### CSS Styles
-```yaml
-- type: custom:bar-card
-  entity: sensor.example
-  title: CSS Styles
-  title_position: inside
-  show_icon: true
-  icon: mdi:eye
-  hue: 240
-  saturation: 75%
-  align: split
-  rounding: 10px
-  card_style:
-    background: "#AA00AA"
-    border-radius: 10px
-  icon_style:
-    height: 60px
-    width: 60px
-    color: '#FF0000'
-  title_style:
-    color: '#00FF00'
-    font-size: 10px
-    text-transform: uppercase
-    text-decoration: underline
-    text-shadow: "0 0 10px #FF0000"
-  value_style:
-    color: '#FFFF00'
-    font-size: 22px
-```
-
-### Entities + [Auto Entities](https://github.com/thomasloven/lovelace-auto-entities)
-
-![](images/entities_example.png)
-
-```yaml
-- type: custom:auto-entities
-  card:
-    type: custom:bar-card
-    severity:
-      - value: 50
-        color: '#bf4040'
-      - value: 75
-        color: '#bf9540'
-      - value: 100
-        color: '#40bf40'
-    title_position: inside
-    columns: 3
-    padding: 2px
-    align: left
-    title_style:
-      font-size: 16px
-    value_style:
-      font-size: 8px
-  filter:
-    include:
-      - entity_id: "*_battery"
-
-- type: custom:auto-entities
-  card:
-    type: custom:bar-card
-    attribute: battery
-    unit_of_measurement: "%"
-    severity:
-      - value: 50
-        color: '#bf4040'
-      - value: 75
-        color: '#bf9540'
-      - value: 100
-        color: '#40bf40'
-    title_position: inside
-    padding: 2px
-    columns: 2
-  filter:
-    include:
-      - attributes:
-          battery: "<=100"
-    exclude:
-      - entity_id: "*_humidity"
-      - entity_id: "*_pressure"
-      - entity_id: "*_battery"
-
-- type: custom:bar-card
-  attribute: temperature
-  unit_of_measurement: "°C"
-  title_position: inside
-  columns: 5
-  height: 200px
-  min: 15
-  max: 32
-  target: 22.5
-  width: 100%
-  padding: 2px
-  direction: up
-  entities:
-    - binary_sensor.motion_hallway
-    - binary_sensor.motion_living_room
-    - binary_sensor.motion_kitchen
-    - binary_sensor.motion_bathroom
-    - binary_sensor.motion_toilet
-```
-
-### Service Call
-```yaml
-- type: custom:bar-card
-  title: Service Call
-  entity: sensor.example
-  tap_action: service
-  service_options:
-    domain: mqtt
-    service: publish
-    data:
-      topic: "example"
-      payload: "example"
+entity: sensor.example
+positions:
+  icon: 'off'
+  indicator: 'off'
+  minmax: inside
+  title: inside
+  value: inside
+style: |-
+  bar-card-value {
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: auto;
+    margin-top: 0px;
+  }
+  bar-card-minvalue {
+    margin-top: 0px;
+    margin-left: 8px;
+    margin-right: auto;
+    margin-bottom: -13px;
+    bottom: 8px;
+  }
+  bar-card-maxvalue {
+    margin-bottom: 0px;
+    margin-right: 8px;
+    margin-left: auto;
+    margin-top: -13px;
+    top: 6px;
+  }
+  bar-card-divider {
+    display: none;
+  }
+  bar-card-contentbar {
+    flex-direction: column;
+  }
+  bar-card-title {
+    margin-bottom: 0px;
+  }
+title: Custom CSS Layout
+type: 'custom:bar-card'
 ```
 
 ## Credits
