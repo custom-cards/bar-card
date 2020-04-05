@@ -23,7 +23,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
-| animation | object | none | Defines animation options. See [Animation Options](#animation-options-1)
+| animation | object | none | Defines animation options. See [Animation Options](#animation-options)
 | color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar, can be any valid CSS color value or variable. Custom themes should set `custom-bar-card-color` if `primary-color` is not a good default
 | decimal | number | false | The amount of decimals to be displayed for the value. Shows full number when set to `false`.
 | direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
@@ -36,9 +36,9 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
 | min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
 | name | string | none | Sets the name of the bar title.
-| positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options-1).
+| positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options).
 | service_options | object | none | A list of service call options. Should include `domain`, `service`, `data`
-| severity | object | none | A list of severity values. See [Severity Options](#severity-options-1).
+| severity | object | none | A list of severity values. See [Severity Options](#severity-options).
 | stack | string | vertical | Sets the card to stack entities `veritcal` or `horizontal`.
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
 | target | number | none | Target marker value, accepts entity id or attribute object value.
@@ -74,7 +74,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 
 ## Installation
 
-Prefered way of installation is [Home Assistant Community Store](https://github.com/hacs/integration).
+Prefered method of installation is [Home Assistant Community Store](https://github.com/hacs/integration).
 
 ## Examples
 
