@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 3.0.1`, 'color: green; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 3.0.2`, 'color: #4788d4; font-weight: bold;', '');
 
 export interface config {
   animation: any;
@@ -29,7 +29,6 @@ export interface config {
 class BarCard extends HTMLElement {
   shadowRoot: any;
   _configArray!: any[];
-  _initialConfigArray!: any[];
   _hass: any;
   _config: any;
   _animationDirection: any;
@@ -46,9 +45,6 @@ class BarCard extends HTMLElement {
   // Set config object.
   setConfig(config: config) {
     while (this.shadowRoot.lastChild) this.shadowRoot.removeChild(this.shadowRoot.lastChild);
-
-    // Avoid card config modifying lovelace config.
-    const initialConfig = Object.assign({}, config);
 
     // Default Card variables
     const defaultConfig = {
@@ -165,20 +161,13 @@ class BarCard extends HTMLElement {
 
     // For each entity in entities list create cardElements.
     this._configArray = [];
-    this._initialConfigArray = [];
     for (let i = 0; i <= config.entities.length - 1; i++) {
       const entityName = config.entities[i].entity.split('.');
-      this._configArray[i] = Object.assign({}, config);
-      this._initialConfigArray[i] = Object.assign({}, initialConfig);
-      Object.keys(config).forEach(section => {
-        const config = this._configArray[i];
-        const entities = config.entities[i];
-        const initialConfig = this._initialConfigArray[i];
-        if (entities[section]) {
-          config[section] = entities[section];
-          initialConfig[section] = entities[section];
-        }
-      });
+      const duplicatedConfig = Object.assign({}, config);
+
+      // Merge default config with per entity config.
+      this._configArray[i] = Object.assign(duplicatedConfig, config.entities[i]);
+
       // Add bar to either ha-card or states element.
       switch (config.entity_row) {
         case false:
@@ -356,7 +345,14 @@ class BarCard extends HTMLElement {
     // Stack styles.
     switch (config.stack) {
       case 'horizontal':
-        barCardMargin = 'margin-right: 8px;';
+        switch (config.entity_row) {
+          case true:
+            barCardMargin = 'margin: 0px 8px 0px 0px;';
+            break;
+          case false:
+            barCardMargin = 'margin: 8px 8px 8px 0px;';
+            break;
+        }
         barCardMarginLast = 'margin-right: 0px;';
         statesStyle = `
         #states > * {
@@ -414,7 +410,14 @@ class BarCard extends HTMLElement {
       case 'left':
       case 'right':
         titleDisplay = 'display: flex;';
-        minValueMarginLeft = 'auto';
+        switch (config.positions.minmax) {
+          case 'outside':
+            minValueMarginLeft = '4px';
+            break;
+          case 'inside':
+            minValueMarginLeft = 'auto';
+            break;
+        }
         iconMarginTop = '0px';
         iconMarginRight = '12px';
         barCardMarginLeft = 'auto';
@@ -709,12 +712,10 @@ class BarCard extends HTMLElement {
     const entityAttributes = hass.states[entity].attributes;
     if (config.entity_config == true) {
       Object.keys(config).forEach(section => {
-        if (this._initialConfigArray[index][section] == undefined) {
           if (entityAttributes[section]) {
             if (section == 'severity' && typeof entityAttributes[section] == 'string') config[section] = JSON.parse(entityAttributes[section]);
             else config[section] = entityAttributes[section];
           }
-        }
       });
     }
     return config;
@@ -933,7 +934,7 @@ class BarCard extends HTMLElement {
       entityState = 'Unavailable';
       measurement = '';
       if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.setProperty('--icon-color', 'var(--disabled-text-color)');
-      barColor = 'var(--switch-unchecked-button-color)';
+      barColor = 'var(--bar-card-disabled-color, var(--switch-unchecked-button-color))';
     } else {
       if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.removeProperty('--icon-color');
     }
