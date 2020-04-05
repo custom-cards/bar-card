@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 3.0.0`, 'color: green; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 3.0.1`, 'color: green; font-weight: bold;', '');
 
 export interface config {
   animation: any;
@@ -545,6 +545,7 @@ class BarCard extends HTMLElement {
         position: absolute;
       }
       bar-card-iconbar {
+        color: var(--icon-color, var(--paper-item-icon-color));
         align-items: center;
         align-self: center;
         display: flex;
@@ -894,14 +895,6 @@ class BarCard extends HTMLElement {
       entityState = Math.max(entityState, configMin);
     }
 
-
-    if (config.decimal == 0) {
-      entityState = entityState.toFixed(0);
-    }
-    if (config.decimal) {
-      entityState = entityState.toFixed(config.decimal);
-    }
-
     // Define Icon.
     if (config.positions.icon != 'off') {
       if (!config.icon) {
@@ -932,9 +925,27 @@ class BarCard extends HTMLElement {
     if (!this._currentAnimation) this._currentAnimation = {};
     if (!this._animationDirection) this._animationDirection = {};
 
+    // Define bar color.
+    let barColor = this._computeBarColor(config, entityState);
+
+    // Adjust state and measurement when value is unavailable.
+    if (entityObject.state == 'unavailable') {
+      entityState = 'Unavailable';
+      measurement = '';
+      if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.setProperty('--icon-color', 'var(--disabled-text-color)');
+      barColor = 'var(--switch-unchecked-button-color)';
+    } else {
+      if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.removeProperty('--icon-color');
+    }
+
+    // Adjust decimal value.
+    if (!isNaN(entityState)) {
+      if (config.decimal == 0) entityState = entityState.toFixed(0);
+      else if (config.decimal) entityState = entityState.toFixed(config.decimal);
+    }
+
     // On entity update
     if (entityState !== this._entityState[id]) {
-      const barColor = this._computeBarColor(config, entityState);
 
       // Update bar percentage.
       this._updateBar(entityState, hass, id, entity, index);
@@ -975,7 +986,6 @@ class BarCard extends HTMLElement {
 
       // Update animation bar.
       if (config.animation.state == 'on') {
-        const barColor = this._computeBarColor(config, entityState);
         root.getElementById('animationBar_' + id).style.setProperty('--bar-color', barColor);
         if (entityState > this._entityState[id]) {
           this._animationDirection[id] = 'normal';
@@ -993,7 +1003,6 @@ class BarCard extends HTMLElement {
     // On target update.
     if (config.target) {
       if (configTarget != this._entityTarget[id]) {
-        const barColor = this._computeBarColor(config, entityState);
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
         this._entityTarget[id] = configTarget;
         if (this._currentAnimation[id] && config.animation.state !== 'off') this._currentAnimation[id] = this._updateAnimation(entityState, config.animation.delay, false, id, entity, index);
@@ -1005,7 +1014,6 @@ class BarCard extends HTMLElement {
       this._updateBar(entityState, hass, id, entity, index);
       this._currentMin[id] = configMin;
       if (config.target) {
-        const barColor = this._computeBarColor(config, entityState);
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
         this._currentMin[id] = configMin;
       }
@@ -1017,7 +1025,6 @@ class BarCard extends HTMLElement {
       this._updateBar(entityState, hass, id, entity, index);
       this._currentMax[id] = configMax;
       if (config.target) {
-        const barColor = this._computeBarColor(config, entityState);
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
         this._currentMax[id] = configMax;
       }
