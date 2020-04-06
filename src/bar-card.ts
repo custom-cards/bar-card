@@ -53,7 +53,7 @@ class BarCard extends HTMLElement {
         delay: 5000,
         speed: 1000
       },
-      color: 'var(--custom-bar-card-color, var(--primary-color))',
+      color: 'var(--bar-card-color, var(--primary-color))',
       decimal: false,
       direction: 'right',
       height: '40px',
@@ -236,8 +236,6 @@ class BarCard extends HTMLElement {
     iconBar.id = 'iconBar_' + id;
     const title = document.createElement('bar-card-title');
     title.id = 'title_' + id;
-    const titleBar = document.createElement('bar-card-titlebar');
-    titleBar.id = 'titleBar_' + id;
     const minValue = document.createElement('bar-card-minvalue');
     minValue.id = 'minValue_' + id;
     const divider = document.createElement('bar-card-divider');
@@ -247,9 +245,9 @@ class BarCard extends HTMLElement {
     maxValue.id = 'maxValue_' + id;
     const value = document.createElement('bar-card-value');
     value.id = 'value_' + id;
-    const animationBar = document.createElement('bar-card-animationBar');
+    const animationBar = document.createElement('bar-card-animationbar');
     animationBar.id = 'animationBar_' + id;
-    const targetBar = document.createElement('bar-card-targetBar');
+    const targetBar = document.createElement('bar-card-targetbar');
     targetBar.id = 'targetBar_' + id;
     const targetMarker = document.createElement('bar-card-targetmarker');
     targetMarker.id = 'targetMarker_' + id;

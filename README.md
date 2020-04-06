@@ -72,6 +72,36 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | minmax | string | off | `inside`, `outside`, `off`
 | value | string | inside | `inside`, `outside`, `off`
 
+## Theme Variables
+
+| Name | Description
+| ---- | ----
+| bar-card-color | Defines the default bar color.
+| bar-card-border-radius | Defines the border radius of the bar.
+| bar-card-disabled-color | Defines the bar color when state is `unavailable`.
+
+## CSS Elements
+
+| Name | Description
+| ---- | ----
+| bar-card-card | The root bar of each defined entity containing all elements.
+| bar-card-background | Contains bar and any elements `outside` of the bar.
+| bar-card-backgroundbar | The background of the bar.
+| bar-card-current | The filled part of the bar.
+| bar-card-contentbar | Contains all elements `inside` of the bar.
+| ha-icon | Icon element.
+| bar-card-iconbar | Contains ha-icon.
+| bar-card-title | Title element.
+| bar-card-minvalue | Min value element.
+| bar-card-divider | Min/Max divider element.
+| bar-card-maxvalue | Max value element.
+| bar-card-value | Value element.
+| bar-card-animationbar | Animated part of the bar.
+| bar-card-targetbar | Target bar element.
+| bar-card-targetmarker | Target marker element.
+| bar-card-indicator | Indicator element.
+
+
 ## Installation
 
 Prefered method of installation is [Home Assistant Community Store](https://github.com/hacs/integration).
