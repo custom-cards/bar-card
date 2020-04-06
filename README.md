@@ -23,7 +23,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
-| animation | object | none | Defines animation options. See [Animation Options](#animation-options)
+| animation | object | none | Defines animation options. See [Animation Options](#animation-options).
 | color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar, can be any valid CSS color value or variable. Custom themes should set `custom-bar-card-color` if `primary-color` is not a good default
 | decimal | number | false | The amount of decimals to be displayed for the value. Shows full number when set to `false`.
 | direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
@@ -81,6 +81,8 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | bar-card-disabled-color | Defines the bar color when state is `unavailable`.
 
 ## CSS Elements
+
+See [example](#200-default-layout-using-card-mod).
 
 | Name | Description
 | ---- | ----
