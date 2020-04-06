@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 3.0.2`, 'color: #4788d4; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 3.0.3`, 'color: #4788d4; font-weight: bold;', '');
 
 export interface config {
   animation: any;
@@ -731,8 +731,8 @@ class BarCard extends HTMLElement {
       barElement.style.setProperty('--bar-percent', `${this._computePercent(entityState, minValue, maxValue, index, entity)}%`);
       barElement.style.setProperty('--bar-charge-percent', `${this._computePercent(entityState, minValue, maxValue, index, entity)}%`);
     } else {
-      barElement.style.setProperty('--bar-percent', `100%`);
-      barElement.style.setProperty('--bar-charge-percent', `100%`);
+      barElement.style.setProperty('--bar-percent', `0%`);
+      barElement.style.setProperty('--bar-charge-percent', `0%`);
     }
   }
 
@@ -934,7 +934,7 @@ class BarCard extends HTMLElement {
       entityState = 'Unavailable';
       measurement = '';
       if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.setProperty('--icon-color', 'var(--disabled-text-color)');
-      barColor = 'var(--bar-card-disabled-color, var(--switch-unchecked-button-color))';
+      barColor = `var(--bar-card-disabled-color, ${this._computeBarColor(config, entityState)})`;
     } else {
       if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.removeProperty('--icon-color');
     }
