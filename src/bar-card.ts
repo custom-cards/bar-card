@@ -48,6 +48,7 @@ class BarCard extends HTMLElement {
 
     // Default Card variables
     const defaultConfig = {
+      attribute: false,
       animation: {
         state: 'off',
         delay: 5000,
@@ -883,7 +884,12 @@ class BarCard extends HTMLElement {
     const configMax = this._maxCheck(entity, hass, index);
 
     // Define Entity State
-    let entityState = entityObject.state;
+    let entityState;
+    if (config.attribute) {
+      entityState = entityObject.attributes[config.attribute];
+    } else {
+      entityState = entityObject.state;
+    }
 
     if (!isNaN(entityState)) {
       entityState = Number(entityState);
