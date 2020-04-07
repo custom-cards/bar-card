@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 3.0.3`, 'color: #4788d4; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 3.0.5`, 'color: #4788d4; font-weight: bold;', '');
 
 export interface config {
   animation: any;
