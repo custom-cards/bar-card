@@ -34,15 +34,15 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | height | string | 40px | Scales the height of the bar.
 | icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
 | limit_value | boolean | false | Displayed value is always within the minimum and maximum when set to `true`.
-| max | number | 100 | The maximum entity value to be displayed, accepts entity id or attribute object value.
-| min | number | 0 | The minimum entity value to be displayed, accepts entity id or attribute object value.
+| max | number | 100 | The maximum entity value to be displayed.
+| min | number | 0 | The minimum entity value to be displayed.
 | name | string | none | Sets the name of the bar title.
 | positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options).
 | service_options | object | none | A list of service call options. Should include `domain`, `service`, `data`
 | severity | object | none | A list of severity values. See [Severity Options](#severity-options).
 | stack | string | vertical | Sets the card to stack entities `veritcal` or `horizontal`.
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
-| target | number | none | Target marker value, accepts entity id or attribute object value.
+| target | number | none | Target marker value.
 | title | string | friendly_name | Adds title header to the card.
 | unit_of_measurement | string | none | Unit of measurement to be displayed.
 | width | string | 70% | Scales the width of the bar.
