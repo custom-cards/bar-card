@@ -169,7 +169,7 @@ stack: horizontal
 type: 'custom:bar-card'
 ```
 
-### 2.0.0 Default Layout (using [card-mod](https://github.com/thomasloven/lovelace-card-mod))
+### 2.0.0 Default Layout (**requires** [card-mod](https://github.com/thomasloven/lovelace-card-mod))
 ![](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
 ```yaml
 entity: sensor.example
@@ -189,7 +189,7 @@ style: |-
   }
 ```
 
-### Custom CSS Layout (using [card-mod](https://github.com/thomasloven/lovelace-card-mod))
+### Custom CSS Layout (**requires** [card-mod](https://github.com/thomasloven/lovelace-card-mod))
 ![](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
 ```yaml
 entity: sensor.example
