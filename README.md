@@ -83,7 +83,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 
 ## CSS Elements
 
-See [example](#200-default-layout-requires-card-mod).
+See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](https://github.com/thomasloven/lovelace-card-mod))
 
 | Name | Description
 | ---- | ----
