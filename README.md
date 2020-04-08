@@ -59,7 +59,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| state | string | off | Defines from which value the color should be displayed. `on`, `off`
+| state | string | off | Enables or disables animation. `on`, `off`
 | speed | number | 1000 | Defines the speed of the bar animation in milliseconds.
 | delay | number | 5000 | Defines the amout of time between the bar animation loop in milliseconds.
 
@@ -78,7 +78,7 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | Name | Description
 | ---- | ----
 | bar-card-color | Defines the default bar color.
-| bar-card-border-radius | Defines the border radius of the bar.
+| bar-card-border-radius | Defines the default border radius of the bar.
 | bar-card-disabled-color | Defines the bar color when state is `unavailable`.
 
 ## CSS Elements
