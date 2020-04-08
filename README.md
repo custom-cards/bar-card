@@ -13,10 +13,6 @@
 
 ![](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
 
-## Description
-
-Bar Card is a customizable animated card for the Home Assistant Lovelace front-end.
-
 ## Options
 
 | Name | Type | Default | Description
@@ -24,28 +20,28 @@ Bar Card is a customizable animated card for the Home Assistant Lovelace front-e
 | type | string | **Required** | `custom:bar-card`
 | entity | string | **Required** | Entity State
 | animation | object | none | Defines animation options. See [Animation Options](#animation-options).
-| attribute | string | none | Sets to card to display a specific attribute instead of state value.
-| color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar, can be any valid CSS color value or variable. Custom themes should set `custom-bar-card-color` if `primary-color` is not a good default
-| decimal | number | false | The amount of decimals to be displayed for the value. Shows full number when set to `false`.
+| attribute | string | none | Displays a specific attribute instead of state value.
+| color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar.
+| decimal | number | none | The amount of decimals to be displayed for the value.
 | direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
 | entities | array | none | A list of entities. Accepts individual config options per defined entity.
 | entity_config | boolean | false | Sets the card to use the configured entity attributes as the card config.
 | entity_row | boolean | false | Removes the background card for use inside entities card.
-| height | string | 40px | Scales the height of the bar.
-| icon | string | icon | Icon to be displayed. If no icon is defined entity icon attribute will be used. 
-| limit_value | boolean | false | Displayed value is always within the minimum and maximum when set to `true`.
-| max | number | 100 | The maximum entity value to be displayed.
-| min | number | 0 | The minimum entity value to be displayed.
-| name | string | none | Sets the name of the bar title.
+| height | string | 40px | Defines the height of the bar.
+| icon | string | icon | Defines the icon to be displayed 
+| limit_value | boolean | false | Limits value displayed to `min` and `max` value.
+| max | number | 100 | Defines maximum value of the bar.
+| min | number | 0 | Defines minimum value of the bar.
+| name | string | none | Defines custom entity name.
 | positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options).
 | service_options | object | none | A list of service call options. Should include `domain`, `service`, `data`
 | severity | object | none | A list of severity values. See [Severity Options](#severity-options).
 | stack | string | vertical | Sets the card to stack entities `veritcal` or `horizontal`.
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
-| target | number | none | Target marker value.
-| title | string | friendly_name | Adds title header to the card.
-| unit_of_measurement | string | none | Unit of measurement to be displayed.
-| width | string | 70% | Scales the width of the bar.
+| target | number | none | Defines and enables target marker value.
+| title | string | none | Adds title header to the card.
+| unit_of_measurement | string | false | Defines the unit of measurement to be displayed.
+| width | string | 100% | Defines the width of the bar.
 
 ## Severity Options
 
