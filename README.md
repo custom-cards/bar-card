@@ -22,6 +22,7 @@
 | animation | object | none | Defines animation options. See [Animation Options](#animation-options).
 | attribute | string | none | Displays a specific attribute instead of state value.
 | color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar.
+| columns | number | none | Defines the amount of bars to be displayed on a single row when multiple entities are defined.
 | decimal | number | none | The amount of decimals to be displayed for the value.
 | direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
 | entities | array | none | A list of entities. Accepts individual config options per defined entity.
