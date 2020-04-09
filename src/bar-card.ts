@@ -1,9 +1,10 @@
-console.info(`%cBAR-CARD\n%cVersion: 3.0.5`, 'color: #4788d4; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 3.0.6`, 'color: #4788d4; font-weight: bold;', '');
 
 export interface config {
   animation: any;
   attribute: any;
   color: string;
+  columns: number;
   decimal: any;
   direction: string;
   entity: string;
@@ -55,6 +56,7 @@ class BarCard extends HTMLElement {
         speed: 1000
       },
       color: 'var(--bar-card-color, var(--primary-color))',
+      columns: false,
       decimal: false,
       direction: 'right',
       height: '40px',
@@ -90,6 +92,8 @@ class BarCard extends HTMLElement {
 
     // Merge default and card config.
     config = Object.assign(defaultConfig, config);
+
+    if (config.columns) config.stack = 'horizontal';
 
     // Merge positions config.
     config.positions = Object.assign(defaultConfigPositions, configPositions);
@@ -145,6 +149,11 @@ class BarCard extends HTMLElement {
           align-items: stretch;
           flex-direction: column;
         }
+        row {
+          margin: 8px 0px;
+          display: flex;
+          flex-direction: columns;
+        }
       `;
         break;
       case true:
@@ -162,21 +171,61 @@ class BarCard extends HTMLElement {
 
     // For each entity in entities list create cardElements.
     this._configArray = [];
-    for (let i = 0; i <= config.entities.length - 1; i++) {
-      const entityName = config.entities[i].entity.split('.');
-      const duplicatedConfig = Object.assign({}, config);
 
-      // Merge default config with per entity config.
-      this._configArray[i] = Object.assign(duplicatedConfig, config.entities[i]);
+    // If columns is defined create rows otherwise create individual bars.
+    if (config.columns) {
+      const rowAmount = Math.ceil(config.entities.length / config.columns);
 
-      // Add bar to either ha-card or states element.
-      switch (config.entity_row) {
-        case false:
-          states.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
-          break;
-        case true:
-          haCard.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
-          break;
+      // Create array containing amount of bars per row.
+      let columnsArray = [];
+      for (let i = 0; i < config.entities.length; i++) {
+        if (((columnsArray.length + 1) * config.columns) == i) {
+          columnsArray.push(config.columns);
+        }
+        if (config.entities.length == i + 1) {
+          columnsArray.push(config.entities.length - (columnsArray.length * config.columns));
+        }
+      }
+
+      // Create each row element and add contained bars.
+      let currentBar = 0;
+      for (let i = 0; i < rowAmount; i++) {
+        const row = document.createElement('row');
+        row.id = 'row_' + i;
+
+        // For each row add contained bars based on columnsArray.
+        for (let x = 0; x < columnsArray[i]; x++) {
+          const entityName = config.entities[currentBar].entity.split('.');
+          const duplicatedConfig = Object.assign({}, config);
+
+          // Merge default config with per entity config.
+          this._configArray[currentBar] = Object.assign(duplicatedConfig, config.entities[i]);
+
+          // Add bar to current row.
+          row.appendChild(this._cardElements(this._configArray[currentBar], entityName[0] + '_' + entityName[1] + '_' + currentBar, config.entities[currentBar].entity));
+          currentBar++;
+        }
+
+        // Add current row to states.
+        states.appendChild(row);
+      }
+    } else {
+      for (let i = 0; i <= config.entities.length - 1; i++) {
+        const entityName = config.entities[i].entity.split('.');
+        const duplicatedConfig = Object.assign({}, config);
+
+        // Merge default config with per entity config.
+        this._configArray[i] = Object.assign(duplicatedConfig, config.entities[i]);
+
+        // Add bar to either ha-card or states element.
+        switch (config.entity_row) {
+          case false:
+            states.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
+            break;
+          case true:
+            haCard.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
+            break;
+        }
       }
     }
 
@@ -240,7 +289,7 @@ class BarCard extends HTMLElement {
     const minValue = document.createElement('bar-card-minvalue');
     minValue.id = 'minValue_' + id;
     const divider = document.createElement('bar-card-divider');
-    divider.id = 'divider' + id;
+    divider.id = 'divider_' + id;
     divider.textContent = `/`;
     const maxValue = document.createElement('bar-card-maxvalue');
     maxValue.id = 'maxValue_' + id;
@@ -344,6 +393,7 @@ class BarCard extends HTMLElement {
     // Stack styles.
     switch (config.stack) {
       case 'horizontal':
+        if (config.columns) statesDirection = 'column';
         switch (config.entity_row) {
           case true:
             barCardMargin = 'margin: 0px 8px 0px 0px;';
@@ -475,12 +525,10 @@ class BarCard extends HTMLElement {
         contentBarDirection = 'column';
         titleMargin = 'margin-bottom: auto;';
         barCardDirection = 'column-reverse';
-        statesDirection = 'row';
         break;
       case 'left':
       case 'right':
         titleMargin = 'margin-left: 4px;';
-        statesDirection = 'column';
         contentBarDirection = 'row';
         barCardDirection = 'row';
     }
