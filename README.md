@@ -1,17 +1,18 @@
 # bar-card
-### [Examples](#examples-1)
 
-![](https://github.com/custom-cards/bar-card/blob/master/images/default.gif?raw=true)
+## [Examples](#examples-1)
 
-![](https://github.com/custom-cards/bar-card/blob/master/images/severity.gif?raw=true)
+![Default](https://github.com/custom-cards/bar-card/blob/master/images/default.gif?raw=true)
 
-![](https://github.com/custom-cards/bar-card/blob/master/images/entity_row.gif?raw=true)
+![Severity](https://github.com/custom-cards/bar-card/blob/master/images/severity.gif?raw=true)
 
-![](https://github.com/custom-cards/bar-card/blob/master/images/direction.gif?raw=true)
+![Entity Row](https://github.com/custom-cards/bar-card/blob/master/images/entity_row.gif?raw=true)
 
-![](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
+![Direction](https://github.com/custom-cards/bar-card/blob/master/images/direction.gif?raw=true)
 
-![](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
+![Old Layout](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
+
+![Custom CSS](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
 
 ## Options
 
@@ -29,7 +30,7 @@
 | entity_config | boolean | false | Sets the card to use the configured entity attributes as the card config.
 | entity_row | boolean | false | Removes the background card for use inside entities card.
 | height | string | 40px | Defines the height of the bar.
-| icon | string | icon | Defines the icon to be displayed 
+| icon | string | icon | Defines the icon to be displayed.
 | limit_value | boolean | false | Limits value displayed to `min` and `max` value.
 | max | number | 100 | Defines maximum value of the bar.
 | min | number | 0 | Defines minimum value of the bar.
@@ -37,7 +38,6 @@
 | positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options).
 | service_options | object | none | A list of service call options. Should include `domain`, `service`, `data`
 | severity | object | none | A list of severity values. See [Severity Options](#severity-options).
-| stack | string | vertical | Sets the card to stack entities `veritcal` or `horizontal`.
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
 | target | number | none | Defines and enables target marker value.
 | title | string | none | Adds title header to the card.
@@ -101,7 +101,6 @@ See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](h
 | bar-card-targetmarker | Target marker element.
 | bar-card-indicator | Indicator element.
 
-
 ## Installation
 
 Prefered method of installation is [Home Assistant Community Store](https://github.com/hacs/integration).
@@ -109,7 +108,8 @@ Prefered method of installation is [Home Assistant Community Store](https://gith
 ## Examples
 
 ### Default
-![](https://github.com/custom-cards/bar-card/blob/master/images/default.gif?raw=true)
+
+![Default](https://github.com/custom-cards/bar-card/blob/master/images/default.gif?raw=true)
 
 ```yaml
 entity: sensor.example
@@ -118,7 +118,9 @@ type: 'custom:bar-card'
 ```
 
 ### Severity
-![](https://github.com/custom-cards/bar-card/blob/master/images/severity.gif?raw=true)
+
+![Severity](https://github.com/custom-cards/bar-card/blob/master/images/severity.gif?raw=true)
+
 ```yaml
 entity: sensor.example
 title: Severity
@@ -136,7 +138,9 @@ severity:
 ```
 
 ### Entity Row
-![](https://github.com/custom-cards/bar-card/blob/master/images/entity_row.gif?raw=true)
+
+![Entity Row](https://github.com/custom-cards/bar-card/blob/master/images/entity_row.gif?raw=true)
+
 ```yaml
 entities:
   - sensor.example
@@ -153,7 +157,9 @@ type: entities
 ```
 
 ### Direction
-![](https://github.com/custom-cards/bar-card/blob/master/images/direction.gif?raw=true)
+
+![Direction](https://github.com/custom-cards/bar-card/blob/master/images/direction.gif?raw=true)
+
 ```yaml
 entities:
   - sensor.example
@@ -167,7 +173,9 @@ type: 'custom:bar-card'
 ```
 
 ### 2.0.0 Default Layout (**requires** [card-mod](https://github.com/thomasloven/lovelace-card-mod))
-![](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
+
+![Old Layout](https://github.com/custom-cards/bar-card/blob/master/images/old_layout.gif?raw=true)
+
 ```yaml
 entity: sensor.example
 positions:
@@ -187,7 +195,9 @@ style: |-
 ```
 
 ### Custom CSS Layout (**requires** [card-mod](https://github.com/thomasloven/lovelace-card-mod))
-![](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
+
+![Custom CSS](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
+
 ```yaml
 entity: sensor.example
 positions:
@@ -231,7 +241,9 @@ type: 'custom:bar-card'
 ```
 
 ## Credits
+
 Inspired by [Big Number Card](https://github.com/ciotlosm/custom-lovelace/tree/master/bignumber-card) by [ciotlosm](https://github.com/ciotlosm).
 
 ## Links
+
 [Home Assistant Community Topic](https://community.home-assistant.io/t/lovelace-bar-card/87503)

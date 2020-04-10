@@ -1,4 +1,4 @@
-console.info(`%cBAR-CARD\n%cVersion: 3.0.8`, 'color: #4788d4; font-weight: bold;', '');
+console.info(`%cBAR-CARD\n%cVersion: 3.0.9`, 'color: #4788d4; font-weight: bold;', '');
 
 export interface config {
   animation: any;
@@ -53,7 +53,7 @@ class BarCard extends HTMLElement {
       animation: {
         state: 'off',
         delay: 5000,
-        speed: 1000
+        speed: 1000,
       },
       color: 'var(--bar-card-color, var(--primary-color))',
       columns: false,
@@ -71,7 +71,7 @@ class BarCard extends HTMLElement {
         indicator: 'outside',
         title: 'inside',
         minmax: 'off',
-        value: 'inside'
+        value: 'inside',
       },
       severity: false,
       service_options: false,
@@ -79,7 +79,7 @@ class BarCard extends HTMLElement {
       tap_action: 'info',
       target: false,
       title: false,
-      unit_of_measurement: false
+      unit_of_measurement: false,
     };
 
     // Define default and config positions object.
@@ -92,8 +92,6 @@ class BarCard extends HTMLElement {
 
     // Merge default and card config.
     config = Object.assign(defaultConfig, config);
-
-    if (config.columns) config.stack = 'horizontal';
 
     // Merge positions config.
     config.positions = Object.assign(defaultConfigPositions, configPositions);
@@ -132,81 +130,23 @@ class BarCard extends HTMLElement {
     header.classList.add('card-header');
     const name = document.createElement('div');
     name.classList.add('name');
-    const haCardStyle = document.createElement('style');
-    let direction;
-    switch (config.stack) {
-      case 'horizontal':
-        direction = 'row';
-        break;
-      case 'vertical':
-        direction = 'column';
-        break;
-    }
-    switch (config.entity_row) {
-      case false:
-        haCardStyle.textContent = `
-        ha-card {
-          display: flex;
-          align-items: stretch;
-          flex-direction: column;
-        }
-        row {
-          margin: 8px 0px;
-          display: flex;
-          flex-direction: row;
-        }
-      `;
-        break;
-      case true:
-        haCardStyle.textContent = `
-        ha-card {
-          display: flex;
-          align-items: stretch;
-          flex-direction: ${direction};
-          background: #0000;
-          box-shadow: none;
-        }
-      `;
-        break;
-    }
-    if (config.entity_row && config.columns) {
-      haCardStyle.textContent = `
-      ha-card {
-        display: flex;
-        align-items: stretch;
-        flex-direction: column;
-        background: #0000;
-        box-shadow: none;
-      }
-      ha-card > * {
-        margin: 0px;
-      }
-      row {
-        margin: 0px 0px 8px 0px;
-        display: flex;
-        flex-direction: row;
-      }
-      row:last-child {
-        margin: 0px;
-      }
-      `
-    }
 
     // For each entity in entities list create cardElements.
     this._configArray = [];
 
     // If columns is defined create rows otherwise create individual bars.
     if (config.columns) {
+      config.stack = 'horizontal';
       const rowAmount = Math.ceil(config.entities.length / config.columns);
 
       // Create array containing amount of bars per row.
       let columnsArray = [];
       for (let i = 0; i < config.entities.length; i++) {
-        if (((columnsArray.length + 1) * config.columns) == i) {
+        if ((columnsArray.length + 1) * config.columns == i) {
           columnsArray.push(config.columns);
         }
         if (config.entities.length == i + 1) {
-          columnsArray.push(config.entities.length - (columnsArray.length * config.columns));
+          columnsArray.push(config.entities.length - columnsArray.length * config.columns);
         }
       }
 
@@ -225,20 +165,25 @@ class BarCard extends HTMLElement {
           this._configArray[currentBar] = Object.assign(duplicatedConfig, config.entities[currentBar]);
 
           // Add bar to current row.
-          row.appendChild(this._cardElements(this._configArray[currentBar], entityName[0] + '_' + entityName[1] + '_' + currentBar, config.entities[currentBar].entity));
+          row.appendChild(
+            this._cardElements(
+              this._configArray[currentBar],
+              entityName[0] + '_' + entityName[1] + '_' + currentBar,
+              config.entities[currentBar].entity,
+            ),
+          );
           currentBar++;
         }
 
         // Add current row to states.
         switch (config.entity_row) {
-          case false:
-        states.appendChild(row);
-            break;
           case true:
             haCard.appendChild(row);
             break;
+          case false:
+            states.appendChild(row);
+            break;
         }
-
       }
     } else {
       for (let i = 0; i <= config.entities.length - 1; i++) {
@@ -251,10 +196,22 @@ class BarCard extends HTMLElement {
         // Add bar to either ha-card or states element.
         switch (config.entity_row) {
           case false:
-            states.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
+            states.appendChild(
+              this._cardElements(
+                this._configArray[i],
+                entityName[0] + '_' + entityName[1] + '_' + i,
+                config.entities[i].entity,
+              ),
+            );
             break;
           case true:
-            haCard.appendChild(this._cardElements(this._configArray[i], entityName[0] + '_' + entityName[1] + '_' + i, config.entities[i].entity));
+            haCard.appendChild(
+              this._cardElements(
+                this._configArray[i],
+                entityName[0] + '_' + entityName[1] + '_' + i,
+                config.entities[i].entity,
+              ),
+            );
             break;
         }
       }
@@ -274,8 +231,9 @@ class BarCard extends HTMLElement {
         break;
     }
     // Add card container to root.
+
+    haCard.appendChild(this._styleElements(config));
     this.shadowRoot.appendChild(haCard);
-    this.shadowRoot.appendChild(haCardStyle);
 
     // For each entity in entities list update entity.
     if (this._hass) {
@@ -339,7 +297,7 @@ class BarCard extends HTMLElement {
     iconBar.appendChild(icon);
 
     // Inside elements.
-    if (config.positions.icon == 'inside') contentBar.appendChild(iconBar)
+    if (config.positions.icon == 'inside') contentBar.appendChild(iconBar);
     if (config.positions.indicator == 'inside') contentBar.appendChild(indicator);
     if (config.positions.title == 'inside') contentBar.appendChild(title);
     if (config.positions.minmax == 'inside') {
@@ -366,17 +324,16 @@ class BarCard extends HTMLElement {
       card.appendChild(minValue);
       card.appendChild(divider);
       card.appendChild(maxValue);
-    };
+    }
     if (config.positions.value == 'outside') card.appendChild(value);
-    card.appendChild(this._styleElements(config));
     switch (config.tap_action) {
       case 'info':
-        card.addEventListener('click', event => {
+        card.addEventListener('click', (event) => {
           this._showAttributes('hass-more-info', { entityId: entity }, null);
         });
         break;
       case 'service':
-        card.addEventListener('click', event => {
+        card.addEventListener('click', (event) => {
           this._serviceCall(config.service_options.domain, config.service_options.service, config.service_options.data);
         });
         break;
@@ -410,6 +367,17 @@ class BarCard extends HTMLElement {
     let titleDisplay;
     let titleMargin;
     let valueMargin;
+    let haCardStyle;
+    let direction;
+
+    switch (config.stack) {
+      case 'horizontal':
+        direction = 'row';
+        break;
+      case 'vertical':
+        direction = 'column';
+        break;
+    }
 
     if (config.width) {
       backgroundWidth = `width: ${config.width};`;
@@ -430,28 +398,37 @@ class BarCard extends HTMLElement {
             barCardMargin = 'margin: 0px 8px 0px 0px;';
             break;
           case false:
-            barCardMargin = 'margin: 8px 8px 8px 0px;';
+            if (config.columns) barCardMargin = 'margin: 0px 8px 0px 0px;';
+            else barCardMargin = 'margin: 8px 8px 8px 0px;';
             break;
         }
         barCardMarginLast = 'margin-right: 0px;';
-        statesStyle = `
-        #states > * {
-          margin-top: 8px;
+        if (config.columns) {
+          statesStyle = `
+            #states > * {
+              margin-top: 8px;
+            }
+          `;
+        } else {
+          statesStyle = `
+            #states > * {
+              margin-top: 8px;
+            }
+            #states {
+              display: flex;
+              flex-direction: ${statesDirection};
+            }
+          `;
         }
-        #states {
-          display: flex;
-          flex-direction: ${statesDirection};
-        }
-        `
         break;
       case 'vertical':
         barCardMargin = 'margin-bottom: 8px;';
         barCardMarginLast = 'margin-bottom: 0px;';
         statesStyle = `
-        #states > * {
-            margin: 8px 0px;
-          }
-        `
+          #states > * {
+              margin: 8px 0px;
+            }
+        `;
     }
 
     // Min Max styles.
@@ -469,7 +446,7 @@ class BarCard extends HTMLElement {
         indicatorLeft = '-3px';
         indicatorMarginLeft = '-16px';
         break;
-      case  'inside':
+      case 'inside':
         indicatorMarginLeft = '-16px';
         indicatorLeft = '0px';
         break;
@@ -564,8 +541,59 @@ class BarCard extends HTMLElement {
         barCardDirection = 'row';
     }
 
+    switch (config.entity_row) {
+      case false:
+        haCardStyle = `
+          ha-card {
+            display: flex;
+            align-items: stretch;
+            flex-direction: column;
+          }
+          row {
+            margin: 8px 0px;
+            display: flex;
+            flex-direction: row;
+          }
+        `;
+        break;
+      case true:
+        haCardStyle = `
+          ha-card {
+            display: flex;
+            align-items: stretch;
+            flex-direction: ${direction};
+            background: #0000;
+            box-shadow: none;
+          }
+        `;
+        break;
+    }
+    if (config.entity_row && config.columns) {
+      haCardStyle = `
+        ha-card {
+          display: flex;
+          align-items: stretch;
+          flex-direction: column;
+          background: #0000;
+          box-shadow: none;
+        }
+        ha-card > * {
+          margin: 0px;
+        }
+        row {
+          margin: 0px 0px 8px 0px;
+          display: flex;
+          flex-direction: row;
+        }
+        row:last-child {
+          margin: 0px;
+        }
+      `;
+    }
+
     // Set CSS styles
     style.textContent = `
+      ${haCardStyle}
       ${statesStyle}
       bar-card-card {
         ${barCardMargin}
@@ -717,7 +745,7 @@ class BarCard extends HTMLElement {
     const numberValue = Number(stateValue);
     let color: undefined | string;
 
-    sections.forEach(section => {
+    sections.forEach((section) => {
       if (isNaN(section.value)) {
         if (section.value == stateValue && color == undefined) {
           color = section.color;
@@ -736,7 +764,7 @@ class BarCard extends HTMLElement {
   _computeSeverityIcon(stateValue: any, sections: any[]) {
     let numberValue = Number(stateValue);
     let icon: undefined | string;
-    sections.forEach(section => {
+    sections.forEach((section) => {
       if (isNaN(section.value)) {
         if (section.value == stateValue && icon == undefined) {
           icon = section.icon;
@@ -763,7 +791,7 @@ class BarCard extends HTMLElement {
     else return config.max;
   }
 
-  _serviceCall(domain: string, service: string, data: any) {
+  _serviceCall(domain: string, service: string, data: any) : void {
     const hass = this._hass;
     hass.callService(domain, service, data);
   }
@@ -776,7 +804,7 @@ class BarCard extends HTMLElement {
     const event: any = new Event(type, {
       bubbles: options.bubbles === undefined ? true : options.bubbles,
       cancelable: Boolean(options.cancelable),
-      composed: options.composed === undefined ? true : options.composed
+      composed: options.composed === undefined ? true : options.composed,
     });
     event.detail = detail;
     root.dispatchEvent(event);
@@ -789,25 +817,32 @@ class BarCard extends HTMLElement {
     const config = Object.assign({}, this._configArray[index]);
     const entityAttributes = hass.states[entity].attributes;
     if (config.entity_config == true) {
-      Object.keys(config).forEach(section => {
-          if (entityAttributes[section]) {
-            if (section == 'severity' && typeof entityAttributes[section] == 'string') config[section] = JSON.parse(entityAttributes[section]);
-            else config[section] = entityAttributes[section];
-          }
+      Object.keys(config).forEach((section) => {
+        if (entityAttributes[section]) {
+          if (section == 'severity' && typeof entityAttributes[section] == 'string')
+            config[section] = JSON.parse(entityAttributes[section]);
+          else config[section] = entityAttributes[section];
+        }
       });
     }
     return config;
   }
 
   // Update bar percentages.
-  _updateBar(entityState: any, hass: any, id: string, entity: string, index: number) {
-    const minValue = this._minCheck(entity, hass, index)
+  _updateBar(entityState: any, hass: any, id: string, entity: string, index: number): void {
+    const minValue = this._minCheck(entity, hass, index);
     const maxValue = this._maxCheck(entity, hass, index);
     const barElement: any = this.shadowRoot.getElementById('currentBar_' + id);
 
     if (!isNaN(entityState)) {
-      barElement.style.setProperty('--bar-percent', `${this._computePercent(entityState, minValue, maxValue, index, entity)}%`);
-      barElement.style.setProperty('--bar-charge-percent', `${this._computePercent(entityState, minValue, maxValue, index, entity)}%`);
+      barElement.style.setProperty(
+        '--bar-percent',
+        `${this._computePercent(entityState, minValue, maxValue, index, entity)}%`,
+      );
+      barElement.style.setProperty(
+        '--bar-charge-percent',
+        `${this._computePercent(entityState, minValue, maxValue, index, entity)}%`,
+      );
     } else {
       barElement.style.setProperty('--bar-percent', `0%`);
       barElement.style.setProperty('--bar-charge-percent', `0%`);
@@ -815,7 +850,14 @@ class BarCard extends HTMLElement {
   }
 
   // Update animation.
-  _updateAnimation(entityState: any, configDuration: number, configStop: boolean, id: string, entity: string, index: number) {
+  _updateAnimation(
+    entityState: any,
+    configDuration: number,
+    configStop: boolean,
+    id: string,
+    entity: string,
+    index: number,
+  ) {
     const config = this._configAttributeCheck(entity, index);
     const root = this.shadowRoot;
     const hass = this._hass;
@@ -836,7 +878,7 @@ class BarCard extends HTMLElement {
       endDelay: 0,
       direction: 'normal',
       duration: configDuration,
-      fill: 'both'
+      fill: 'both',
     };
 
     // Reverse animation
@@ -853,7 +895,11 @@ class BarCard extends HTMLElement {
     if (configDirection == 'normal') {
       for (; i <= totalFrames; ) {
         let opacity = this._mapRange(i / 3, currentPercent, currentPercent + 25, 0.5, 0);
-        let keyframe = { '--bar-charge-percent': i / 3 + '%', '--bar-percent': currentPercent + '%', '--bar-charge-opacity': opacity };
+        let keyframe = {
+          '--bar-charge-percent': i / 3 + '%',
+          '--bar-percent': currentPercent + '%',
+          '--bar-charge-opacity': opacity,
+        };
         keyframes.push(keyframe);
         i++;
       }
@@ -863,7 +909,11 @@ class BarCard extends HTMLElement {
       for (; i <= totalFrames; ) {
         const reversePercent = currentPercent - (i - scaledPercent) / 3;
         let opacity = this._mapRange(i / 3, currentPercent, currentPercent + 25, 0.5, 0);
-        let keyframe = { '--bar-charge-percent': currentPercent + '%', '--bar-percent': reversePercent + '%', '--bar-charge-opacity': opacity };
+        let keyframe = {
+          '--bar-charge-percent': currentPercent + '%',
+          '--bar-percent': reversePercent + '%',
+          '--bar-charge-opacity': opacity,
+        };
         keyframes.push(keyframe);
         i++;
       }
@@ -875,7 +925,7 @@ class BarCard extends HTMLElement {
   }
 
   // Sets position and direction of the indicator
-  _updateIndicator(direction: string, id: string, color: string) {
+  _updateIndicator(direction: string, id: string, color: string): void {
     const root: any = this.shadowRoot;
     const indicatorElement = root.getElementById('indicator_' + id);
     indicatorElement.style.setProperty('--bar-color', color);
@@ -894,7 +944,7 @@ class BarCard extends HTMLElement {
   }
 
   // Scale the target bar size.
-  _updateTargetBar(entityState: any, target: number, color: string, id: string, entity: string, index: number) {
+  _updateTargetBar(entityState: any, target: number, color: string, id: string, entity: string, index: number): void {
     const config = this._configAttributeCheck(entity, index);
     const root: any = this.shadowRoot;
     const targetBarElement = root.getElementById('targetBar_' + id);
@@ -926,7 +976,7 @@ class BarCard extends HTMLElement {
   }
 
   // On entity update.
-  _updateEntity(entity: string, id: string, index: number) {
+  _updateEntity(entity: string, id: string, index: number): void {
     const hass = this._hass;
     const entityObject = hass.states[entity];
     const root: any = this.shadowRoot;
@@ -936,7 +986,7 @@ class BarCard extends HTMLElement {
       const container = root.getElementById('card_' + id);
       while (container.lastChild) container.removeChild(container.lastChild);
       const warning = document.createElement('hui-warning');
-      warning.setAttribute("style", "width: 100%;");
+      warning.setAttribute('style', 'width: 100%;');
       warning.textContent = `Entity not available: ${entity}`;
       root.getElementById('card_' + id).appendChild(warning);
       return;
@@ -1016,7 +1066,8 @@ class BarCard extends HTMLElement {
     if (entityObject.state == 'unavailable') {
       entityState = 'Unavailable';
       measurement = '';
-      if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.setProperty('--icon-color', 'var(--disabled-text-color)');
+      if (config.positions.icon !== 'off')
+        root.getElementById('iconBar_' + id).style.setProperty('--icon-color', 'var(--disabled-text-color)');
       barColor = `var(--bar-card-disabled-color, ${this._computeBarColor(config, entityState)})`;
     } else {
       if (config.positions.icon !== 'off') root.getElementById('iconBar_' + id).style.removeProperty('--icon-color');
@@ -1030,7 +1081,6 @@ class BarCard extends HTMLElement {
 
     // On entity update
     if (entityState !== this._entityState[id]) {
-
       // Update bar percentage.
       this._updateBar(entityState, hass, id, entity, index);
 
@@ -1048,7 +1098,8 @@ class BarCard extends HTMLElement {
       }
 
       // Update value.
-      if (config.positions.value !== 'off') root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
+      if (config.positions.value !== 'off')
+        root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
 
       // Update bar.
       root.getElementById('bar_' + id).style.setProperty('--bar-color', barColor);
@@ -1067,19 +1118,32 @@ class BarCard extends HTMLElement {
         }
       }
 
-
       // Update animation bar.
       if (config.animation.state == 'on') {
         root.getElementById('animationBar_' + id).style.setProperty('--bar-color', barColor);
         if (entityState > this._entityState[id]) {
           this._animationDirection[id] = 'normal';
           if (this._currentAnimation[id]) this._currentAnimation[id].pause();
-          this._currentAnimation[id] = this._updateAnimation(entityState, config.animation.delay, false, id, entity, index);
+          this._currentAnimation[id] = this._updateAnimation(
+            entityState,
+            config.animation.delay,
+            false,
+            id,
+            entity,
+            index,
+          );
         }
         if (entityState < this._entityState[id]) {
           this._animationDirection[id] = 'reverse';
           if (this._currentAnimation[id]) this._currentAnimation[id].pause();
-          this._currentAnimation[id] = this._updateAnimation(entityState, config.animation.delay, false, id, entity, index);
+          this._currentAnimation[id] = this._updateAnimation(
+            entityState,
+            config.animation.delay,
+            false,
+            id,
+            entity,
+            index,
+          );
         }
       }
     }
@@ -1089,7 +1153,15 @@ class BarCard extends HTMLElement {
       if (configTarget != this._entityTarget[id]) {
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
         this._entityTarget[id] = configTarget;
-        if (this._currentAnimation[id] && config.animation.state !== 'off') this._currentAnimation[id] = this._updateAnimation(entityState, config.animation.delay, false, id, entity, index);
+        if (this._currentAnimation[id] && config.animation.state !== 'off')
+          this._currentAnimation[id] = this._updateAnimation(
+            entityState,
+            config.animation.delay,
+            false,
+            id,
+            entity,
+            index,
+          );
       }
     }
 
@@ -1101,7 +1173,15 @@ class BarCard extends HTMLElement {
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
         this._currentMin[id] = configMin;
       }
-      if (this._currentAnimation[id] && config.animation.state == 'on') this._currentAnimation[id] = this._updateAnimation(entityState, config.animation.delay, false, id, entity, index);
+      if (this._currentAnimation[id] && config.animation.state == 'on')
+        this._currentAnimation[id] = this._updateAnimation(
+          entityState,
+          config.animation.delay,
+          false,
+          id,
+          entity,
+          index,
+        );
     }
 
     // On max update.
@@ -1112,14 +1192,21 @@ class BarCard extends HTMLElement {
         this._updateTargetBar(entityState, configTarget, barColor, id, entity, index);
         this._currentMax[id] = configMax;
       }
-      if (this._currentAnimation[id] && config.animation.state == 'on') this._currentAnimation[id] = this._updateAnimation(entityState, config.animation.delay, false, id, entity, index);
+      if (this._currentAnimation[id] && config.animation.state == 'on')
+        this._currentAnimation[id] = this._updateAnimation(
+          entityState,
+          config.animation.delay,
+          false,
+          id,
+          entity,
+          index,
+        );
     }
     this._entityState[id] = entityState;
   }
 
-  getCardSize() {
-    if (this._config.entity_row == true) return 1;
-    else return 2;
+  getCardSize(): number {
+    return 3;
   }
 }
 
