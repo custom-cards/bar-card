@@ -140,6 +140,7 @@ class BarCard extends HTMLElement {
         break;
       case 'vertical':
         direction = 'column';
+        break;
     }
     switch (config.entity_row) {
       case false:
@@ -152,7 +153,7 @@ class BarCard extends HTMLElement {
         row {
           margin: 8px 0px;
           display: flex;
-          flex-direction: columns;
+          flex-direction: row;
         }
       `;
         break;
@@ -167,6 +168,28 @@ class BarCard extends HTMLElement {
         }
       `;
         break;
+    }
+    if (config.entity_row && config.columns) {
+      haCardStyle.textContent = `
+      ha-card {
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+        background: #0000;
+        box-shadow: none;
+      }
+      ha-card > * {
+        margin: 0px;
+      }
+      row {
+        margin: 0px 0px 8px 0px;
+        display: flex;
+        flex-direction: row;
+      }
+      row:last-child {
+        margin: 0px;
+      }
+      `
     }
 
     // For each entity in entities list create cardElements.
@@ -207,7 +230,15 @@ class BarCard extends HTMLElement {
         }
 
         // Add current row to states.
+        switch (config.entity_row) {
+          case false:
         states.appendChild(row);
+            break;
+          case true:
+            haCard.appendChild(row);
+            break;
+        }
+
       }
     } else {
       for (let i = 0; i <= config.entities.length - 1; i++) {
