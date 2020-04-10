@@ -199,7 +199,7 @@ class BarCard extends HTMLElement {
           const duplicatedConfig = Object.assign({}, config);
 
           // Merge default config with per entity config.
-          this._configArray[currentBar] = Object.assign(duplicatedConfig, config.entities[i]);
+          this._configArray[currentBar] = Object.assign(duplicatedConfig, config.entities[currentBar]);
 
           // Add bar to current row.
           row.appendChild(this._cardElements(this._configArray[currentBar], entityName[0] + '_' + entityName[1] + '_' + currentBar, config.entities[currentBar].entity));
