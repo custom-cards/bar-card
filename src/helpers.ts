@@ -1,3 +1,6 @@
+import { PropertyValues } from 'lit-element';
+import { HomeAssistant } from 'custom-card-helpers';
+
 /**
  * Performs a deep merge of objects and returns new object. Does not modify
  * objects (immutable) and merges arrays via concatenation and filtering.
@@ -25,4 +28,30 @@ export function mergeDeep(...objects: any): any {
 
     return prev;
   }, {});
+}
+
+export function mapRange(num: number, in_min: number, in_max: number, out_min: number, out_max: number): number {
+  return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+}
+
+// Check if config or Entity changed
+export function hasConfigOrEntitiesChanged(element: any, changedProps: PropertyValues, forceUpdate: boolean): boolean {
+  if (changedProps.has('config') || forceUpdate) {
+    return true;
+  }
+
+  for (const config of element._configArray) {
+    if (config.entity) {
+      const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+      if (oldHass) {
+        if (oldHass.states[config.entity] !== element.hass!.states[config.entity]) {
+          return true;
+        } else {
+          continue;
+        }
+      }
+      return true;
+    }
+  }
+  return false;
 }

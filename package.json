@@ -42,7 +42,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.24.3",
     "rollup-plugin-uglify": "^6.0.3",
-    "typescript": "^3.6.4"
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "start": "rollup -c --watch",
