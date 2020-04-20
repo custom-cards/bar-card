@@ -1012,13 +1012,7 @@ class BarCard extends HTMLElement {
     const configMin = this._minCheck(entity, hass, index);
     const configMax = this._maxCheck(entity, hass, index);
 
-    // Define Entity State
-    let entityState;
-    if (config.attribute) {
-      entityState = entityObject.attributes[config.attribute];
-    } else {
-      entityState = entityObject.state;
-    }
+
 
     if (!isNaN(entityState)) {
       entityState = Number(entityState);

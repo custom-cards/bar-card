@@ -1,6 +1,5 @@
 import { ActionConfig } from 'custom-card-helpers';
 
-// TODO Add your configuration elements here for type-checking
 export interface BarCardConfig {
   entity_config: boolean;
   animation: any;
@@ -13,7 +12,7 @@ export interface BarCardConfig {
   entities: any;
   entity_row: boolean;
   entity: string;
-  height: string;
+  height: string | number;
   hold_action?: ActionConfig;
   icon: any;
   limit_value: boolean;

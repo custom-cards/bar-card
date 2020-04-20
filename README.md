@@ -25,7 +25,7 @@
 | color | string | var(--custom-bar-card-color, var(--primary-color)) | Color of the bar.
 | columns | number | none | Defines the amount of bars to be displayed on a single row when multiple entities are defined.
 | decimal | number | none | The amount of decimals to be displayed for the value.
-| direction | string | right | Direction of the bar. `left`, `right`, `up`, `down`, `left-reverse`, `right-reverse`, `up-reverse`, `down-reverse`
+| direction | string | right | Direction of the bar. `right`, `up`
 | entities | array | none | A list of entities. Accepts individual config options per defined entity.
 | entity_config | boolean | false | Sets the card to use the configured entity attributes as the card config.
 | entity_row | boolean | false | Removes the background card for use inside entities card.
@@ -41,7 +41,7 @@
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
 | target | number | none | Defines and enables target marker value.
 | title | string | none | Adds title header to the card.
-| unit_of_measurement | string | false | Defines the unit of measurement to be displayed.
+| unit_of_measurement | string | attribute | Defines the unit of measurement to be displayed.
 | width | string | 100% | Defines the width of the bar.
 
 ## Severity Options
@@ -57,8 +57,7 @@
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | state | string | off | Enables or disables animation. `on`, `off`
-| speed | number | 1000 | Defines the speed of the bar animation in milliseconds.
-| delay | number | 5000 | Defines the amout of time between the bar animation loop in milliseconds.
+| speed | number | 5 | Defines the speed of the bar animation in seconds.
 
 ## Positions Options
 
@@ -66,7 +65,7 @@
 | ---- | ---- | ------- | -----------
 | icon | string | outside | `inside`, `outside`, `off`
 | indicator | string | outside | `inside`, `outside`, `off`
-| title | string | inside | `inside`, `outside`, `off`
+| name | string | inside | `inside`, `outside`, `off`
 | minmax | string | off | `inside`, `outside`, `off`
 | value | string | inside | `inside`, `outside`, `off`
 
@@ -87,14 +86,14 @@ See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](h
 | bar-card-card | The root bar of each defined entity containing all elements.
 | bar-card-background | Contains bar and any elements `outside` of the bar.
 | bar-card-backgroundbar | The background of the bar.
-| bar-card-current | The filled part of the bar.
+| bar-card-currentbar | The filled part of the bar.
 | bar-card-contentbar | Contains all elements `inside` of the bar.
 | ha-icon | Icon element.
 | bar-card-iconbar | Contains ha-icon.
 | bar-card-title | Title element.
-| bar-card-minvalue | Min value element.
+| bar-card-min | Min value element.
 | bar-card-divider | Min/Max divider element.
-| bar-card-maxvalue | Max value element.
+| bar-card-max | Max value element.
 | bar-card-value | Value element.
 | bar-card-animationbar | Animated part of the bar.
 | bar-card-targetbar | Target bar element.

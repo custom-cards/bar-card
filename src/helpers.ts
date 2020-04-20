@@ -1,5 +1,6 @@
 import { PropertyValues } from 'lit-element';
 import { HomeAssistant } from 'custom-card-helpers';
+import { BarCardConfig } from './types';
 
 /**
  * Performs a deep merge of objects and returns new object. Does not modify
@@ -54,4 +55,50 @@ export function hasConfigOrEntitiesChanged(element: any, changedProps: PropertyV
     }
   }
   return false;
+}
+
+export function createConfigArray(config): BarCardConfig[] {
+  const configArray: BarCardConfig[] = [];
+  if (config.entities) {
+    for (const entityConfig of config.entities) {
+      if (typeof entityConfig == 'string') {
+        const clonedObject = mergeDeep({}, config);
+        delete clonedObject.entities;
+        const stringConfig = mergeDeep(clonedObject, { entity: entityConfig });
+        configArray.push(stringConfig);
+      } else if (typeof entityConfig == 'object') {
+        const clonedObject = mergeDeep({}, config);
+        delete clonedObject.entities;
+        const objectConfig = mergeDeep(clonedObject, entityConfig);
+        configArray.push(objectConfig);
+      }
+    }
+  } else {
+    configArray.push(config);
+  }
+  return configArray;
+}
+
+export function createEditorConfigArray(config): BarCardConfig[] {
+  const configArray: BarCardConfig[] = [];
+  if (config.entities) {
+    for (const entityConfig of config.entities) {
+      if (typeof entityConfig == 'string') {
+        const stringConfig = mergeDeep({}, { entity: entityConfig });
+        configArray.push(stringConfig);
+      } else if (typeof entityConfig == 'object') {
+        const objectConfig = mergeDeep({}, entityConfig);
+        configArray.push(objectConfig);
+      }
+    }
+  } else {
+    configArray.push(config);
+  }
+  return configArray;
+}
+
+export function arrayMove(arr, fromIndex, toIndex) {
+  const element = arr[fromIndex];
+  arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, element);
 }
