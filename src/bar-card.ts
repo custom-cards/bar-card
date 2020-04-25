@@ -197,7 +197,7 @@ export class BarCard extends LitElement {
             break;
           case 'inside':
             iconInside = html`
-              <bar-card-iconbar style="margin: 0px 10px 0px 0px">
+              <bar-card-iconbar>
                 <ha-icon icon="${icon}"></ha-icon>
               </bar-card-iconbar>
             `;
