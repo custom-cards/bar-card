@@ -40,7 +40,6 @@ export function hasConfigOrEntitiesChanged(element: any, changedProps: PropertyV
   if (changedProps.has('config') || forceUpdate) {
     return true;
   }
-
   for (const config of element._configArray) {
     if (config.entity) {
       const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
@@ -97,8 +96,10 @@ export function createEditorConfigArray(config): BarCardConfig[] {
   return configArray;
 }
 
-export function arrayMove(arr, fromIndex, toIndex) {
+export function arrayMove(arr, fromIndex, toIndex): any[] {
   const element = arr[fromIndex];
-  arr.splice(fromIndex, 1);
-  arr.splice(toIndex, 0, element);
+  const newArray = arr.slice();
+  newArray.splice(fromIndex, 1);
+  newArray.splice(toIndex, 0, element);
+  return newArray;
 }

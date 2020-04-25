@@ -36,7 +36,6 @@
 | min | number | 0 | Defines minimum value of the bar.
 | name | string | none | Defines custom entity name.
 | positions | object | none | Defines the positions of the card elements. See [Positions Options](#positions-options).
-| service_options | object | none | A list of service call options. Should include `domain`, `service`, `data`
 | severity | object | none | A list of severity values. See [Severity Options](#severity-options).
 | tap_action | string | info | Sets the action when tapping the bar. `info`, `service`
 | target | number | none | Defines and enables target marker value.

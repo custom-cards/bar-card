@@ -38,7 +38,7 @@ export class BarCard extends LitElement {
 
   @property() public hass?: HomeAssistant;
   @property() private _config!: BarCardConfig;
-  private _configArray: BarCardConfig[] = [];
+  @property() private _configArray: BarCardConfig[] = [];
   private _stateArray: any[] = [];
   private _animationState: any[] = [];
 
@@ -69,7 +69,6 @@ export class BarCard extends LitElement {
           minmax: 'off',
           value: 'inside',
         },
-        service_options: false,
       },
       config,
     );
@@ -91,7 +90,7 @@ export class BarCard extends LitElement {
             </div>
           `
         : html`
-            <ha-card .header=${this._config.title} tabindex="0" aria-label=${`Bar: ${this._config.entity}`}>
+            <ha-card .header=${this._config.title ? this._config.title : null}>
               <div id="states" class="card-content" style="${this._config.entity_row ? 'padding: 0px;' : ''}">
                 ${this._createBarArray()}
               </div>
@@ -371,7 +370,16 @@ export class BarCard extends LitElement {
 
         // Add current bar to row array.
         currentRowArray.push(html`
-          <bar-card-card style="flex-direction: ${flexDirection}; align-items: ${alignItems};">
+          <bar-card-card
+            style="flex-direction: ${flexDirection}; align-items: ${alignItems};"
+            @action=${this._handleAction}
+            .config=${config}
+            .actionHandler=${actionHandler({
+              hasHold: hasAction(config.hold_action),
+              hasDoubleTap: hasAction(config.double_tap_action),
+              repeat: config.hold_action ? config.hold_action.repeat : undefined,
+            })}
+          >
             ${iconOutside} ${indicatorOutside} ${nameOutside}
             <bar-card-background
               style="height: ${barHeight}${typeof barHeight == 'number'
@@ -487,6 +495,12 @@ export class BarCard extends LitElement {
         return 100 - (100 * (numberValue - config.min)) / (config.max - config.min);
       default:
         return (100 * (numberValue - config.min)) / (config.max - config.min);
+    }
+  }
+
+  private _handleAction(ev): void {
+    if (this.hass && ev.target.config && ev.detail.action) {
+      handleAction(this, this.hass, ev.target.config, ev.detail.action);
     }
   }
 }

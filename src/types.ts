@@ -20,7 +20,6 @@ export interface BarCardConfig {
   min: number;
   name: string;
   positions: any;
-  service_options: { domain: string; service: string; data: any };
   severity: any;
   stack: string;
   tap_action?: ActionConfig;

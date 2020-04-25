@@ -1,24 +1,15 @@
 import { LitElement, html, customElement, property, TemplateResult, CSSResult, css, PropertyValues } from 'lit-element';
-import {
-  HomeAssistant,
-  fireEvent,
-  LovelaceCardEditor,
-  ActionConfig,
-  domainIcon,
-  computeDomain,
-} from 'custom-card-helpers';
+import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionConfig } from 'custom-card-helpers';
 
 import { BarCardConfig } from './types';
-import { mergeDeep, createEditorConfigArray, arrayMove, hasConfigOrEntitiesChanged } from './helpers';
-
-const positionOptions = ['inside', 'outside', 'off'];
+import { createEditorConfigArray, arrayMove, hasConfigOrEntitiesChanged } from './helpers';
 
 @customElement('bar-card-editor')
 export class BarCardEditor extends LitElement implements LovelaceCardEditor {
   @property() public hass?: HomeAssistant;
-  @property() private _config?: BarCardConfig;
+  @property() private _config;
   @property() private _toggle?: boolean;
-  private _configArray: BarCardConfig[] = [];
+  @property() private _configArray: any[] = [];
   private _entityOptionsArray: object[] = [];
   private _options: any;
 
@@ -33,14 +24,40 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
       this._config.entity = 'none';
     }
     if (this._config.entity) {
-      if (this._config) {
-        this._config.entities = [];
-        this._config.entities.push({ entity: config.entity });
-        delete this._config.entity;
-      }
+      this._configArray.push({ entity: config.entity });
+      this._config.entities = [{ entity: config.entity }];
+      delete this._config.entity;
     }
 
     this._configArray = createEditorConfigArray(this._config);
+
+    if (this._config.animation) {
+      if (Object.entries(this._config.animation).length === 0) {
+        delete this._config.animation;
+        fireEvent(this, 'config-changed', { config: this._config });
+      }
+    }
+    if (this._config.positions) {
+      if (Object.entries(this._config.positions).length === 0) {
+        delete this._config.positions;
+        fireEvent(this, 'config-changed', { config: this._config });
+      }
+    }
+
+    for (const entityConfig of this._configArray) {
+      if (entityConfig.animation) {
+        if (Object.entries(entityConfig.animation).length === 0) {
+          delete entityConfig.animation;
+        }
+      }
+      if (entityConfig.positions) {
+        if (Object.entries(entityConfig.positions).length === 0) {
+          delete entityConfig.positions;
+        }
+      }
+    }
+    this._config.entities = this._configArray;
+    fireEvent(this, 'config-changed', { config: this._config });
 
     const barOptions = {
       icon: 'format-list-numbered',
@@ -70,17 +87,40 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
       show: false,
     };
 
+    const actionsOptions = {
+      icon: 'gesture-tap',
+      name: 'Actions',
+      secondary: 'Coming soon... Use code editor for Actions.',
+      show: false,
+    };
+
+    const severityOptions = {
+      icon: 'exclamation-thick',
+      name: 'Severity',
+      secondary: 'Define bar colors based on value.',
+      show: false,
+    };
+
+    const animationOptions = {
+      icon: 'animation',
+      name: 'Animation',
+      secondary: 'Define animation settings.',
+      show: false,
+    };
+
     const entityOptions = {
       show: false,
       options: {
         positions: { ...positionsOptions },
         bar: { ...barOptions },
         value: { ...valueOptions },
-        card: { ...positionsOptions },
+        severity: { ...severityOptions },
+        actions: { ...actionsOptions },
+        animation: { ...animationOptions },
       },
     };
 
-    for (let i = 0; i < this._configArray.length; i++) {
+    for (const config of this._configArray) {
       this._entityOptionsArray.push({ ...entityOptions });
     }
     if (!this._options) {
@@ -104,401 +144,151 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
             bar: barOptions,
             value: valueOptions,
             card: cardOptions,
+            severity: severityOptions,
+            animation: animationOptions,
           },
         },
       };
     }
   }
 
-  get _name(): string {
-    if (this._config) {
-      return this._config.name || '';
-    }
-
-    return '';
-  }
-
-  get _entity(): string {
-    if (this._config) {
-      return this._config.entity || '';
-    }
-
-    return '';
-  }
-
-  get _entity_row(): boolean {
-    if (this._config) {
-      return this._config.entity_row || false;
-    }
-
-    return false;
-  }
-
-  get _columns(): number | boolean {
-    if (this._config) {
-      return this._config.columns || false;
-    }
-
-    return false;
-  }
-
-  get _direction(): string {
-    if (this._config) {
-      return this._config.direction || '';
-    }
-
-    return '';
-  }
-
-  get _height(): number | string {
-    if (this._config) {
-      return this._config.height || '';
-    }
-
-    return 40;
-  }
-
-  get _width(): string {
-    if (this._config) {
-      return this._config.width || '';
-    }
-
-    return '';
-  }
-
-  get _color(): string {
-    if (this._config) {
-      return this._config.color || '';
-    }
-
-    return '';
-  }
-
-  get _decimal(): number | boolean {
-    if (this._config) {
-      return this._config.decimal || false;
-    }
-
-    return false;
-  }
-
-  get _icon(): number | boolean {
-    if (this._config) {
-      return this._config.icon || false;
-    }
-
-    return false;
-  }
-
-  get _limit_value(): boolean {
-    if (this._config) {
-      return this._config.limit_value || false;
-    }
-
-    return false;
-  }
-
-  get _min(): number | boolean {
-    if (this._config) {
-      return this._config.min || false;
-    }
-
-    return false;
-  }
-
-  get _max(): number | boolean {
-    if (this._config) {
-      return this._config.max || false;
-    }
-
-    return false;
-  }
-
-  get _target(): number | boolean {
-    if (this._config) {
-      return this._config.target || false;
-    }
-
-    return false;
-  }
-
-  get _title(): string {
-    if (this._config) {
-      return this._config.title || '';
-    }
-
-    return '';
-  }
-
-  get _unit_of_measurement(): string {
-    if (this._config) {
-      return this._config.unit_of_measurement || '';
-    }
-
-    return '';
-  }
-
-  get _positions(): object {
-    if (this._config) {
-      return this._config.positions || {};
-    }
-
-    return {};
-  }
-
-  get _entities(): object | boolean {
-    if (this._config) {
-      return this._config.entities || false;
-    }
-
-    return false;
-  }
-
-  get _tap_action(): ActionConfig {
-    if (this._config) {
-      return this._config.tap_action || { action: 'more-info' };
-    }
-
-    return { action: 'more-info' };
-  }
-
-  get _hold_action(): ActionConfig {
-    if (this._config) {
-      return this._config.hold_action || { action: 'none' };
-    }
-
-    return { action: 'none' };
-  }
-
-  get _double_tap_action(): ActionConfig {
-    if (this._config) {
-      return this._config.double_tap_action || { action: 'none' };
-    }
-
-    return { action: 'none' };
-  }
-
   protected render(): TemplateResult | void {
-    // const actionsElement = html`
-    //   <div class="sub-category">
-    //     <div class="option" @click=${this._toggleThing} .option=${'actions'}>
-    //       <div class="row">
-    //         <ha-icon .icon=${`mdi:${options.actions.icon}`}></ha-icon>
-    //         <div class="title">${options.actions.name}</div>
-    //         <ha-icon
-    //           .icon=${options.actions.show ? `mdi:chevron-up` : `mdi:chevron-down`}
-    //           style="margin-left: auto;"
-    //         ></ha-icon>
-    //       </div>
-    //       <div class="secondary">${options.actions.secondary}</div>
-    //     </div>
-    //     ${options.actions.show
-    //       ? html`
-    //           <div class="category">
-    //             <div class="sub-category" @click=${this._toggleThing} .option=${'tap'}>
-    //               <div class="row">
-    //                 <ha-icon .icon=${`mdi:${options.actions.options.tap.icon}`}></ha-icon>
-    //                 <div class="title">${options.actions.options.tap.name}</div>
-    //               </div>
-    //               <div class="secondary">${options.actions.options.tap.secondary}</div>
-    //             </div>
-    //             ${options.actions.options.tap.show
-    //               ? html`
-    //                   <div class="value">
-    //                     <paper-item>Action Editors Coming Soon</paper-item>
-    //                   </div>
-    //                 `
-    //               : ''}
-    //             <div class="sub-category" @click=${this._toggleThing} .option=${'hold'}>
-    //               <div class="row">
-    //                 <ha-icon .icon=${`mdi:${options.actions.options.hold.icon}`}></ha-icon>
-    //                 <div class="title">${options.actions.options.hold.name}</div>
-    //               </div>
-    //               <div class="secondary">${options.actions.options.hold.secondary}</div>
-    //             </div>
-    //             ${options.actions.options.hold.show
-    //               ? html`
-    //                   <div class="value">
-    //                     <paper-item>Action Editors Coming Soon</paper-item>
-    //                   </div>
-    //                 `
-    //               : ''}
-    //             <div class="sub-category" @click=${this._toggleThing} .option=${'double_tap'}>
-    //               <div class="row">
-    //                 <ha-icon .icon=${`mdi:${options.actions.options.double_tap.icon}`}></ha-icon>
-    //                 <div class="title">${options.actions.options.double_tap.name}</div>
-    //               </div>
-    //               <div class="secondary">${options.actions.options.double_tap.secondary}</div>
-    //             </div>
-    //             ${options.actions.options.double_tap.show
-    //               ? html`
-    //                   <div class="value">
-    //                     <paper-item>Action Editors Coming Soon</paper-item>
-    //                   </div>
-    //                 `
-    //               : ''}
-    //           </div>
-    //         `
-    //       : ''}
-    //   </div>
-    // `;
-
     return html`
-      ${this._computeEntitiesElement()} ${this._computeAppearanceElement()}
+      ${this._createEntitiesElement()} ${this._createAppearanceElement()}
     `;
   }
 
-  private _computeBarElement(index): TemplateResult {
-    let options;
-    let config;
-    if (index !== null) {
-      options = this._options.entities.options.entities[index].options.bar;
-      config = this._configArray[index];
-    } else {
-      options = this._options.appearance.options.bar;
-      config = this._config;
-    }
+  private _createActionsElement(index): TemplateResult {
+    const options = this._options.entities.options.entities[index].options.actions;
     return html`
-      <div class="category" id="bar">
-        <div class="sub-category" @click=${this._toggleThing} .options=${options}>
+      <div class="sub-category" style="opacity: 0.5;">
+        <div>
           <div class="row">
             <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
             <div class="title">${options.name}</div>
-            <ha-icon .icon=${options.show ? `mdi:chevron-up` : `mdi:chevron-down`} style="margin-left: auto;"></ha-icon>
           </div>
           <div class="secondary">${options.secondary}</div>
         </div>
-        ${options.show
-          ? html`
-              <div class="value">
-                ${index == null
-                  ? html`
-                      <paper-dropdown-menu
-                        label="Direction"
-                        @value-changed=${this._valueChanged}
-                        .configValue=${'direction'}
-                      >
-                        <paper-icon-button icon="menu" slot="dropdown-trigger"></paper-icon-button>
-                        <paper-listbox
-                          slot="dropdown-content"
-                          attr-for-selected="item-name"
-                          fallback-selection="right"
-                          selected="${config.direction}"
-                        >
-                          <paper-item item-name="right">right</paper-item>
-                          <paper-item item-name="up">up</paper-item>
-                        </paper-listbox>
-                      </paper-dropdown-menu>
-                      <paper-input
-                        label="Icon"
-                        .value="${config.icon ? config.icon : ''}"
-                        editable
-                        .configValue=${'icon'}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Height"
-                        .value="${config.height ? config.height : ''}"
-                        editable
-                        .configValue=${'height'}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Width"
-                        .value="${config.width ? config.width : ''}"
-                        editable
-                        .configValue=${'width'}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Color"
-                        .value="${config.color ? config.color : ''}"
-                        editable
-                        .configValue=${'color'}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                    `
-                  : html`
-                      <paper-dropdown-menu
-                        label="Direction"
-                        @value-changed=${this._valueChanged}
-                        .configValue=${'direction'}
-                        .configArray=${'entities'}
-                        .configIndex=${index}
-                      >
-                        <paper-icon-button icon="menu" slot="dropdown-trigger"></paper-icon-button>
-                        <paper-listbox
-                          slot="dropdown-content"
-                          attr-for-selected="item-name"
-                          fallback-selection="right"
-                          selected="${config.direction}"
-                        >
-                          <paper-item item-name="right">right</paper-item>
-                          <paper-item item-name="up">up</paper-item>
-                        </paper-listbox>
-                      </paper-dropdown-menu>
-                      <paper-input
-                        label="Name"
-                        .value=${config.name ? config.name : ''}
-                        .configValue=${'name'}
-                        .configArray=${'entities'}
-                        .configIndex=${index}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Icon"
-                        .value="${config.icon ? config.icon : ''}"
-                        editable
-                        .configValue=${'icon'}
-                        .configArray=${'entities'}
-                        .configIndex=${index}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Height"
-                        .value="${config.height ? config.height : ''}"
-                        editable
-                        .configValue=${'height'}
-                        .configArray=${'entities'}
-                        .configIndex=${index}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Width"
-                        .value="${config.width ? config.width : ''}"
-                        editable
-                        .configValue=${'width'}
-                        .configArray=${'entities'}
-                        .configIndex=${index}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                      <paper-input
-                        label="Color"
-                        .value="${config.color ? config.color : ''}"
-                        editable
-                        .configValue=${'color'}
-                        .configArray=${'entities'}
-                        .configIndex=${index}
-                        @value-changed=${this._valueChanged}
-                      ></paper-input>
-                    `}
-              </div>
-            `
-          : ''}
       </div>
     `;
   }
 
-  private _computeEntitiesElement(): TemplateResult {
-    if (!this.hass) {
+  private _createEntitiesValues(): TemplateResult[] {
+    if (!this.hass || !this._config) {
+      return [html``];
+    }
+
+    const options = this._options.entities;
+    const entities = Object.keys(this.hass.states);
+    const valueElementArray: TemplateResult[] = [];
+    for (const config of this._configArray) {
+      const index = this._configArray.indexOf(config);
+      valueElementArray.push(html`
+        <div class="sub-category" style="display: flex; flex-direction: row; align-items: center;">
+          <div style="display: flex; align-items: center; flex-direction: column;">
+            <div
+              style="font-size: 10px; margin-bottom: -8px; opacity: 0.5;"
+              @click=${this._toggleThing}
+              .options=${options.options.entities[index]}
+              .optionsTarget=${options.options.entities}
+              .index=${index}
+            >
+              options
+            </div>
+            <ha-icon
+              icon="mdi:chevron-${options.options.entities[index].show ? 'up' : 'down'}"
+              @click=${this._toggleThing}
+              .options=${options.options.entities[index]}
+              .optionsTarget=${options.options.entities}
+              .index=${index}
+            ></ha-icon>
+          </div>
+          <div class="value" style="flex-grow: 1;">
+            <paper-dropdown-menu
+              label="Entity"
+              @value-changed=${this._valueChanged}
+              .configAttribute=${'entity'}
+              .configObject=${this._configArray[index]}
+              .ignoreNull=${true}
+              style="width: 100%;"
+            >
+              <paper-listbox
+                slot="dropdown-content"
+                .selected=${entities.indexOf(config.entity)}
+                fallback-selection="0"
+              >
+                ${entities.map(entity => {
+                  return html`
+                    <paper-item>${entity}</paper-item>
+                  `;
+                })}
+              </paper-listbox>
+            </paper-dropdown-menu>
+          </div>
+          ${index !== 0
+            ? html`
+                <ha-icon
+                  class="ha-icon-large"
+                  icon="mdi:arrow-up"
+                  @click=${this._moveEntity}
+                  .configDirection=${'up'}
+                  .configArray=${this._config!.entities}
+                  .arrayAttribute=${'entities'}
+                  .arraySource=${this._config}
+                  .index=${index}
+                ></ha-icon>
+              `
+            : html`
+                <ha-icon icon="mdi:arrow-up" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
+              `}
+          ${index !== this._configArray.length - 1
+            ? html`
+                <ha-icon
+                  class="ha-icon-large"
+                  icon="mdi:arrow-down"
+                  @click=${this._moveEntity}
+                  .configDirection=${'down'}
+                  .configArray=${this._config!.entities}
+                  .arrayAttribute=${'entities'}
+                  .arraySource=${this._config}
+                  .index=${index}
+                ></ha-icon>
+              `
+            : html`
+                <ha-icon icon="mdi:arrow-down" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
+              `}
+          <ha-icon
+            class="ha-icon-large"
+            icon="mdi:close"
+            @click=${this._removeEntity}
+            .configAttribute=${'entity'}
+            .configArray=${'entities'}
+            .configIndex=${index}
+          ></ha-icon>
+        </div>
+        ${options.options.entities[index].show
+          ? html`
+              <div class="options">
+                ${this._createBarElement(index)} ${this._createValueElement(index)}
+                ${this._createPositionsElement(index)} ${this._createSeverityElement(index)}
+                ${this._createAnimationElement(index)} ${this._createActionsElement(index)}
+              </div>
+            `
+          : ''}
+      `);
+    }
+    return valueElementArray;
+  }
+
+  private _createEntitiesElement(): TemplateResult {
+    if (!this.hass || !this._config) {
       return html``;
     }
-    const entities = Object.keys(this.hass.states);
     const options = this._options.entities;
 
     return html`
       <div class="card-config">
-        <div class="option" @click=${this._toggleThing} .options=${options} .configTarget=${this._options}>
+        <div class="option" @click=${this._toggleThing} .options=${options} .optionsTarget=${this._options}>
           <div class="row">
             <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
             <div class="title">${options.name}</div>
@@ -509,114 +299,15 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         ${options.show
           ? html`
               <div class="card-background">
-                ${this._configArray.length > 0
-                  ? this._configArray.map(config => {
-                      return html`
-                        <div class="sub-category" style="display: flex; flex-direction: row; align-items: center;">
-                          <ha-icon
-                            icon=${this.hass!.states[config.entity]
-                              ? domainIcon(computeDomain(config.entity), this.hass!.states[config.entity].state)
-                              : 'mdi:alpha-b-box'}
-                          ></ha-icon>
-                          <div class="value" style="margin-left: 16px; flex-grow: 1;">
-                            <paper-dropdown-menu
-                              label="Entity"
-                              @value-changed=${this._valueChanged}
-                              .configValue=${'entity'}
-                              .configArray=${'entities'}
-                              .configIndex=${this._configArray.indexOf(config)}
-                              style="width: 100%;"
-                            >
-                              <paper-listbox
-                                slot="dropdown-content"
-                                .selected=${entities.indexOf(config.entity)}
-                                fallback-selection="0"
-                              >
-                                ${entities.map(entity => {
-                                  return html`
-                                    <paper-item>${entity}</paper-item>
-                                  `;
-                                })}
-                              </paper-listbox>
-                            </paper-dropdown-menu>
-                          </div>
-                          ${this._configArray.indexOf(config) !== 0
-                            ? html`
-                                <ha-icon
-                                  class="ha-icon-large"
-                                  icon="mdi:arrow-up"
-                                  @click=${this._arrayMove}
-                                  .configDirection=${'up'}
-                                  .configValue=${'entity'}
-                                  .configArray=${'entities'}
-                                  .configIndex=${this._configArray.indexOf(config)}
-                                ></ha-icon>
-                              `
-                            : html`
-                                <ha-icon icon="mdi:arrow-up" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
-                              `}
-                          ${this._configArray.indexOf(config) !== this._configArray.length - 1
-                            ? html`
-                                <ha-icon
-                                  class="ha-icon-large"
-                                  icon="mdi:arrow-down"
-                                  @click=${this._arrayMove}
-                                  .configDirection=${'down'}
-                                  .configValue=${'entity'}
-                                  .configArray=${'entities'}
-                                  .configIndex=${this._configArray.indexOf(config)}
-                                ></ha-icon>
-                              `
-                            : html`
-                                <ha-icon icon="mdi:arrow-down" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
-                              `}
-                          <ha-icon
-                            class="ha-icon-large"
-                            icon="mdi:close"
-                            @click=${this._removeFromArray}
-                            .configValue=${'entity'}
-                            .configArray=${'entities'}
-                            .configIndex=${this._configArray.indexOf(config)}
-                          ></ha-icon>
-                        </div>
-                        <div class="options" style="margin-left: 40px;">
-                          <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div
-                              style="font-size: 11px; margin: 4px;"
-                              @click=${this._toggleThing}
-                              .options=${options.options.entities[this._configArray.indexOf(config)]}
-                              .optionsTarget=${options.options.entities}
-                              .index=${this._configArray.indexOf(config)}
-                            >
-                              options
-                            </div>
-                            <ha-icon
-                              icon="mdi:chevron-${options.options.entities[this._configArray.indexOf(config)].show
-                                ? 'down'
-                                : 'up'}"
-                              @click=${this._toggleThing}
-                              .options=${options.options.entities[this._configArray.indexOf(config)]}
-                              .optionsTarget=${options.options.entities}
-                              .index=${this._configArray.indexOf(config)}
-                            ></ha-icon>
-                          </div>
-                          ${options.options.entities[this._configArray.indexOf(config)].show
-                            ? html`
-                                <div class="options">
-                                  ${this._computeBarElement(this._configArray.indexOf(config))}
-                                </div>
-                              `
-                            : ''}
-                        </div>
-                      `;
-                    })
-                  : ''}
+                ${this._createEntitiesValues()}
                 <div class="sub-category" style="display: flex; flex-direction: column; align-items: flex-end;">
                   <ha-fab
+                    mini
                     icon="mdi:plus"
-                    @click=${this._addToArray}
-                    .configValue=${'entity'}
-                    .configArray=${'entities'}
+                    @click=${this._addEntity}
+                    .configArray=${this._configArray}
+                    .configAddValue=${'entity'}
+                    .sourceArray=${this._config.entities}
                   ></ha-fab>
                 </div>
               </div>
@@ -626,7 +317,7 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
     `;
   }
 
-  private _computeAppearanceElement(): TemplateResult {
+  private _createAppearanceElement(): TemplateResult {
     if (!this.hass) {
       return html``;
     }
@@ -647,8 +338,9 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
           options.show
             ? html`
                 <div class="card-background">
-                  ${this._computeBarElement(null)} ${this._computeCardElement()} ${this._computeValueElement()}
-                  ${this._computePositionsElement(null)}
+                  ${this._createCardElement()} ${this._createBarElement(null)} ${this._createValueElement(null)}
+                  ${this._createPositionsElement(null)} ${this._createSeverityElement(null)}
+                  ${this._createAnimationElement(null)}
                 </div>
               `
             : ''
@@ -656,14 +348,35 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
       </div>`;
   }
 
-  private _computeCardElement(): TemplateResult {
-    if (!this.hass) {
-      return html``;
-    }
-    const options = this._options.appearance.options.card;
+  private _createEditorElement(): TemplateResult {
     return html`
-      <div class="category" id="card">
-        <div class="sub-category" @click=${this._toggleThing} .options=${options}>
+      <ha-code-editor
+        mode="yaml"
+        autofocus=""
+        _value=${`test: who`}
+        @value-changed=${this._valueChanged}
+      ></ha-code-editor>
+    `;
+  }
+
+  private _createBarElement(index): TemplateResult {
+    let options;
+    let config;
+    if (index !== null) {
+      options = this._options.entities.options.entities[index].options.bar;
+      config = this._configArray[index];
+    } else {
+      options = this._options.appearance.options.bar;
+      config = this._config;
+    }
+    return html`
+      <div class="category" id="bar">
+        <div
+          class="sub-category"
+          @click=${this._toggleThing}
+          .options=${options}
+          .optionsTarget=${this._options.appearance.options}
+        >
           <div class="row">
             <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
             <div class="title">${options.name}</div>
@@ -674,26 +387,375 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         ${options.show
           ? html`
               <div class="value">
+                <div>
+                  <paper-dropdown-menu
+                    label="Direction"
+                    @selected-item-changed=${this._valueChanged}
+                    .configObject=${config}
+                    .configAttribute=${'direction'}
+                    .ignoreNull=${true}
+                  >
+                    <paper-listbox
+                      slot="dropdown-content"
+                      attr-for-selected="item-name"
+                      selected="${config.direction ? config.direction : null}"
+                    >
+                      <paper-item item-name="right">right</paper-item>
+                      <paper-item item-name="up">up</paper-item>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                  ${config.direction
+                    ? html`
+                        <ha-icon
+                          class="ha-icon-large"
+                          icon="mdi:close"
+                          @click=${this._valueChanged}
+                          .value=${''}
+                          .configAttribute=${'direction'}
+                          .configObject=${config}
+                        ></ha-icon>
+                      `
+                    : ''}
+                </div>
+                ${index !== null
+                  ? html`
+                      <paper-input
+                        label="Name"
+                        .value="${config.name ? config.name : ''}"
+                        editable
+                        .configAttribute=${'name'}
+                        .configObject=${config}
+                        @value-changed=${this._valueChanged}
+                      ></paper-input>
+                    `
+                  : ''}
                 <paper-input
-                  label="Header Title"
-                  .value="${this._title ? this._title : ''}"
+                  label="Icon"
+                  .value="${config.icon ? config.icon : ''}"
                   editable
-                  .configValue=${'title'}
+                  .configAttribute=${'icon'}
+                  .configObject=${config}
                   @value-changed=${this._valueChanged}
                 ></paper-input>
                 <paper-input
+                  label="Height"
+                  .value="${config.height ? config.height : ''}"
+                  editable
+                  .configAttribute=${'height'}
+                  .configObject=${config}
+                  @value-changed=${this._valueChanged}
+                ></paper-input>
+                <paper-input
+                  label="Width"
+                  .value="${config.width ? config.width : ''}"
+                  editable
+                  .configAttribute=${'width'}
+                  .configObject=${config}
+                  @value-changed=${this._valueChanged}
+                ></paper-input>
+                <paper-input
+                  label="Color"
+                  .value="${config.color ? config.color : ''}"
+                  editable
+                  .configAttribute=${'color'}
+                  .configObject=${config}
+                  @value-changed=${this._valueChanged}
+                ></paper-input>
+              </div>
+            `
+          : ''}
+      </div>
+    `;
+  }
+
+  private _createAnimationElement(index): TemplateResult {
+    let options;
+    let config;
+    if (index !== null) {
+      options = this._options.entities.options.entities[index].options.animation;
+      config = this._configArray[index];
+    } else {
+      options = this._options.appearance.options.animation;
+      config = this._config;
+    }
+    config.animation = { ...config.animation };
+    return html`
+      <div class="category" id="bar">
+        <div
+          class="sub-category"
+          @click=${this._toggleThing}
+          .options=${options}
+          .optionsTarget=${this._options.appearance.options}
+        >
+          <div class="row">
+            <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
+            <div class="title">${options.name}</div>
+            <ha-icon .icon=${options.show ? `mdi:chevron-up` : `mdi:chevron-down`} style="margin-left: auto;"></ha-icon>
+          </div>
+          <div class="secondary">${options.secondary}</div>
+        </div>
+        ${options.show
+          ? config.animation
+            ? html`
+                <div class="value">
+                  <div>
+                    <paper-dropdown-menu
+                      label="State"
+                      @selected-item-changed=${this._valueChanged}
+                      .configAttribute=${'state'}
+                      .configObject=${config.animation}
+                      .index=${index}
+                      .ignoreNull=${true}
+                    >
+                      <paper-listbox
+                        slot="dropdown-content"
+                        attr-for-selected="item-name"
+                        selected="${config.animation.state ? config.animation.state : null}"
+                      >
+                        <paper-item item-name="on">on</paper-item>
+                        <paper-item item-name="off">off</paper-item>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                    ${config.animation.state
+                      ? html`
+                          <ha-icon
+                            class="ha-icon-large"
+                            icon="mdi:close"
+                            @click=${this._valueChanged}
+                            .value=${''}
+                            .configAttribute=${'state'}
+                            .configObject=${config.animation}
+                            .index=${index}
+                          ></ha-icon>
+                        `
+                      : ''}
+                  </div>
+                  <paper-input
+                    label="Speed"
+                    .value="${config.animation.speed ? config.animation.speed : ''}"
+                    editable
+                    @value-changed=${this._valueChanged}
+                    .configAttribute=${'speed'}
+                    .configObject=${config.animation}
+                    .index=${index}
+                  ></paper-input>
+                </div>
+              `
+            : html`
+                <div class="value">
+                  <div>
+                    <paper-dropdown-menu
+                      label="State"
+                      @selected-item-changed=${this._valueChanged}
+                      .configObject=${config}
+                      .configAttribute=${'state'}
+                      .configAdd=${'animation'}
+                      .index=${index}
+                      .ignoreNull=${true}
+                    >
+                      <paper-listbox slot="dropdown-content" attr-for-selected="item-name">
+                        <paper-item item-name="on">on</paper-item>
+                        <paper-item item-name="off">off</paper-item>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                  </div>
+                  <paper-input
+                    label="Speed"
+                    editable
+                    .value=${''}
+                    @value-changed=${this._valueChanged}
+                    .configAttribute=${'speed'}
+                    .configObject=${config}
+                    .configAdd=${'animation'}
+                    .index=${index}
+                  ></paper-input>
+                </div>
+              `
+          : ''}
+      </div>
+    `;
+  }
+
+  private _createSeverityElement(index): TemplateResult {
+    let options;
+    let config;
+    if (index !== null) {
+      options = this._options.entities.options.entities[index].options.severity;
+      config = this._configArray[index];
+    } else {
+      options = this._options.appearance.options.severity;
+      config = this._config;
+    }
+    const arrayLength = config.severity ? config.severity.length : 0;
+    return html`
+      <div class="category" id="bar">
+        <div
+          class="sub-category"
+          @click=${this._toggleThing}
+          .options=${options}
+          .optionsTarget=${this._options.appearance.options}
+        >
+          <div class="row">
+            <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
+            <div class="title">${options.name}</div>
+            <ha-icon .icon=${options.show ? `mdi:chevron-up` : `mdi:chevron-down`} style="margin-left: auto;"></ha-icon>
+          </div>
+          <div class="secondary">${options.secondary}</div>
+        </div>
+        ${options.show
+          ? html`
+              <div class="card-background">
+                ${arrayLength > 0
+                  ? html`
+                      ${this._createSeverityValues(index)}
+                    `
+                  : ''}
+                <div class="sub-category" style="display: flex; flex-direction: column; align-items: flex-end;">
+                  <ha-fab mini icon="mdi:plus" @click=${this._addSeverity} .index=${index}></ha-fab>
+                </div>
+              </div>
+            `
+          : ''}
+      </div>
+    `;
+  }
+
+  private _createSeverityValues(index): TemplateResult[] {
+    let config;
+    if (index === null) {
+      config = this._config;
+    } else {
+      config = this._configArray[index];
+    }
+    const severityValuesArray: TemplateResult[] = [];
+    for (const severity of config.severity) {
+      const severityIndex = config.severity.indexOf(severity);
+      severityValuesArray.push(html`
+        <div class="sub-category" style="display: flex; flex-direction: row; align-items: center;">
+          <div class="value">
+            <div style="display:flex;">
+              <paper-input
+                label="From"
+                type="number"
+                .value="${severity.from || severity.from === 0 ? severity.from : ''}"
+                editable
+                .severityAttribute=${'from'}
+                .index=${index}
+                .severityIndex=${severityIndex}
+                @value-changed=${this._updateSeverity}
+              ></paper-input>
+              <paper-input
+                label="To"
+                type="number"
+                .value="${severity.to ? severity.to : ''}"
+                editable
+                .severityAttribute=${'to'}
+                .index=${index}
+                .severityIndex=${severityIndex}
+                @value-changed=${this._updateSeverity}
+              ></paper-input>
+            </div>
+            <paper-input
+              label="Color"
+              .value="${severity.color ? severity.color : ''}"
+              editable
+              .severityAttribute=${'color'}
+              .index=${index}
+              .severityIndex=${severityIndex}
+              @value-changed=${this._updateSeverity}
+            ></paper-input>
+          </div>
+          ${severityIndex !== 0
+            ? html`
+                <ha-icon
+                  class="ha-icon-large"
+                  icon="mdi:arrow-up"
+                  @click=${this._moveSeverity}
+                  .configDirection=${'up'}
+                  .index=${index}
+                  .severityIndex=${severityIndex}
+                ></ha-icon>
+              `
+            : html`
+                <ha-icon icon="mdi:arrow-up" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
+              `}
+          ${severityIndex !== config.severity.length - 1
+            ? html`
+                <ha-icon
+                  class="ha-icon-large"
+                  icon="mdi:arrow-down"
+                  @click=${this._moveSeverity}
+                  .configDirection=${'down'}
+                  .index=${index}
+                  .severityIndex=${severityIndex}
+                ></ha-icon>
+              `
+            : html`
+                <ha-icon icon="mdi:arrow-down" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
+              `}
+          <ha-icon
+            class="ha-icon-large"
+            icon="mdi:close"
+            @click=${this._removeSeverity}
+            .index=${index}
+            .severityIndex=${severityIndex}
+          ></ha-icon>
+        </div>
+      `);
+    }
+    return severityValuesArray;
+  }
+
+  private _createCardElement(): TemplateResult {
+    if (!this.hass) {
+      return html``;
+    }
+    const config: any = this._config;
+    const index = null;
+    const options = this._options.appearance.options.card;
+    return html`
+      <div class="category" id="card">
+        <div
+          class="sub-category"
+          @click=${this._toggleThing}
+          .options=${options}
+          .optionsTarget=${this._options.appearance.options}
+        >
+          <div class="row">
+            <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
+            <div class="title">${options.name}</div>
+            <ha-icon .icon=${options.show ? `mdi:chevron-up` : `mdi:chevron-down`} style="margin-left: auto;"></ha-icon>
+          </div>
+          <div class="secondary">${options.secondary}</div>
+        </div>
+        ${options.show
+          ? html`
+              <div class="value-container">
+                <paper-input
+                  editable
+                  label="Header Title"
+                  .value="${config.title ? config.title : ''}"
+                  .configObject=${config}
+                  .configAttribute=${'title'}
+                  @value-changed=${this._valueChanged}
+                ></paper-input>
+                <paper-input
+                  class="value-number"
+                  type="number"
                   label="Columns"
-                  .value=${this._columns ? this._columns : ''}
-                  .configValue=${'columns'}
+                  .value=${config.columns ? config.columns : ''}
+                  .configObject=${config}
+                  .configAttribute=${'columns'}
                   @value-changed=${this._valueChanged}
                 ></paper-input>
                 <div>
-                  ${this._entity_row
+                  ${config.entity_row
                     ? html`
                         <ha-switch
                           checked
-                          .value=${this._entity_row}
-                          .configValue=${'entity_row'}
+                          .configAttribute=${'entity_row'}
+                          .configObject=${config}
+                          .value=${!config.entity_row}
                           @change=${this._valueChanged}
                           >Entity Row</ha-switch
                         >
@@ -701,8 +763,9 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
                     : html`
                         <ha-switch
                           unchecked
-                          .value=${this._entity_row}
-                          .configValue=${'entity_row'}
+                          .configAttribute=${'entity_row'}
+                          .configObject=${config}
+                          .value=${!config.entity_row}
                           @change=${this._valueChanged}
                           >Entity Row</ha-switch
                         >
@@ -715,10 +778,7 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
     `;
   }
 
-  private _computePositionsElement(index): TemplateResult {
-    if (!this.hass) {
-      return html``;
-    }
+  private _createPositionsValues(index): TemplateResult[] {
     const defaultPositions = {
       icon: 'outside',
       indicator: 'outside',
@@ -726,19 +786,90 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
       minmax: 'off',
       value: 'inside',
     };
+    let config;
+    if (index === null) {
+      config = this._config;
+    } else {
+      config = this._configArray[index];
+    }
+    config.positions = { ...config.positions };
+    const positionElementsArray: TemplateResult[] = [];
+    const objectKeys = Object.keys(defaultPositions);
+    for (const position of objectKeys) {
+      if (config.positions[position]) {
+        positionElementsArray.push(html`
+          <div class="value">
+            <paper-dropdown-menu
+              label="${position}"
+              @value-changed=${this._valueChanged}
+              .configAttribute=${position}
+              .configObject=${config.positions}
+              .ignoreNull=${true}
+            >
+              <paper-listbox
+                slot="dropdown-content"
+                attr-for-selected="item-name"
+                .selected=${config.positions[position]}
+              >
+                <paper-item item-name="inside">inside</paper-item>
+                <paper-item item-name="outside">outside</paper-item>
+                <paper-item item-name="off">off</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <ha-icon
+              class="ha-icon-large"
+              icon="mdi:close"
+              @click=${this._valueChanged}
+              .value=${''}
+              .configAttribute=${position}
+              .configObject=${config.positions}
+            ></ha-icon>
+          </div>
+        `);
+      } else {
+        positionElementsArray.push(html`
+          <div class="value">
+            <paper-dropdown-menu
+              label="${position}"
+              @value-changed=${this._valueChanged}
+              .configAttribute=${position}
+              .configObject=${config.positions}
+            >
+              <paper-listbox slot="dropdown-content" .selected=${null}>
+                <paper-item>inside</paper-item>
+                <paper-item>outside</paper-item>
+                <paper-item>off</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+          </div>
+        `);
+      }
+    }
+    return positionElementsArray;
+  }
+
+  private _createPositionsElement(index): TemplateResult {
+    if (!this.hass) {
+      return html``;
+    }
+
     let options;
     let config;
-    if (index !== null) {
-      options = this._options.entities.options.entities[index].options.positions;
-      config = this._configArray[index];
-    } else {
+    if (index === null) {
       options = this._options.appearance.options.positions;
       config = this._config;
+    } else {
+      options = this._options.entities.options.entities[index].options.positions;
+      config = this._configArray[index];
     }
-    config.positions = Object.assign(defaultPositions, config.positions);
     return html`
-      <div class="category" id="positions">
-        <div class="sub-category" @click=${this._toggleThing} .options=${options}>
+      <div class="category">
+        <div
+          class="sub-category"
+          @click=${this._toggleThing}
+          .options=${options}
+          .optionsTarget=${this._options.appearance.options}
+        >
           <div class="row">
             <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
             <div class="title">${options.name}</div>
@@ -748,43 +879,36 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         </div>
         ${options.show
           ? html`
-              <div>
-                ${Object.keys(config.positions).map(position => {
-                  return html`
-                    <div class="value">
-                      <paper-dropdown-menu
-                        label="${position}"
-                        @value-changed=${this._valueChanged}
-                        .configValue=${position}
-                        .configObject=${'positions'}
-                      >
-                        <paper-listbox
-                          slot="dropdown-content"
-                          .selected="${positionOptions.indexOf(config.positions[position])}"
-                        >
-                          <paper-item>inside</paper-item>
-                          <paper-item>outside</paper-item>
-                          <paper-item>off</paper-item>
-                        </paper-listbox>
-                      </paper-dropdown-menu>
-                    </div>
-                  `;
-                })}
-              </div>
+              ${this._createPositionsValues(index)}
             `
           : ``}
       </div>
     `;
   }
 
-  private _computeValueElement(): TemplateResult {
+  private _createValueElement(index): TemplateResult {
     if (!this.hass) {
       return html``;
     }
-    const options = this._options.appearance.options.value;
+
+    let options;
+    let config;
+    if (index !== null) {
+      options = this._options.entities.options.entities[index].options.value;
+      config = this._configArray[index];
+    } else {
+      options = this._options.appearance.options.value;
+      config = this._config;
+    }
+
     return html`
       <div class="category" id="value">
-        <div class="sub-category" @click=${this._toggleThing} .options=${options}>
+        <div
+          class="sub-category"
+          @click=${this._toggleThing}
+          .options=${options}
+          .optionsTarget=${this._options.appearance.options}
+        >
           <div class="row">
             <ha-icon .icon=${`mdi:${options.icon}`}></ha-icon>
             <div class="title">${options.name}</div>
@@ -795,12 +919,13 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         ${options.show
           ? html`
               <div class="value">
-                ${this._limit_value
+                ${config.limit_value
                   ? html`
                       <ha-switch
                         checked
-                        .value=${this._limit_value}
-                        .configValue=${'limit_value'}
+                        .configAttribute=${'limit_value'}
+                        .configObject=${config}
+                        .value=${!config.limit_value}
                         @change=${this._valueChanged}
                         >Limit Value</ha-switch
                       >
@@ -808,46 +933,67 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
                   : html`
                       <ha-switch
                         unchecked
-                        .value=${this._limit_value}
-                        .configValue=${'limit_value'}
+                        .configObject=${config}
+                        .configAttribute=${'limit_value'}
+                        .value=${!config.limit_value}
                         @change=${this._valueChanged}
                         >Limit Value</ha-switch
                       >
                     `}
                 <paper-input
+                  class="value-number"
                   label="Decimal"
-                  .value="${this._decimal ? this._decimal : ''}"
+                  type="number"
+                  .value="${config.decimal ? config.decimal : ''}"
                   editable
-                  .configValue=${'decimal'}
+                  .configAttribute=${'decimal'}
+                  .configObject=${config}
                   @value-changed=${this._valueChanged}
                 ></paper-input>
                 <paper-input
+                  class="value-number"
+                  type="number"
                   label="Min"
-                  .value="${this._min ? this._min : ''}"
+                  .value="${config.min ? config.min : ''}"
                   editable
-                  .configValue=${'min'}
+                  .configAttribute=${'min'}
+                  .configObject=${config}
                   @value-changed=${this._valueChanged}
-                  style="margin-right: 8px;"
                 ></paper-input>
                 <paper-input
+                  class="value-number"
+                  type="number"
                   label="Max"
-                  .value="${this._max ? this._max : ''}"
+                  .value="${config.max ? config.max : ''}"
                   editable
-                  .configValue=${'max'}
+                  .configAttribute=${'max'}
+                  .configObject=${config}
                   @value-changed=${this._valueChanged}
                 ></paper-input>
                 <paper-input
+                  class="value-number"
+                  type="number"
                   label="Target"
-                  .value="${this._target ? this._target : ''}"
+                  .value="${config.target ? config.target : ''}"
                   editable
-                  .configValue=${'target'}
+                  .configAttribute=${'target'}
+                  .configObject=${config}
                   @value-changed=${this._valueChanged}
                 ></paper-input>
                 <paper-input
                   label="Unit of Measurement"
-                  .value="${this._unit_of_measurement ? this._unit_of_measurement : ''}"
+                  .value="${config.unit_of_measurement ? config.unit_of_measurement : ''}"
                   editable
-                  .configValue=${'unit_of_measurement'}
+                  .configAttribute=${'unit_of_measurement'}
+                  .configObject=${config}
+                  @value-changed=${this._valueChanged}
+                ></paper-input>
+                <paper-input
+                  label="Attribute"
+                  .value="${config.attribute ? config.attribute : ''}"
+                  editable
+                  .configAttribute=${'attribute'}
+                  .configObject=${config}
                   @value-changed=${this._valueChanged}
                 ></paper-input>
               </div>
@@ -875,7 +1021,36 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
     this._toggle = !this._toggle;
   }
 
-  private _removeFromArray(ev): void {
+  private _addEntity(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    const target = ev.target;
+    let newObject;
+    if (target.configAddObject) {
+      newObject = target.configAddObject;
+    } else {
+      newObject = { [target.configAddValue]: '' };
+    }
+    const newArray = target.configArray.slice();
+    newArray.push(newObject);
+    this._config.entities = newArray;
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _moveEntity(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    const target = ev.target;
+    let newArray = target.configArray.slice();
+    if (target.configDirection == 'up') newArray = arrayMove(newArray, target.index, target.index - 1);
+    else if (target.configDirection == 'down') newArray = arrayMove(newArray, target.index, target.index + 1);
+    this._config.entities = newArray;
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _removeEntity(ev): void {
     if (!this._config || !this.hass) {
       return;
     }
@@ -891,46 +1066,134 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
     const newConfig = { [target.configArray]: entitiesArray };
     this._config = Object.assign(this._config, newConfig);
     fireEvent(this, 'config-changed', { config: this._config });
-    this._toggle = !this._toggle;
-    this._toggle = !this._toggle;
   }
 
-  private _addToArray(ev): void {
+  private _addSeverity(ev): void {
     if (!this._config || !this.hass) {
       return;
     }
     const target = ev.target;
-    const entitiesArray: BarCardConfig[] = [];
-    let index = 0;
-    for (const config of this._configArray) {
-      if (target.configIndex !== index) {
-        entitiesArray.push(config);
-      }
-      index++;
-    }
-    const newEntity: any = { entity: '' };
-    entitiesArray.push(newEntity);
 
-    const newConfig = { [target.configArray]: entitiesArray };
-    this._config = Object.assign(this._config, newConfig);
+    let severityArray;
+    if (target.index === null) {
+      severityArray = this._config.severity;
+    } else {
+      severityArray = this._config.entities[target.index].severity;
+    }
+
+    if (!severityArray) {
+      severityArray = [];
+    }
+
+    const newObject = { from: '', to: '', color: '' };
+    const newArray = severityArray.slice();
+    newArray.push(newObject);
+
+    if (target.index === null) {
+      this._config.severity = newArray;
+    } else {
+      this._configArray[target.index].severity = newArray;
+    }
+    this._config.entities = this._configArray;
     fireEvent(this, 'config-changed', { config: this._config });
-    this._toggle = !this._toggle;
   }
 
-  private _arrayMove(ev): void {
+  private _moveSeverity(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
     const target = ev.target;
-    const entitiesArray: BarCardConfig[] = [];
-    for (const config of this._configArray) {
-      entitiesArray.push(config);
+
+    let severityArray;
+    if (target.index === null) {
+      severityArray = this._config.severity;
+    } else {
+      severityArray = this._config.entities[target.index].severity;
     }
 
-    if (target.configDirection == 'up') arrayMove(entitiesArray, target.configIndex, target.configIndex - 1);
-    else if (target.configDirection == 'down') arrayMove(entitiesArray, target.configIndex, target.configIndex + 1);
+    let newArray = severityArray.slice();
+    if (target.configDirection == 'up') {
+      newArray = arrayMove(newArray, target.severityIndex, target.severityIndex - 1);
+    } else if (target.configDirection == 'down') {
+      newArray = arrayMove(newArray, target.severityIndex, target.severityIndex + 1);
+    }
 
-    const newConfig = { [target.configArray]: entitiesArray };
-    this._config = Object.assign(this._config, newConfig);
+    if (target.index === null) {
+      this._config.severity = newArray;
+    } else {
+      this._configArray[target.index].severity = newArray;
+    }
+    this._config.entities = this._configArray;
     fireEvent(this, 'config-changed', { config: this._config });
-    this._toggle = !this._toggle;
+  }
+
+  private _removeSeverity(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    const target = ev.target;
+
+    let severityArray;
+    if (target.index === null) {
+      severityArray = this._config.severity;
+    } else {
+      severityArray = this._configArray[target.index].severity;
+    }
+
+    const clonedArray = severityArray.slice();
+    const newArray: any = [];
+    let arrayIndex = 0;
+    for (const config of clonedArray) {
+      if (target.severityIndex !== arrayIndex) {
+        newArray.push(clonedArray[arrayIndex]);
+      }
+      arrayIndex++;
+    }
+    if (target.index === null) {
+      if (newArray.length === 0) {
+        delete this._config.severity;
+      } else {
+        this._config.severity = newArray;
+      }
+    } else {
+      if (newArray.length === 0) {
+        delete this._configArray[target.index].severity;
+      } else {
+        this._configArray[target.index].severity = newArray;
+      }
+    }
+    this._config.entities = this._configArray;
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _updateSeverity(ev): void {
+    const target = ev.target;
+
+    let severityArray;
+    if (target.index === null) {
+      severityArray = this._config.severity;
+    } else {
+      severityArray = this._configArray[target.index].severity;
+    }
+    const newSeverityArray: any = [];
+    for (const index in severityArray) {
+      if (target.severityIndex == index) {
+        const clonedObject = { ...severityArray[index] };
+        const newObject = { [target.severityAttribute]: target.value };
+        const mergedObject = Object.assign(clonedObject, newObject);
+        newSeverityArray.push(mergedObject);
+      } else {
+        newSeverityArray.push(severityArray[index]);
+      }
+    }
+
+    if (target.index === null) {
+      this._config.severity = newSeverityArray;
+    } else {
+      this._configArray[target.index].severity = newSeverityArray;
+    }
+    this._config.entities = this._configArray;
+    fireEvent(this, 'config-changed', { config: this._config });
   }
 
   private _valueChanged(ev): void {
@@ -938,75 +1201,24 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
       return;
     }
     const target = ev.target;
-    // if (this[`_${target.configValue}`] === target.value) {
-    //   return;
-    // }
-    if (target.configValue) {
-      if (target.configObject) {
-        switch (typeof target.value) {
-          case 'string':
-            if (target.value === '') {
-              delete this._config[target.configObject][target.configValue];
-            } else {
-              this._config = mergeDeep(this._config, {
-                [target.configObject]: {
-                  [target.configValue]: target.checked !== undefined ? target.checked : target.value,
-                },
-              });
-            }
-            break;
-        }
-      } else if (target.configArray) {
-        switch (typeof target.value) {
-          case 'string':
-            for (const config of this._configArray) {
-              const index = this._configArray.indexOf(config);
-              if (target.configIndex == index) {
-                if (target.value == '') {
-                  delete config[target.configValue];
-                } else {
-                  config[target.configValue] = target.checked !== undefined ? target.checked : target.value;
-                }
-              }
-            }
-            this._config[target.configArray] = this._configArray;
-            break;
-        }
+    if (target.configObject[target.configAttribute] == target.value) {
+      return;
+    }
+
+    if (target.configAdd && target.value !== '') {
+      target.configObject = Object.assign(target.configObject, {
+        [target.configAdd]: { [target.configAttribute]: target.value },
+      });
+    }
+    if (target.configAttribute && target.configObject && !target.configAdd) {
+      if (target.value == '' || target.value === false) {
+        if (target.ignoreNull == true) return;
+        delete target.configObject[target.configAttribute];
       } else {
-        switch (typeof target.value) {
-          case 'string':
-            if (target.value === '') {
-              delete this._config[target.configValue];
-            } else {
-              this._config = {
-                ...this._config,
-                [target.configValue]: target.checked !== undefined ? target.checked : target.value,
-              };
-            }
-            break;
-          case 'boolean':
-            if (this._config[target.configValue] === true) {
-              delete this._config[target.configValue];
-            } else {
-              this._config = {
-                ...this._config,
-                [target.configValue]: target.checked !== undefined ? target.checked : target.value,
-              };
-            }
-            break;
-          case 'number':
-            if (target.value === '' || target.value === false) {
-              delete this._config[target.configValue];
-            } else {
-              this._config = {
-                ...this._config,
-                [target.configValue]: Number(target.checked !== undefined ? target.checked : target.value),
-              };
-            }
-            break;
-        }
+        target.configObject[target.configAttribute] = target.value;
       }
     }
+    this._config.entities = this._configArray;
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
@@ -1017,11 +1229,12 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         cursor: pointer;
       }
       .options {
-        background: #0002;
+        background: var(--primary-background-color);
+        border-radius: var(--ha-card-border-radius);
         cursor: pointer;
+        padding: 8px;
       }
       .sub-category {
-        padding: 4px 0px;
         cursor: pointer;
       }
       .row {
@@ -1041,7 +1254,20 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         pointer-events: none;
       }
       .value {
-        margin-left: 8px;
+        padding: 0px 8px;
+      }
+      .value-container {
+        padding: 0px 8px;
+        transition: all 0.5s ease-in-out;
+      }
+      .value-container:target {
+        height: 50px;
+      }
+      .value-number {
+        width: 100px;
+      }
+      ha-fab {
+        margin: 8px;
       }
       ha-switch {
         padding: 16px 0;
@@ -1049,12 +1275,13 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
       .card-background {
         background: var(--paper-card-background-color);
         border-radius: var(--ha-card-border-radius);
-        padding: 16px;
+        padding: 8px;
       }
       .category {
         background: #0000;
       }
       .ha-icon-large {
+        cursor: pointer;
         margin: 0px 4px;
       }
     `;
