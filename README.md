@@ -180,7 +180,7 @@ entity: sensor.example
 positions:
   icon: 'off'
   indicator: inside
-  title: outside
+  name: outside
 type: 'custom:bar-card'
 width: 70%
 title: 2.0.0 Default Layout
@@ -203,7 +203,7 @@ positions:
   icon: 'off'
   indicator: 'off'
   minmax: inside
-  title: inside
+  name: inside
   value: inside
 style: |-
   bar-card-value {
