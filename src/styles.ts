@@ -14,12 +14,16 @@ export const styles = html`
     #states > * {
       margin: 8px 0px;
     }
+    #states > :last-child {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    #states > :first-child {
+      margin-top: 0px;
+    }
     bar-card-row {
       display: flex;
       justify-content: stretch;
-    }
-    bar-card-row:last-child {
-      margin-bottom: 0px;
     }
     bar-card-row > div {
       flex-basis: 100%;
@@ -76,10 +80,21 @@ export const styles = html`
       opacity: 0.25;
     }
     bar-card-currentbar {
-      background: linear-gradient(to var(--bar-direction), var(--bar-color) var(--bar-percent), #0000 var(--bar-percent), #0000 var(--bar-percent));
+      background: linear-gradient(
+        to var(--bar-direction),
+        var(--bar-color) var(--bar-percent),
+        #0000 var(--bar-percent),
+        #0000 var(--bar-percent)
+      );
     }
     bar-card-targetbar {
-      background: linear-gradient(to var(--bar-direction), #0000 var(--bar-percent), var(--bar-color) var(--bar-percent), var(--bar-color) var(--bar-target-percent), #0000 var(--bar-target-percent));
+      background: linear-gradient(
+        to var(--bar-direction),
+        #0000 var(--bar-percent),
+        var(--bar-color) var(--bar-percent),
+        var(--bar-color) var(--bar-target-percent),
+        #0000 var(--bar-target-percent)
+      );
       display: var(--target-display);
       filter: brightness(0.66);
       opacity: 0.33;

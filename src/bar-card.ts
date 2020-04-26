@@ -436,7 +436,7 @@ export class BarCard extends LitElement {
     const rowArray: TemplateResult[] = [];
     for (const row of perRowArray) {
       rowArray.push(html`
-        <bar-card-row style="flex-direction: ${rowFlexDirection}; margin-bottom: 8px;">${row}</bar-card-row>
+        <bar-card-row style="flex-direction: ${rowFlexDirection};">${row}</bar-card-row>
       `);
     }
     return rowArray;

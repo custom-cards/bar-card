@@ -82,6 +82,7 @@ See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](h
 
 | Name | Description
 | ---- | ----
+| #states | HA states containing all rows.
 | bar-card-card | The root bar of each defined entity containing all elements.
 | bar-card-background | Contains bar and any elements `outside` of the bar.
 | bar-card-backgroundbar | The background of the bar.
