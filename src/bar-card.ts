@@ -83,19 +83,14 @@ export class BarCard extends LitElement {
     }
 
     return html`
-      ${this._config.entity_row
-        ? html`
-            <div id="states" class="card-content" style="padding: 0px;">
-              ${this._createBarArray()}
-            </div>
-          `
-        : html`
-            <ha-card .header=${this._config.title ? this._config.title : null}>
-              <div id="states" class="card-content" style="${this._config.entity_row ? 'padding: 0px;' : ''}">
-                ${this._createBarArray()}
-              </div>
-            </ha-card>
-          `}
+      <ha-card
+        .header=${this._config.title ? this._config.title : null}
+        style="${this._config.entity_row ? 'background: #0000;' : ''}"
+      >
+        <div id="states" class="card-content" style="${this._config.entity_row ? 'padding: 0px;' : ''}">
+          ${this._createBarArray()}
+        </div>
+      </ha-card>
       ${styles}
     `;
   }
@@ -136,6 +131,13 @@ export class BarCard extends LitElement {
           entityState = state.attributes[config.attribute];
         } else {
           entityState = state.state;
+        }
+
+        // Contine if severity hide is defined.
+        if (config.severity) {
+          if (this._computeSeverityVisibility(entityState, index)) {
+            continue;
+          }
         }
 
         // If limit_value is defined limit the displayed value to min and max.
@@ -180,7 +182,9 @@ export class BarCard extends LitElement {
         let iconOutside;
         let iconInside;
         let icon;
-        if (config.icon) {
+        if (this._computeSeverityIcon(entityState, index)) {
+          icon = this._computeSeverityIcon(entityState, index);
+        } else if (config.icon) {
           icon = config.icon;
         } else if (state.attributes.icon) {
           icon = state.attributes.icon;
@@ -353,7 +357,7 @@ export class BarCard extends LitElement {
         // Set bar width if configured.
         let barWidth = '';
         if (config.width) {
-          alignItems = 'center';
+          if (config.direction == 'up') alignItems = 'center';
           barWidth = `width: ${config.width}`;
         }
 
@@ -371,7 +375,10 @@ export class BarCard extends LitElement {
         // Add current bar to row array.
         currentRowArray.push(html`
           <bar-card-card
-            style="flex-direction: ${flexDirection}; align-items: ${alignItems};"
+            style="flex-direction: ${flexDirection}; align-items: ${alignItems}; height: ${barHeight}${typeof barHeight ==
+            'number'
+              ? 'px'
+              : ''};"
             @action=${this._handleAction}
             .config=${config}
             .actionHandler=${actionHandler({
@@ -381,11 +388,7 @@ export class BarCard extends LitElement {
             })}
           >
             ${iconOutside} ${indicatorOutside} ${nameOutside}
-            <bar-card-background
-              style="height: ${barHeight}${typeof barHeight == 'number'
-                ? 'px'
-                : ''}; margin: ${backgroundMargin}; ${barWidth}"
-            >
+            <bar-card-background style="margin: ${backgroundMargin}; ${barWidth}">
               <bar-card-backgroundbar style="--bar-color: ${barColor};"></bar-card-backgroundbar>
               ${config.animation.state == 'on'
                 ? html`
@@ -446,17 +449,16 @@ export class BarCard extends LitElement {
     const config = this._configArray[index];
     let barColor;
     if (config.severity) {
-      barColor = this._computeSeverity(value, index);
+      barColor = this._computeSeverityColor(value, index);
     } else if (value == 'unavailable') {
       barColor = `var(--bar-card-disabled-color, ${config.color})`;
     } else {
       barColor = config.color;
     }
-
     return barColor;
   }
 
-  private _computeSeverity(value: string, index: number): unknown {
+  private _computeSeverityColor(value: string, index: number): unknown {
     const config = this._configArray[index];
     const numberValue = Number(value);
     const sections = config.severity;
@@ -478,6 +480,52 @@ export class BarCard extends LitElement {
 
     if (color == undefined) color = config.color;
     return color;
+  }
+
+  private _computeSeverityVisibility(value: string, index: number): boolean {
+    const config = this._configArray[index];
+    const numberValue = Number(value);
+    const sections = config.severity;
+    let hide = false;
+
+    if (isNaN(numberValue)) {
+      sections.forEach(section => {
+        if (value == section.text) {
+          hide = section.hide;
+        }
+      });
+    } else {
+      sections.forEach(section => {
+        if (numberValue >= section.from && numberValue <= section.to) {
+          hide = section.hide;
+        }
+      });
+    }
+    return hide;
+  }
+
+  private _computeSeverityIcon(value: string, index: number): string | boolean {
+    const config = this._configArray[index];
+    const numberValue = Number(value);
+    const sections = config.severity;
+    let icon = false;
+
+    if (!sections) return false;
+
+    if (isNaN(numberValue)) {
+      sections.forEach(section => {
+        if (value == section.text) {
+          icon = section.icon;
+        }
+      });
+    } else {
+      sections.forEach(section => {
+        if (numberValue >= section.from && numberValue <= section.to) {
+          icon = section.icon;
+        }
+      });
+    }
+    return icon;
   }
 
   private _computePercent(value: string, index: number): number {

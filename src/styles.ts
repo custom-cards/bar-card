@@ -9,10 +9,12 @@ export const styles = html`
       padding: 8px;
     }
     #states {
-      flex: 1 1 0%;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
     }
     #states > * {
-      margin: 8px 0px;
+      margin-bottom: 8px;
     }
     #states > :last-child {
       margin-top: 0px;
@@ -21,12 +23,20 @@ export const styles = html`
     #states > :first-child {
       margin-top: 0px;
     }
+    ha-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
     bar-card-row {
       display: flex;
-      justify-content: stretch;
+      flex-grow: 1;
     }
     bar-card-row > div {
       flex-basis: 100%;
+    }
+    bar-card-row:empty {
+      display: none;
     }
     bar-card-card {
       display: flex;

@@ -298,7 +298,7 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         </div>
         ${options.show
           ? html`
-              <div class="card-background">
+              <div class="card-background" style="max-height: 400px; overflow: auto;">
                 ${this._createEntitiesValues()}
                 <div class="sub-category" style="display: flex; flex-direction: column; align-items: flex-end;">
                   <ha-fab
@@ -604,7 +604,7 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         </div>
         ${options.show
           ? html`
-              <div class="card-background">
+              <div class="card-background" style="overflow: auto; max-height: 420px;">
                 ${arrayLength > 0
                   ? html`
                       ${this._createSeverityValues(index)}
@@ -655,51 +655,87 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
                 @value-changed=${this._updateSeverity}
               ></paper-input>
             </div>
-            <paper-input
-              label="Color"
-              .value="${severity.color ? severity.color : ''}"
-              editable
-              .severityAttribute=${'color'}
+            <div style="display:flex;">
+              <paper-input
+                label="Color"
+                .value="${severity.color ? severity.color : ''}"
+                editable
+                .severityAttribute=${'color'}
+                .index=${index}
+                .severityIndex=${severityIndex}
+                @value-changed=${this._updateSeverity}
+              ></paper-input>
+              <paper-input
+                label="Icon"
+                .value="${severity.icon ? severity.icon : ''}"
+                editable
+                .severityAttribute=${'icon'}
+                .index=${index}
+                .severityIndex=${severityIndex}
+                @value-changed=${this._updateSeverity}
+              ></paper-input>
+            </div>
+            ${severity.hide
+              ? html`
+                  <ha-switch
+                    checked
+                    .severityAttribute=${'hide'}
+                    .index=${index}
+                    .severityIndex=${severityIndex}
+                    .value=${!severity.hide}
+                    @change=${this._updateSeverity}
+                    >Hide</ha-switch
+                  >
+                `
+              : html`
+                  <ha-switch
+                    unchecked
+                    .severityAttribute=${'hide'}
+                    .index=${index}
+                    .severityIndex=${severityIndex}
+                    .value=${!severity.hide}
+                    @change=${this._updateSeverity}
+                    >Hide</ha-switch
+                  >
+                `}
+          </div>
+          <div style="display: flex;">
+            ${severityIndex !== 0
+              ? html`
+                  <ha-icon
+                    class="ha-icon-large"
+                    icon="mdi:arrow-up"
+                    @click=${this._moveSeverity}
+                    .configDirection=${'up'}
+                    .index=${index}
+                    .severityIndex=${severityIndex}
+                  ></ha-icon>
+                `
+              : html`
+                  <ha-icon icon="mdi:arrow-up" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
+                `}
+            ${severityIndex !== config.severity.length - 1
+              ? html`
+                  <ha-icon
+                    class="ha-icon-large"
+                    icon="mdi:arrow-down"
+                    @click=${this._moveSeverity}
+                    .configDirection=${'down'}
+                    .index=${index}
+                    .severityIndex=${severityIndex}
+                  ></ha-icon>
+                `
+              : html`
+                  <ha-icon icon="mdi:arrow-down" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
+                `}
+            <ha-icon
+              class="ha-icon-large"
+              icon="mdi:close"
+              @click=${this._removeSeverity}
               .index=${index}
               .severityIndex=${severityIndex}
-              @value-changed=${this._updateSeverity}
-            ></paper-input>
+            ></ha-icon>
           </div>
-          ${severityIndex !== 0
-            ? html`
-                <ha-icon
-                  class="ha-icon-large"
-                  icon="mdi:arrow-up"
-                  @click=${this._moveSeverity}
-                  .configDirection=${'up'}
-                  .index=${index}
-                  .severityIndex=${severityIndex}
-                ></ha-icon>
-              `
-            : html`
-                <ha-icon icon="mdi:arrow-up" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
-              `}
-          ${severityIndex !== config.severity.length - 1
-            ? html`
-                <ha-icon
-                  class="ha-icon-large"
-                  icon="mdi:arrow-down"
-                  @click=${this._moveSeverity}
-                  .configDirection=${'down'}
-                  .index=${index}
-                  .severityIndex=${severityIndex}
-                ></ha-icon>
-              `
-            : html`
-                <ha-icon icon="mdi:arrow-down" style="opacity: 25%;" class="ha-icon-large"></ha-icon>
-              `}
-          <ha-icon
-            class="ha-icon-large"
-            icon="mdi:close"
-            @click=${this._removeSeverity}
-            .index=${index}
-            .severityIndex=${severityIndex}
-          ></ha-icon>
         </div>
       `);
     }
@@ -1181,6 +1217,9 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         const clonedObject = { ...severityArray[index] };
         const newObject = { [target.severityAttribute]: target.value };
         const mergedObject = Object.assign(clonedObject, newObject);
+        if (target.value == '') {
+          delete mergedObject[target.severityAttribute];
+        }
         newSeverityArray.push(mergedObject);
       } else {
         newSeverityArray.push(severityArray[index]);
@@ -1215,6 +1254,7 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
         if (target.ignoreNull == true) return;
         delete target.configObject[target.configAttribute];
       } else {
+        console.log(target.configObject);
         target.configObject[target.configAttribute] = target.value;
       }
     }
