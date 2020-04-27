@@ -49,7 +49,9 @@
 | ---- | ---- | ------- | -----------
 | from | number | **Required** | Defines from which value the color should be displayed.
 | to | number | **Required** | Defines to which value the color should be displayed.
-| color | array | **Required** | Defines the color to be displayed.
+| color | string | **Required** | Defines the color to be displayed.
+| icon | string | none | Defines the icon to be displayed.
+| hide | boolean | false | Hides the bar if conditions are met.
 
 ## Animation Options
 
