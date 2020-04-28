@@ -99,7 +99,7 @@ See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](h
 | bar-card-value | Value element.
 | bar-card-animationbar | Animated part of the bar.
 | bar-card-targetbar | Target bar element.
-| bar-card-targetmarker | Target marker element.
+| bar-card-markerbar | Target marker element.
 | bar-card-indicator | Indicator element.
 
 ## Installation
