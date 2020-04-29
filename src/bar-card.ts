@@ -85,7 +85,7 @@ export class BarCard extends LitElement {
     return html`
       <ha-card
         .header=${this._config.title ? this._config.title : null}
-        style="${this._config.entity_row ? 'background: #0000;' : ''}"
+        style="${this._config.entity_row ? 'background: #0000; box-shadow: none;' : ''}"
       >
         <div id="states" class="card-content" style="${this._config.entity_row ? 'padding: 0px;' : ''}">
           ${this._createBarArray()}
@@ -357,7 +357,7 @@ export class BarCard extends LitElement {
         // Set bar width if configured.
         let barWidth = '';
         if (config.width) {
-          if (config.direction == 'up') alignItems = 'center';
+          alignItems = 'center';
           barWidth = `width: ${config.width}`;
         }
 
@@ -375,10 +375,7 @@ export class BarCard extends LitElement {
         // Add current bar to row array.
         currentRowArray.push(html`
           <bar-card-card
-            style="flex-direction: ${flexDirection}; align-items: ${alignItems}; height: ${barHeight}${typeof barHeight ==
-            'number'
-              ? 'px'
-              : ''};"
+            style="flex-direction: ${flexDirection}; align-items: ${alignItems};"
             @action=${this._handleAction}
             .config=${config}
             .actionHandler=${actionHandler({
@@ -388,7 +385,11 @@ export class BarCard extends LitElement {
             })}
           >
             ${iconOutside} ${indicatorOutside} ${nameOutside}
-            <bar-card-background style="margin: ${backgroundMargin}; ${barWidth}">
+            <bar-card-background
+              style="margin: ${backgroundMargin}; height: ${barHeight}${typeof barHeight == 'number'
+                ? 'px'
+                : ''}; ${barWidth}"
+            >
               <bar-card-backgroundbar style="--bar-color: ${barColor};"></bar-card-backgroundbar>
               ${config.animation.state == 'on'
                 ? html`

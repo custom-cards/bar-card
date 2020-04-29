@@ -13,9 +13,9 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
   private _entityOptionsArray: object[] = [];
   private _options: any;
 
-  // protected shouldUpdate(changedProps: PropertyValues): boolean {
-  //   return hasConfigOrEntitiesChanged(this, changedProps, false);
-  // }
+  protected shouldUpdate(changedProps: PropertyValues): boolean {
+    return hasConfigOrEntitiesChanged(this, changedProps, false);
+  }
 
   public setConfig(config: BarCardConfig): void {
     this._config = { ...config };
@@ -204,7 +204,7 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
             ></ha-icon>
           </div>
           <div class="value" style="flex-grow: 1;">
-            <paper-dropdown-menu
+            <!-- <paper-dropdown-menu
               label="Entity"
               @value-changed=${this._valueChanged}
               .configAttribute=${'entity'}
@@ -218,12 +218,20 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
                 fallback-selection="0"
               >
                 ${entities.map(entity => {
-                  return html`
-                    <paper-item>${entity}</paper-item>
-                  `;
-                })}
+              return html`
+                <paper-item>${entity}</paper-item>
+              `;
+            })}
               </paper-listbox>
-            </paper-dropdown-menu>
+            </paper-dropdown-menu> -->
+            <paper-input
+              label="Entity"
+              @value-changed=${this._valueChanged}
+              .configAttribute=${'entity'}
+              .configObject=${this._configArray[index]}
+              .value=${config.entity}
+            >
+            </paper-input>
           </div>
           ${index !== 0
             ? html`
