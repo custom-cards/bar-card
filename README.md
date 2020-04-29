@@ -92,14 +92,14 @@ See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](h
 | bar-card-contentbar | Contains all elements `inside` of the bar.
 | ha-icon | Icon element.
 | bar-card-iconbar | Contains ha-icon.
-| bar-card-title | Title element.
+| bar-card-name | Name element.
 | bar-card-min | Min value element.
 | bar-card-divider | Min/Max divider element.
 | bar-card-max | Max value element.
 | bar-card-value | Value element.
 | bar-card-animationbar | Animated part of the bar.
 | bar-card-targetbar | Target bar element.
-| bar-card-targetmarker | Target marker element.
+| bar-card-markerbar | Target marker element.
 | bar-card-indicator | Indicator element.
 
 ## Installation
