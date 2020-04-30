@@ -200,42 +200,39 @@ style: |-
 ![Custom CSS](https://github.com/custom-cards/bar-card/blob/master/images/customcss.gif?raw=true)
 
 ```yaml
-entity: sensor.example
+entities:
+  - entity: sensor.example
 positions:
   icon: 'off'
   indicator: 'off'
   minmax: inside
-  name: inside
+  title: inside
   value: inside
 style: |-
-  bar-card-value {
-    margin-right: auto;
-    margin-left: auto;
-    margin-bottom: auto;
-    margin-top: 0px;
+  .contentbar-direction-right {
+   flex-direction: column;
   }
-  bar-card-minvalue {
-    margin-top: 0px;
-    margin-left: 8px;
+  .min-direction-right {
+    margin: 0px;
+    margin-left: 4px;
     margin-right: auto;
-    margin-bottom: -13px;
-    bottom: 8px;
+    margin-bottom: -20px;
+    bottom: 10px;
   }
-  bar-card-maxvalue {
-    margin-bottom: 0px;
-    margin-right: 8px;
+    bar-card-value {
+    margin: 0px;
+  }
+  bar-card-name {
+    margin: 0px;
+  }
+  bar-card-max {
+    margin: 0px;
     margin-left: auto;
-    margin-top: -13px;
-    top: 6px;
+    margin-top: -20px;
+    top: 10px;
   }
   bar-card-divider {
     display: none;
-  }
-  bar-card-contentbar {
-    flex-direction: column;
-  }
-  bar-card-title {
-    margin-bottom: 0px;
   }
 title: Custom CSS Layout
 type: 'custom:bar-card'

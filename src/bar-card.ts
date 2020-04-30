@@ -2,7 +2,6 @@ import { LitElement, html, customElement, property, TemplateResult, PropertyValu
 import {
   HomeAssistant,
   hasAction,
-  ActionHandlerEvent,
   handleAction,
   LovelaceCardEditor,
   domainIcon,
@@ -41,6 +40,7 @@ export class BarCard extends LitElement {
   @property() private _configArray: BarCardConfig[] = [];
   private _stateArray: any[] = [];
   private _animationState: any[] = [];
+  private _rowAmount = 1;
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return hasConfigOrEntitiesChanged(this, changedProps, false);
@@ -73,8 +73,9 @@ export class BarCard extends LitElement {
       config,
     );
 
-    if (this._config.stack) this._config.columns = this._config.entities.length;
+    if (this._config.stack == 'horizontal') this._config.columns = this._config.entities.length;
     this._configArray = createConfigArray(this._config);
+    this._rowAmount = this._configArray.length / this._config.columns;
   }
 
   protected render(): TemplateResult | void {
@@ -550,6 +551,16 @@ export class BarCard extends LitElement {
   private _handleAction(ev): void {
     if (this.hass && ev.target.config && ev.detail.action) {
       handleAction(this, this.hass, ev.target.config, ev.detail.action);
+    }
+  }
+
+  getCardSize(): number {
+    if (this._config.height) {
+      const heightString = this._config.height.toString();
+      const cardSize = Math.trunc((Number(heightString.replace('px', '')) / 50) * this._rowAmount);
+      return cardSize + 1;
+    } else {
+      return this._rowAmount + 1;
     }
   }
 }
