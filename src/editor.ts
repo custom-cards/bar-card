@@ -9,12 +9,12 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
   @property() public hass?: HomeAssistant;
   @property() private _config;
   @property() private _toggle?: boolean;
-  @property() private _configArray: any[] = [];
+  private _configArray: any[] = [];
   private _entityOptionsArray: object[] = [];
   private _options: any;
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntitiesChanged(this, changedProps, false);
+    return hasConfigOrEntitiesChanged(this, changedProps, true);
   }
 
   public setConfig(config: BarCardConfig): void {
