@@ -88,7 +88,13 @@ export class BarCard extends LitElement {
         .header=${this._config.title ? this._config.title : null}
         style="${this._config.entity_row ? 'background: #0000; box-shadow: none;' : ''}"
       >
-        <div id="states" class="card-content" style="${this._config.entity_row ? 'padding: 0px;' : ''}">
+        <div
+          id="states"
+          class="card-content"
+          style="${this._config.entity_row ? 'padding: 0px;' : ''} ${this._config.direction == 'up'
+            ? ''
+            : 'flex-grow: 0;'}"
+        >
           ${this._createBarArray()}
         </div>
       </ha-card>
