@@ -108,6 +108,11 @@ Prefered method of installation is [Home Assistant Community Store](https://gith
 
 It's **required** to load this card as `module`.
 
+```yaml
+- url: /hacsfiles/bar-card/bar-card.js
+  type: module
+```
+
 ## Examples
 
 ### Default
