@@ -106,6 +106,8 @@ See [example](#200-default-layout-requires-card-mod). (**requires** [card-mod](h
 
 Prefered method of installation is [Home Assistant Community Store](https://github.com/hacs/integration).
 
+It's **required** to load this card as `module`.
+
 ## Examples
 
 ### Default

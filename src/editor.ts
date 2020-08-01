@@ -204,26 +204,6 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
             ></ha-icon>
           </div>
           <div class="value" style="flex-grow: 1;">
-            <!-- <paper-dropdown-menu
-              label="Entity"
-              @value-changed=${this._valueChanged}
-              .configAttribute=${'entity'}
-              .configObject=${this._configArray[index]}
-              .ignoreNull=${true}
-              style="width: 100%;"
-            >
-              <paper-listbox
-                slot="dropdown-content"
-                .selected=${entities.indexOf(config.entity)}
-                fallback-selection="0"
-              >
-                ${entities.map(entity => {
-              return html`
-                <paper-item>${entity}</paper-item>
-              `;
-            })}
-              </paper-listbox>
-            </paper-dropdown-menu> -->
             <paper-input
               label="Entity"
               @value-changed=${this._valueChanged}
@@ -354,17 +334,6 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
             : ''
         }
       </div>`;
-  }
-
-  private _createEditorElement(): TemplateResult {
-    return html`
-      <ha-code-editor
-        mode="yaml"
-        autofocus=""
-        _value=${`test: who`}
-        @value-changed=${this._valueChanged}
-      ></ha-code-editor>
-    `;
   }
 
   private _createBarElement(index): TemplateResult {

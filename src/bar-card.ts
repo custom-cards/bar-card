@@ -387,8 +387,7 @@ export class BarCard extends LitElement {
             .config=${config}
             .actionHandler=${actionHandler({
               hasHold: hasAction(config.hold_action),
-              hasDoubleTap: hasAction(config.double_tap_action),
-              repeat: config.hold_action ? config.hold_action.repeat : undefined,
+              hasDoubleClick: hasAction(config.double_tap_action),
             })}
           >
             ${iconOutside} ${indicatorOutside} ${nameOutside}
