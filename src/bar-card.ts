@@ -288,7 +288,7 @@ export class BarCard extends LitElement {
           case 'outside':
             valueOutside = html`
               <bar-card-value class="${config.direction == 'up' ? 'value-direction-up' : 'value-direction-right'}"
-                >${config.complementary ? config.max - config.min - entityState : entityState} ${unitOfMeasurement}</bar-card-value
+                >${config.complementary ? config.max - entityState : entityState} ${unitOfMeasurement}</bar-card-value
               >
             `;
             break;
@@ -300,7 +300,7 @@ export class BarCard extends LitElement {
                   : config.direction == 'up'
                   ? 'value-direction-up'
                   : 'value-direction-right'}"
-                >${config.complementary ? config.max - config.min - entityState : entityState} ${unitOfMeasurement}</bar-card-value
+                >${config.complementary ? config.max - entityState : entityState} ${unitOfMeasurement}</bar-card-value
               >
             `;
             break;

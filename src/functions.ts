@@ -819,7 +819,7 @@
       // Update value.
       if (config.positions.value !== 'off')
         if (config.complementary)
-          root.getElementById('value_' + id).textContent = `${configMax - configMin - entityState} ${measurement}`;
+          root.getElementById('value_' + id).textContent = `${configMax - entityState} ${measurement}`;
         else root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
 
       // Update bar.
