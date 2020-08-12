@@ -6,6 +6,7 @@ export interface BarCardConfig {
   attribute: any;
   color: string;
   columns: number;
+  complementary: boolean;
   decimal: any;
   direction: string;
   double_tap_action?: ActionConfig;

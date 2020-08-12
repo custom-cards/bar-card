@@ -818,7 +818,9 @@
 
       // Update value.
       if (config.positions.value !== 'off')
-        root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
+        if (config.complementary)
+          root.getElementById('value_' + id).textContent = `${configMax - entityState} ${measurement}`;
+        else root.getElementById('value_' + id).textContent = `${entityState} ${measurement}`;
 
       // Update bar.
       root.getElementById('bar_' + id).style.setProperty('--bar-color', barColor);

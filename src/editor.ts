@@ -953,6 +953,27 @@ export class BarCardEditor extends LitElement implements LovelaceCardEditor {
                         >Limit Value</ha-switch
                       >
                     `}
+                ${config.complementary
+                  ? html`
+                      <ha-switch
+                        checked
+                        .configAttribute=${'complementary'}
+                        .configObject=${config}
+                        .value=${!config.complementary}
+                        @change=${this._valueChanged}
+                        >Complementary</ha-switch
+                      >
+                    `
+                  : html`
+                      <ha-switch
+                        unchecked
+                        .configObject=${config}
+                        .configAttribute=${'complementary'}
+                        .value=${!config.complementary}
+                        @change=${this._valueChanged}
+                        >Complementary</ha-switch
+                      >
+                    `}
                 <paper-input
                   class="value-number"
                   label="Decimal"
