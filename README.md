@@ -1,3 +1,5 @@
+![Project Maintenance](https://img.shields.io/maintenance/no/2020)
+
 # bar-card
 
 ## [Examples](#examples-1)
