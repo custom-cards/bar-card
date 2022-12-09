@@ -203,6 +203,9 @@ style: |-
     font-weight: bold;
     text-shadow: 1px 1px #0005;
   }
+  bar-card-currentbar, bar-card-backgroundbar {
+    border-radius: 4px;
+  }
 ```
 
 ### Custom CSS Layout (**requires** [card-mod](https://github.com/thomasloven/lovelace-card-mod))
