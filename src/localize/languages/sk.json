@@ -1,0 +1,8 @@
+{
+  "common": {
+    "version": "Verzia",
+    "invalid_configuration": "Neplatná konfigurácia",
+    "show_warning": "Zobraziť upozornenie",
+    "entity_not_available": "Entita nie je k dispozícii"
+  }
+}
